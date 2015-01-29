@@ -369,7 +369,6 @@ int main(int argc, char *argv[])
 					else
 						break;
 				}
-				printf("move %c%c%c%c\n",step.first.x+'A',step.first.y+'A',step.second.x+'A',step.second.y+'A');
 			}
 			else
 			{
@@ -410,7 +409,11 @@ int main(int argc, char *argv[])
 		{
 			printf("name sixgo\n");
 		}
-		else if(strcmp(message,"stop")==0)
+		else if (strcmp(message, "end") == 0)
+		{
+			start = 0;
+		}
+		else if (strcmp(message, "stop") == 0)
 		{
 			printf("End!\n");
 			exit(0);
