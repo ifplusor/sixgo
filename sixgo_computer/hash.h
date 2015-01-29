@@ -1,14 +1,14 @@
 #ifndef SIXGO_H_HASH
 #define SIXGO_H_HASH
 
-#define MAXSIZE 1048576
+#define MAXSIZE 0x100000
 
 #include "connect_six.h"
 #include <time.h>
 
 typedef struct _BoardCode
 {
-	unsigned long a[23];
+	unsigned long a[23];//比特棋盘，用双方棋子位置标识
 	long hash32;
 }BoardCode;
 
