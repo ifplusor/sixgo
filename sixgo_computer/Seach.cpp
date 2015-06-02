@@ -2,7 +2,7 @@
 
 //int LineTypeValue[WIN+1]={0, 0, 0,0,0,1, 3,4,5,9, 8,12,15,16,20,31,33, 39,45,47,54,89,100,1000, 37,76,1000, 10000 };//ÏßĞÍ¼ÛÖµ±í
 int LineTypeValue[WIN+1]={0, 0, 1,1,1,3, 5,6,8,11, 15,18,20,24,28,31,39, 75,90,110,115,186,236,1000, 94,196,1000, 10000 };//ÏßĞÍ¼ÛÖµ±í
-int LineTypeThreat[WIN+1]={0, 0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0,0,0, 1,1,1,1,10,10,100, 1,10,100, 1000 };//ÏßĞÍÍşĞ²ÀàĞÍ±í
+int LineTypeThreat[WIN+1]={0, 0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0,0,0, 1,1,1,1,10,10,100, 1,10,100, 1000 };//ÏßĞÍÍşĞ²ÀàĞÍ±í£º1µ¥ÍşĞ²¡¢10Ë«ÍşĞ²¡¢100ÈıÍşĞ²¡¢1000ÒÑÊ¤
 int LineTypeType[WIN+1]={0, 0, 0,0,0,0, 0,0,0,1, 10,10,11,11,10,100,100, 1000,1100,1100,1000,2000,2000,3000, 1000,2000,3000, 10000 };//ÏßĞÍÀàĞÍ±í
 //ÎŞ¼ÛÖµ£¬|0Ç±Ç±Ë«Ç±Á¦£¬1Ç±µ¥Ç±Á¦£¬2Ç±ÈõË«Ç±Á¦£¬3Ç±Ë«Ç±Á¦£¬4Ç±¶àÇ±Á¦£¬5µ¥Ç±Á¦£¬
 //         6ÈõË«Ç±Á¦£¬7Ë«Ç±Á¦£¬8¶àÇ±Á¦£¬9µ¥ÍşĞ²£¬10ÈõË«ÍşĞ²£¬11Ë«ÍşĞ²|£¬¶àÍşĞ²£¬ÒÑÊ¤
@@ -12,22 +12,28 @@ int LineTypeType[WIN+1]={0, 0, 0,0,0,0, 0,0,0,1, 10,10,11,11,10,100,100, 1000,11
 //             Ç±µ¥Ç±Á¦5->µ¥Ç±Á¦15->µ¥ÍşĞ²75->ÒÑÊ¤
 
 int virtualBoard[edge][edge];//ĞéÄâÆåÅÌ
+BoardCode boardCode;//ÆåÅÌ±àÂë
 LineInfo lineInfo[2][92];//ÏßµÄĞÅÏ¢±í
-int SearchDepth=DEPTH,MaxDepth=MAXDEPTH;
-BoardCode boardCode;
 
+int SearchDepth = DEPTH;//¹æ¶¨ËÑË÷Éî¶È
+int MaxDepth = MAXDEPTH;//×î´óËÑË÷Éî¶È
 
+/**
+ * addHash - ²åÈëÖÃ»»±í
+ * @data:	´ı²åÈëÊı¾İ
+ */
 inline void addHash(HashInfo &data)
 {
-	long hash=hashCode(data.code);
-	if(data.index>hashList[hash].index||data.depth<hashList[hash].depth)//Ê±¼ä´ÁĞÂÇÒËÑË÷Éî¶ÈĞ¡µÄ±íÏî¸²¸Ç¾É±íÏî
+	unsigned long hash=hashCode(data.code);//Ö±½ÓµØÖ·Ó³Éä
+	if(data.index>hashList[hash].index||data.depth<hashList[hash].depth)//Ê±¼ä´Á½ÏĞÂÇÒËÑË÷Éî¶ÈÇ³µÄ±íÏî¸²¸Ç¾É±íÏî
 		hashList[hash]=data;
 }
 
-/**	sixgo_carry - Áù×ÓÆå²©ŞÄÒıÇæºËĞÄ£¬ÒıÇæ¹¤×÷Èë¿Ú
- *	@return£º	·µ»ØÒıÇæ¼ÆËãµÃ³öµÄ×Å·¨
- *	@moveStep:	¶ÔÊÖĞĞÆå×Å·¨
- *	@side:		ÆåÊÖÖ´ÆåÑÕÉ«
+/**
+ * sixgo_carry - Áù×ÓÆå²©ŞÄÒıÇæºËĞÄ£¬ÒıÇæ¹¤×÷Èë¿Ú
+ * @return£º	·µ»ØÒıÇæ¼ÆËãµÃ³öµÄ×Å·¨
+ * @moveStep:	¶ÔÊÖĞĞÆå×Å·¨
+ * @side:		ÆåÊÖÖ´ÆåÑÕÉ«
  */
 Step sixgo_carry(Step moveStep,BYTE side)
 {
@@ -49,10 +55,11 @@ Step sixgo_carry(Step moveStep,BYTE side)
 	return SeachValuableStep(side);
 }
 
-/**	SeachValuavleStep - ËÑË÷×î¼ÑÕĞ·¨£¬ËÑË÷ÒıÇæÈë¿Ú
- *	@return:		·µ»ØÒıÇæ¾ö²ßµÄ×î¼Ñ×Å·¨
- *	@side:			ÆåÊÖÖ´ÆåÑÕÉ«
- *	@seachDepth:	ËÑË÷ÒıÇæ¶Ô²©ŞÄÊ÷½øĞĞÕ¹¿ªÉî¶È
+/**
+ * SeachValuavleStep - ËÑË÷×î¼ÑÕĞ·¨£¬ËÑË÷ÒıÇæÈë¿Ú
+ * @return:		·µ»ØÒıÇæ¾ö²ßµÄ×î¼Ñ×Å·¨
+ * @side:			ÆåÊÖÖ´ÆåÑÕÉ«
+ * @seachDepth:	ËÑË÷ÒıÇæ¶Ô²©ŞÄÊ÷½øĞĞÕ¹¿ªÉî¶È
  */
 Step SeachValuableStep(BYTE side)
 {
@@ -62,25 +69,20 @@ Step SeachValuableStep(BYTE side)
 	vector<Step> stepList;
 	vector<Step>::iterator iterS;
 	int value=-WINLOSE,val,unside=1-side;
+	HashInfo *hashP;
 
 	//ÏòÀúÊ·¹şÏ£±íÖĞ²éÕÒ
-	long hash=hashCode(boardCode);
-	bool haveHis=compareCode(hashList[hash].code,boardCode);
-	if(haveHis==true && hashList[hash].full==true)//Èç¹û´æÔÚÀúÊ·,ÇÒ¾ßÓĞÍêÕû×Å·¨ÁĞ±í£¬ÔòÖ±½Óµ÷ÓÃÀúÊ·×ß·¨±í
+	hashP = findHash(boardCode, 0);
+	if (hashP != NULL && hashP->full == true)//Èç¹û´æÔÚÀúÊ·,ÇÒ¾ßÓĞÍêÕû×Å·¨ÁĞ±í£¬ÔòÖ±½Óµ÷ÓÃÀúÊ·×ß·¨±í
 	{
-		if(hashList[hash].cut==false)//cut×Ö¶ÎÎªfalse£¬Ö¤Ã÷stepListÖĞÃ¿Ò»ÏîµÄvalueÆÀ¼Û±ê×¼Ò»ÖÂ¡£´ËÊ±¿ÉÒÔ¶ÔstepListÖĞµÄ×Å·¨½øĞĞÖØĞÂÅÅĞò£¬ÒÔÌá¸ß¼ôÖ¦Ğ§ÂÊ
-			sort(hashList[hash].stepList.begin(),hashList[hash].stepList.end(),cmpStepValue);
-		stepList=hashList[hash].stepList;
+		if (hashP->cut == false)//cut×Ö¶ÎÎªfalse£¬Ö¤Ã÷stepListÖĞÃ¿Ò»ÏîµÄvalueÆÀ¼Û±ê×¼Ò»ÖÂ¡£´ËÊ±¿ÉÒÔ¶ÔstepListÖĞµÄ×Å·¨½øĞĞÖØĞÂÅÅĞò£¬ÒÔÌá¸ß¼ôÖ¦Ğ§ÂÊ
+			sort(hashP->stepList.begin(), hashP->stepList.end(), cmpStepValue);
+		stepList = hashP->stepList;
 	}
 	else
 	{
-		if(HandNum<=6)
-			SearchDepth=6;//¹æ¶¨³õÊ¼ËÑË÷Éî¶È
-		else
-			SearchDepth=5;//¹æ¶¨³õÊ¼ËÑË÷Éî¶È
-		MaxDepth=15;
 		myType=GetBoardType(side);
-		denType=GetBoardType(1-side);
+		denType=GetBoardType(unside);
 		if(myType>0)//Èô±¾·½ÄÜ¶Ô¶Ô·½¹¹³ÉÍşĞ²£¬ÕâÊÇ¿ÉÊ¤¾ÖÃæ£¬Éú³É±ØÊ¤²½£¨µã£©
 			stepList=MakeStepListForWin(side,20);
 		else if(denType==1)//ÊÜµ½µ¥ÍşĞ²
@@ -93,6 +95,7 @@ Step SeachValuableStep(BYTE side)
 	if(stepList.size()==0)
 	{
 		printf("The engine don't create step,so the engine give up!\n");
+		return step;
 	}
 	else if(stepList.size()==1)
 	{
@@ -135,33 +138,37 @@ Step SeachValuableStep(BYTE side)
 	return step;
 }
 
-/**	nega-alpha-beta - ¸º¼«´óÖµËÑË÷£¬Í¨¹ıalpha-beta¼ôÖ¦½øĞĞÓÅ»¯¡£alpha-beta¼ôÖ¦ÊÇÒ»¸öËõĞ¡´°¿ÚµÄ¹ı³Ì£¬±»¼ôÖ¦µÄ×´Ì¬±ØÊÇÆäÖµ³¬³ö´°¿Ú·¶Î§
- *	@return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
- *	@side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
- *	@alpha:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÏÂÏŞ
- *	@beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
- *	@depth:		µ±Ç°ËÑË÷Éî¶È
+/**	
+ * nega-alpha-beta - ¸º¼«´óÖµËÑË÷£¬Í¨¹ıalpha-beta¼ôÖ¦½øĞĞÓÅ»¯¡£alpha-beta¼ôÖ¦ÊÇÒ»¸öËõĞ¡´°¿ÚµÄ¹ı³Ì£¬±»¼ôÖ¦µÄ×´Ì¬±ØÊÇÆäÖµ³¬³ö´°¿Ú·¶Î§
+ * @return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
+ * @side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
+ * @alpha:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÏÂÏŞ
+ * @beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
+ * @depth:		µ±Ç°ËÑË÷Éî¶È
  */
 int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 {
 	int unside=1-side;
 	LineInfo tempLine[2][4],tempLine2[2][4];
 	vector<Step>::iterator iterS;
-	HashInfo hashP;
-	long hash=hashCode(boardCode);
+	HashInfo *hashT,hashP;//¹şÏ£½Úµã
+	unsigned long hash=hashCode(boardCode);
 
-	if(compareCode(hashList[hash].code,boardCode))//Èç¹û´æÔÚÀúÊ·£¬ÓÅÏÈÖ±½Óµ÷ÓÃÀúÊ·
-		hashP=hashList[hash];//ÌáÈ¡ÀúÊ·
+	hashT = findHash(boardCode, 0);//ÌáÈ¡ÀúÊ·
+	if (hashT != NULL)//Èç¹û´æÔÚÀúÊ·£¬ÓÅÏÈÖ±½Óµ÷ÓÃÀúÊ·
+	{
+		hashP = *hashT;
+	}
 	else//²»´æÔÚÀúÊ·Ôò·ÖÅä±íÏî²¢²åÈë¹şÏ£±í
 	{
 		hashP.code=boardCode;//¸³Öµ±íÏîÎ¨Ò»±êÊ¶
 		hashP.cut=true;//³õÊ¼»¯Îªtrue£¬±íÃ÷¾­¹ı¼ôÖ¦
 		hashP.full=false;//³õÊ¼»¯Îªfalse£¬±íÃ÷²»¾ßÓĞÍêÕû×Å·¨ÁĞ±í
-		hashP.myType=GetBoardType(side);
-		hashP.denType=GetBoardType(unside);
+		hashP.myType=GetBoardType(side);//»ñÈ¡±¾·½ÍşĞ²ÀàĞÍ
+		hashP.denType=GetBoardType(unside);//»ñÈ¡·´·½ÍşĞ²ÀàĞÍ
 	}
 	hashP.index=HandNum;//¸üĞÂ¹şÏ£±íÏîÊ±¼ä´Á
-	hashP.depth=depth;
+	hashP.depth=depth;//¸üĞÂËÑË÷Éî¶È
 
 	//µİ¹é³ö¿Ú
 	if(hashP.denType>=1000)//¶Ô·½ÒÑÊ¤
@@ -179,7 +186,11 @@ int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 
 	if(depth>=SearchDepth)//ËÑË÷µ½×î´óÉî¶È
 	{
-		if(HandNum<=6)
+		//´ïµ½×î´óËÑË÷Éî¶ÈÖ±½Ó·µ»Ø£¬²»½øĞĞÀ©Õ¹ËÑË÷
+		hashP.value = GetBoardValue(side) - GetBoardValue(unside);
+		addHash(hashP);
+		return hashP.value;
+/*		if(HandNum<=6)
 		{
 			hashP.value=GetBoardValue(side)-GetBoardValue(unside);
 			addHash(hashP);
@@ -192,7 +203,7 @@ int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 				hashP.value=(hashP.value*2+(GetBoardValue(side)-GetBoardValue(unside))*8)/10;
 			addHash(hashP);
 			return hashP.value;
-		}
+		}*/
 	}
 	else
 	{
@@ -239,7 +250,7 @@ int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 
 	for(iterS=hashP.stepList.begin();iterS!=hashP.stepList.end();iterS++)
 	{
-		moveCodeS(boardCode,*iterS,side);
+		moveCodeS(boardCode,*iterS,side);//×ß×Ó
 		hash=hashCode(boardCode);
 		if(compareCode(hashList[hash].code,boardCode)&&hashList[hash].index==HandNum)//Èç¹û´æÔÚÀúÊ·£¬ÇÒÊ±¼ä´ÁÓëµ±Ç°Ò»ÖÂ£¨±ØÊÇ³£¹æËÑË÷£©£¬ÔòÖ±½Ó·µ»Ø±íÖĞ±£´æµÄÖµ
 		{
@@ -256,11 +267,11 @@ int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 			BackMove(iterS->second,tempLine2,side);
 			BackMove(iterS->first,tempLine,side);
 		}
-		moveCodeS(boardCode,*iterS,side);
+		moveCodeS(boardCode,*iterS,side);//»Ö¸´
 		if(alpha<iterS->value)
 		{
 			alpha=iterS->value;
-			if(beta<=alpha)
+			if(beta<=alpha)//max²ãÓÃbeta¼ôÖ¦
 			{
 				hashP.value=beta;
 				addHash(hashP);
@@ -274,12 +285,13 @@ int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
 	return alpha;
 }
 
-/**	ExtendSeach - À©Õ¹¸º¼«´óÖµËÑË÷£¬Í¨¹ıDTSS½øĞĞÓÅ»¯£¬»òÊ¹¾ÖÃæµ½´ïÒ»¸öÆ½ÎÈ×´Ì¬ÔÙĞĞ¹ÀÖµ
- *	@return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
- *	@side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
- *	@alpha:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÏÂÏŞ
- *	@beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
- *	@depth:		µ±Ç°ËÑË÷Éî¶È
+/**	
+ * ExtendSeach - À©Õ¹¸º¼«´óÖµËÑË÷£¬Í¨¹ıDTSS½øĞĞÓÅ»¯£¬»òÊ¹¾ÖÃæµ½´ïÒ»¸öÆ½ÎÈ×´Ì¬ÔÙĞĞ¹ÀÖµ
+ * @return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
+ * @side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
+ * @alpha:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÏÂÏŞ
+ * @beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
+ * @depth:		µ±Ç°ËÑË÷Éî¶È
  */
 int ExtendSeach(BYTE side,int alpha,int beta,const int depth)
 {
@@ -336,8 +348,9 @@ int ExtendSeach(BYTE side,int alpha,int beta,const int depth)
 	return alpha;
 }
 
-/**	initialAllLine - ³õÊ¼»¯±£´æ¶ÔŞÄË«·½92ÌõÏßĞÅÏ¢µÄlineInfo[2][92]Êı×é
- *	@return:	ÎŞ·µ»ØÖµ
+/**	
+ * initialAllLine - ³õÊ¼»¯±£´æ¶ÔŞÄË«·½92ÌõÏßĞÅÏ¢µÄlineInfo[2][92]Êı×é
+ * @return:	ÎŞ·µ»ØÖµ
  */
 void initialAllLine()
 {
@@ -347,9 +360,10 @@ void initialAllLine()
 			initialLine(&lineInfo[i][j]);
 }
 
-/**	UpdataBoard - Í¨¹ıÕĞ·¨¾Ö²¿¸üĞÂÆå¾ÖĞÅÏ¢£¬¼´ÏßµÄĞÅÏ¢
- *	@return:	ÎŞ·µ»ØÖµ
- *	@step:		ĞĞÆå×Å·¨
+/**
+ * UpdataBoard - Í¨¹ıÕĞ·¨¾Ö²¿¸üĞÂÆå¾ÖĞÅÏ¢£¬¼´ÏßµÄĞÅÏ¢
+ * @return:	ÎŞ·µ»ØÖµ
+ * @step:		ĞĞÆå×Å·¨
  */
 void UpdataBoard(Step step)
 {
@@ -359,10 +373,11 @@ void UpdataBoard(Step step)
 	UpdateLineForCross(step.second,WHITE);
 }
 
-/**	UpdateLineForCross - Í¨¹ıµã¸üĞÂÏßµÄĞÅÏ¢
- *	@return:	ÎŞ·µ»ØÖµ
- *	@point:		Âä×Óµã
- *	@side:		µãËùÊô·½µÄÖ´ÆåÑÕÉ«
+/**
+ * UpdateLineForCross - Í¨¹ıµã¸üĞÂÏßµÄĞÅÏ¢
+ * @return:	ÎŞ·µ»ØÖµ
+ * @point:		Âä×Óµã
+ * @side:		µãËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
 void UpdateLineForCross(Point point,BYTE side,int tag)
 {
@@ -397,11 +412,12 @@ void UpdateLineForCross(Point point,BYTE side,int tag)
 	}
 }
 
-/**	AnalyzeLine - Í¨¹ıÏßµÄÆğÊ¼µãºÍ·½Ïò·ÖÎöÏß
- *	@return:	·µ»ØÏßĞÅÏ¢
- *	@start:		ÏßµÄÆğÊ¼µã¾ø¶Ô×ø±ê
- *	@lineDirec:	ÏßµÄ·½Ïò±êÖ¾
- *	@side:		·ÖÎöµÄÏßĞÅÏ¢ËùÊô·½Ö´ÆåÑÕÉ«
+/**
+ * AnalyzeLine - Í¨¹ıÏßµÄÆğÊ¼µãºÍ·½Ïò·ÖÎöÏß
+ * @return:	·µ»ØÏßĞÅÏ¢
+ * @start:		ÏßµÄÆğÊ¼µã¾ø¶Ô×ø±ê
+ * @lineDirec:	ÏßµÄ·½Ïò±êÖ¾
+ * @side:		·ÖÎöµÄÏßĞÅÏ¢ËùÊô·½Ö´ÆåÑÕÉ«
  */
 LineInfo AnalyzeLine(Point start,BYTE lineDirec,BYTE side,int tag)
 {
@@ -536,11 +552,12 @@ LineInfo AnalyzeLine(Point start,BYTE lineDirec,BYTE side,int tag)
 	return lineInfo_2;
 }
 
-/**	ValueType - ·ÖÎöÖ¸¶¨ÏßĞÍ
- *	@return:	·µ»ØÏßĞÅÏ¢£¬°üÀ¨£ºÏßĞÎÍşĞ²ÀàĞÍ¡¢¹ÀÖµ£¬·ÀÓù²½¡¢·ÀÓùµã¡¢ÍşĞ²µã¡¢Ç±Á¦µã¡¢Ç±Ç±Á¦µãµÄ¾ø¶Ô×ø±ê¡£
- *	@style£º	ÏßĞÍË÷Òı£¬ÓÉAnalizelineº¯ÊıÌáÈ¡µÄÆåĞÎµÄ¶ş½øÖÆÃèÊö¡£
- *	@start:		ÏßĞÍµÄÆğÊ¼µã¾ø¶Ô×ø±ê
- *	@lineDirec:	ÏßĞÍËùÔÚÏßµÄ·½Ïò
+/**
+ * ValueType - ·ÖÎöÖ¸¶¨ÏßĞÍ
+ * @return:	·µ»ØÏßĞÅÏ¢£¬°üÀ¨£ºÏßĞÎÍşĞ²ÀàĞÍ¡¢¹ÀÖµ£¬·ÀÓù²½¡¢·ÀÓùµã¡¢ÍşĞ²µã¡¢Ç±Á¦µã¡¢Ç±Ç±Á¦µãµÄ¾ø¶Ô×ø±ê¡£
+ * @style£º	ÏßĞÍË÷Òı£¬ÓÉAnalizelineº¯ÊıÌáÈ¡µÄÆåĞÎµÄ¶ş½øÖÆÃèÊö¡£
+ * @start:		ÏßĞÍµÄÆğÊ¼µã¾ø¶Ô×ø±ê
+ * @lineDirec:	ÏßĞÍËùÔÚÏßµÄ·½Ïò
  */
 LineInfo ValuateType(int style,Point start,BYTE lineDirec,int tag)
 {
@@ -644,8 +661,9 @@ LineInfo ValuateType(int style,Point start,BYTE lineDirec,int tag)
 }
 
 
-/**	GetBoardType - ÊÕ¼¯Æå¾ÖÍşĞ²ÀàĞÍĞÅÏ¢
- *	@side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
+/**
+ * GetBoardType - ÊÕ¼¯Æå¾ÖÍşĞ²ÀàĞÍĞÅÏ¢
+ * @side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
  */
 int GetBoardType(BYTE side)
 {
@@ -655,8 +673,9 @@ int GetBoardType(BYTE side)
 	return type;
 }
 
-/**	GetBoardValue - ÊÕ¼¯Æå¾ÖÍşĞ²ÀàĞÍĞÅÏ¢
- *	@side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
+/**
+ * GetBoardValue - ÊÕ¼¯Æå¾ÖÍşĞ²ÀàĞÍĞÅÏ¢
+ * @side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
  */
 int GetBoardValue(BYTE side)
 {
@@ -666,9 +685,10 @@ int GetBoardValue(BYTE side)
 	return value;
 }
 
-/**	GetBoardInfo - ÊÕ¼¯Æå¾ÖĞÅÏ¢
- *	@side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
- *	@tag	ÊÕ¼¯ĞÅÏ¢²ßÂÔ°´Î»±êÖ¾£¬³ı1±êÖ¾ÍâÆå¾Ö¼ÛÖµºÍÍşĞ²ÀàĞÍÎªÄ¬ÈÏÊÕ¼¯ĞÅÏ¢
+/**
+ * GetBoardInfo - ÊÕ¼¯Æå¾ÖĞÅÏ¢
+ * @side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
+ * @tag	ÊÕ¼¯ĞÅÏ¢²ßÂÔ°´Î»±êÖ¾£¬³ı1±êÖ¾ÍâÆå¾Ö¼ÛÖµºÍÍşĞ²ÀàĞÍÎªÄ¬ÈÏÊÕ¼¯ĞÅÏ¢
  */
 SynInfo GetBoardInfo(BYTE side,int tag)
 {
@@ -679,7 +699,7 @@ SynInfo GetBoardInfo(BYTE side,int tag)
 
 	for(i=0;i<92;i++)//²éÕÒ92ÌõÏß
 	{
-		if(tag&TODEFENT)
+		if(tag&TODEFENT)//·ÀÓùĞÅÏ¢
 		{
 			if(lineInfo[side][i].defPointList.size()!=0)
 				for(iterP=lineInfo[side][i].defPointList.begin();iterP!=lineInfo[side][i].defPointList.end();iterP++)
@@ -688,30 +708,30 @@ SynInfo GetBoardInfo(BYTE side,int tag)
 				for(iterS=lineInfo[side][i].defStepList.begin();iterS!=lineInfo[side][i].defStepList.end();iterS++)
 					tempSynInfo.defStepList.push_back(*iterS);
 		}
-		if((tag&TOWIN) && lineInfo[side][i].winList.size()!=0)
+		if((tag&TOWIN) && lineInfo[side][i].winList.size()!=0)//ÖÂÊ¤µã
 			for(iterP=lineInfo[side][i].winList.begin();iterP!=lineInfo[side][i].winList.end();iterP++)
 				tempSynInfo.winList.push_back(*iterP);
-		if((tag&TOWILLWIN) && lineInfo[side][i].willWinList.size()!=0)
+		if((tag&TOWILLWIN) && lineInfo[side][i].willWinList.size()!=0)//¼´½«Ê¤Àûµã
 			for(iterP=lineInfo[side][i].willWinList.begin();iterP!=lineInfo[side][i].willWinList.end();iterP++)
 				tempSynInfo.willWinList.push_back(*iterP);
-		if((tag&TODUOPOTEN) && lineInfo[side][i].duoPotenList.size()!=0)
-			for(iterP=lineInfo[side][i].duoPotenList.begin();iterP!=lineInfo[side][i].duoPotenList.end();iterP++)
-				tempSynInfo.duoPotenList.push_back(*iterP);
-		if((tag&TOSOLPOTEN) && lineInfo[side][i].solPotenList.size()!=0)
-			for(iterP=lineInfo[side][i].solPotenList.begin();iterP!=lineInfo[side][i].solPotenList.end();iterP++)
-				tempSynInfo.solPotenList.push_back(*iterP);
-		if((tag&TOCOMMON) && lineInfo[side][i].toDuoTwoList.size()!=0)
-			for(iterP=lineInfo[side][i].toDuoTwoList.begin();iterP!=lineInfo[side][i].toDuoTwoList.end();iterP++)
-				tempSynInfo.toDuoTwoList.push_back(*iterP);
-		if((tag&TODUOTHREAT)&&lineInfo[side][i].duoThreatList.size()!=0)
+		if((tag&TODUOTHREAT)&&lineInfo[side][i].duoThreatList.size()!=0)//Ë«ÍşĞ²µã
 			for(iterP=lineInfo[side][i].duoThreatList.begin();iterP!=lineInfo[side][i].duoThreatList.end();iterP++)
 				tempSynInfo.duoThreatList.push_back(*iterP);
-		if((tag&TOSOLTHREAT)&&lineInfo[side][i].solThreatList.size()!=0)
+		if((tag&TOSOLTHREAT)&&lineInfo[side][i].solThreatList.size()!=0)//µ¥ÍşĞ²¶¨
 			for(iterP=lineInfo[side][i].solThreatList.begin();iterP!=lineInfo[side][i].solThreatList.end();iterP++)
 				tempSynInfo.solThreatList.push_back(*iterP);
-		if(lineInfo[side][i].triThreatList.size()!=0)
+		if(lineInfo[side][i].triThreatList.size()!=0)//ÈıÇ±Á¦µã
 			for(iterP=lineInfo[side][i].triThreatList.begin();iterP!=lineInfo[side][i].triThreatList.end();iterP++)
 				tempSynInfo.triThreatList.push_back(*iterP);
+		if((tag&TODUOPOTEN) && lineInfo[side][i].duoPotenList.size()!=0)//Ë«Ç±Á¦µã
+			for(iterP=lineInfo[side][i].duoPotenList.begin();iterP!=lineInfo[side][i].duoPotenList.end();iterP++)
+				tempSynInfo.duoPotenList.push_back(*iterP);
+		if((tag&TOSOLPOTEN) && lineInfo[side][i].solPotenList.size()!=0)//µ¥Ç±Á¦µã
+			for(iterP=lineInfo[side][i].solPotenList.begin();iterP!=lineInfo[side][i].solPotenList.end();iterP++)
+				tempSynInfo.solPotenList.push_back(*iterP);
+		if((tag&TOCOMMON) && lineInfo[side][i].toDuoTwoList.size()!=0)//ÆÕÍ¨µã
+			for(iterP=lineInfo[side][i].toDuoTwoList.begin();iterP!=lineInfo[side][i].toDuoTwoList.end();iterP++)
+				tempSynInfo.toDuoTwoList.push_back(*iterP);
 	}
 	if(tag&TODEFENT)
 		UniquePoint(tempSynInfo.defPointList);
@@ -728,17 +748,20 @@ SynInfo GetBoardInfo(BYTE side,int tag)
 	return tempSynInfo;
 }
 
-//ÕĞ·¨Éú³ÉÆ÷
 
-/**	MakeStepListForWin - ÖÂÊ¤ÕĞ·¨Éú³ÉÆ÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+//ÕĞ·¨Éú³ÉÆ÷
+//=====================================================
+
+/**
+ * MakeStepListForWin - ÖÂÊ¤ÕĞ·¨Éú³ÉÆ÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForWin(int side,unsigned int limit)
 {
-	SynInfo myInfo=GetBoardInfo(side,TOWIN+TOWILLWIN);
+	SynInfo myInfo=GetBoardInfo(side,TOWIN|TOWILLWIN);
 	SynInfo tempMy;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
@@ -753,33 +776,26 @@ vector<Step> MakeStepListForWin(int side,unsigned int limit)
 		tempStep.second.x=tempStep.second.y=-1;
 		tempStep.value=WINLOSE;
 		stepList.push_back(tempStep);
-		return stepList;
 	}
 	else
 	{
-		for(iterP=myInfo.willWinList.begin();iterP!=myInfo.willWinList.end();iterP++)
-		{
-			tempStep.first=*iterP;
-			MakeMove(tempStep.first,tempLine,side,TOWIN);//ÒòÎª±ØÊ¤£¬¹ÊÖ»¶ÔÖÂÊ¤µã½øĞĞÊÕ¼¯
-			tempMy=GetBoardInfo(side,TOWIN);
-			BackMove(tempStep.first,tempLine,side);
-			for(iterP2=tempMy.winList.begin();iterP2!=tempMy.winList.end();iterP2++)
-			{
-				tempStep.second=*iterP2;
-				tempStep.value=WINLOSE;
-				stepList.push_back(tempStep);
-				return stepList;
-			}
-		}
+		tempStep.first = myInfo.willWinList[0];
+		MakeMove(tempStep.first,tempLine,side,TOWIN);//ÒòÎª±ØÊ¤£¬¹ÊÖ»¶ÔÖÂÊ¤µã½øĞĞÊÕ¼¯
+		tempMy=GetBoardInfo(side,TOWIN);
+		BackMove(tempStep.first,tempLine,side);
+		tempStep.second=tempMy.winList[0];
+		tempStep.value=WINLOSE;
+		stepList.push_back(tempStep);
 	}
 	return stepList;
 }
 
-/**	MakeStepListForDefendSingle - ·ÀÓùµ¥ÍşĞ²ÕĞ·¨Éú³ÉÆ÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForDefendSingle - ·ÀÓùµ¥ÍşĞ²ÕĞ·¨Éú³ÉÆ÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForDefendSingle(int side,unsigned int limit)
 {
@@ -875,11 +891,12 @@ vector<Step> MakeStepListForDefendSingle(int side,unsigned int limit)
 	return stepList;
 }
 
-/**	MakeStepListForDefendDouble - ·ÀÓùË«ÍşĞ²µÈÕĞ·¨Éú³ÉÆ÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForDefendDouble - ·ÀÓùË«ÍşĞ²µÈÕĞ·¨Éú³ÉÆ÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForDefendDouble(int side,unsigned int limit)
 {
@@ -1010,11 +1027,12 @@ vector<Step> MakeStepListForDefendDouble(int side,unsigned int limit)
 	}
 }
 
-/**	MakeStepListForNone - Æ½¾²×Å·¨Éú³ÉÆ÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForNone - Æ½¾²×Å·¨Éú³ÉÆ÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForNone(int side,unsigned int limit)
 {
@@ -1183,11 +1201,12 @@ vector<Step> MakeStepListForNone(int side,unsigned int limit)
 	return stepList;
 }
 
-/**	MakeStepListForDefendSingleEx - ·ÀÓùµ¥ÍşĞ²×Å·¨À©Õ¹Éú³ÉÆ÷£¬ÓÃÓÚÀ©Õ¹ËÑË÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForDefendSingleEx - ·ÀÓùµ¥ÍşĞ²×Å·¨À©Õ¹Éú³ÉÆ÷£¬ÓÃÓÚÀ©Õ¹ËÑË÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForDefendSingleEx(int side,unsigned int limit)
 {
@@ -1245,11 +1264,12 @@ vector<Step> MakeStepListForDefendSingleEx(int side,unsigned int limit)
 	return stepList;
 }
 
-/**	MakeStepListForDefendDoubleEx - ·ÀÓùË«ÍşĞ²µÈ×Å·¨À©Õ¹Éú³ÉÆ÷£¬ÓÃÓÚÀ©Õ¹ËÑË÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForDefendDoubleEx - ·ÀÓùË«ÍşĞ²µÈ×Å·¨À©Õ¹Éú³ÉÆ÷£¬ÓÃÓÚÀ©Õ¹ËÑË÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForDefendDoubleEx(int side,unsigned int limit)
 {
@@ -1363,11 +1383,12 @@ vector<Step> MakeStepListForDefendDoubleEx(int side,unsigned int limit)
 	}
 }
 
-/**	MakeStepListForDouble - Ë«ÍşĞ²ÕĞ·¨Éú³ÉÆ÷
- *	@return:	·µ»Ø×Å·¨ÁĞ±í
- *	@myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
- *	@limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
+/**
+ * MakeStepListForDouble - Ë«ÍşĞ²ÕĞ·¨Éú³ÉÆ÷
+ * @return:	·µ»Ø×Å·¨ÁĞ±í
+ * @myInfo:	Ö´Æå·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
+ * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
 vector<Step> MakeStepListForDouble(int side,unsigned int limit)
 {
@@ -1545,28 +1566,49 @@ void RecoverLine(Point point,LineInfo tempLine[4],BYTE side)
 		CopyLineInfo(lineInfo[side][key],tempLine[ANGLE135]);
 }
 
-//ÊÔ×ß£¬Í¬Ê±¶Ô±ä¸üµÄÏß½øĞĞ±¸·İ
+/**
+ * MakeMove - ÊÔ×ß£¬Í¬Ê±¶Ô±ä¸üµÄÏß½øĞĞ±¸·İ
+ * @point:	Âä×Óµã×ø±ê
+ * @tempLine:	ÏßĞÅÏ¢±¸·İ´¢´æÆ÷
+ * @side:	Ö´ÆåÑÕÉ«
+ * @tag:	±êÇ©
+ */
 void MakeMove(Point point,LineInfo tempLine[2][4],BYTE side,int tag)
 {
+	//ĞÅÏ¢±¸·İ
 	BackupLine(point,tempLine[BLACK],BLACK);
 	BackupLine(point,tempLine[WHITE],WHITE);
+
+	//ÊÔ×ß
 	virtualBoard[point.x][point.y]=side;
+
+	//¸üĞÂ
 	UpdateLineForCross(point,BLACK,tag);
 	UpdateLineForCross(point,WHITE,tag);
 }
-//È¡ÏûÊÔ×ß£¬Í¬Ê±»Ö¸´±ä¸üµÄÏßĞÅÏ¢
+
+/**
+ * BackMove - È¡ÏûÊÔ×ß£¬Í¬Ê±»Ö¸´±ä¸üµÄÏßĞÅÏ¢
+ * @point:	ÊÔ×ßµã×ø±ê
+ * @tempLine:	±¸·İĞÅÏ¢´¢´æÆ÷
+ * @side:	Ö´ÆåÑÕÉ«
+ */
 void BackMove(Point point,LineInfo tempLine[2][4],BYTE side)
 {
+	//È¡ÏûÊÔ×ß
 	virtualBoard[point.x][point.y]=EMPTY;
+
+	//ĞÅÏ¢»Ö¸´
 	RecoverLine(point,tempLine[BLACK],BLACK);
 	RecoverLine(point,tempLine[WHITE],WHITE);
 }
 
-/**	CalSingleLineValue - Ïß¼ÛÖµ¼ÆËãÆ÷
- *	@return:	·µ»ØÏßµÄ¼ÛÖµ
- *	@start:		ÏßµÄÆğÊ¼µã×ø±ê
- *	@Direct:	ÏßµÄ·½Ïò±êÖ¾
- *	@side:		±»¼ÆËãµÄÏßµÄ¼ÛÖµĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
+/**
+ * CalSingleLineValue - Ïß¼ÛÖµ¼ÆËãÆ÷
+ * @return:	·µ»ØÏßµÄ¼ÛÖµ
+ * @start:		ÏßµÄÆğÊ¼µã×ø±ê
+ * @Direct:	ÏßµÄ·½Ïò±êÖ¾
+ * @side:		±»¼ÆËãµÄÏßµÄ¼ÛÖµĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
 int CalSingleLineValue(const Point start,const BYTE Direc,const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
 {
@@ -1606,11 +1648,12 @@ int CalSingleLineValue(const Point start,const BYTE Direc,const BYTE side) //¼ÆË
 	return value;
 }
 
-/**	CalSingleLineType - ÏßÀàĞÍ¼ÆËãÆ÷
- *	@return:	·µ»ØÏßµÄÀàĞÍ£¬ÊôĞÔ³É·Ö
- *	@start:		ÏßµÄÆğÊ¼µã×ø±ê
- *	@Direct:	ÏßµÄ·½Ïò±êÖ¾
- *	@side:		±»¼ÆËãµÄÏßµÄÀàĞÍĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
+/**
+ * CalSingleLineType - ÏßÀàĞÍ¼ÆËãÆ÷
+ * @return:	·µ»ØÏßµÄÀàĞÍ£¬ÊôĞÔ³É·Ö
+ * @start:		ÏßµÄÆğÊ¼µã×ø±ê
+ * @Direct:	ÏßµÄ·½Ïò±êÖ¾
+ * @side:		±»¼ÆËãµÄÏßµÄÀàĞÍĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
 int CalSingleLineType(const Point start,const BYTE Direc,const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
 {
@@ -1653,10 +1696,11 @@ int CalSingleLineType(const Point start,const BYTE Direc,const BYTE side) //¼ÆËã
 
 #define USEVALUE
 
-/**	CalculateStepValue - ×Å·¨¼ÛÖµ¼ÆËãÆ÷
- *	@return:	·µ»Ø×Å·¨¼ÛÖµ
- *	@step:		ĞèÒª±»¼ÆËãµÄ×Å·¨
- *	@side:		×Å·¨ËùÊô·½Ö´ÆåÑÕÉ«
+/**
+ * CalculateStepValue - ×Å·¨¼ÛÖµ¼ÆËãÆ÷
+ * @return:	·µ»Ø×Å·¨¼ÛÖµ
+ * @step:		ĞèÒª±»¼ÆËãµÄ×Å·¨
+ * @side:		×Å·¨ËùÊô·½Ö´ÆåÑÕÉ«
  */
 int CalculateStepValue(const Step step,const BYTE side)
 #ifdef USEVALUE

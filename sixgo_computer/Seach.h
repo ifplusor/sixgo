@@ -42,11 +42,13 @@
 
 typedef struct _syninfo	//有用点信息
 {
-	vector<Point> defPointList;
-	vector<Step> defStepList;
+ 	vector<Point> defPointList;
+
 	vector<Point> winList;//5->6：致胜点
 	vector<Point> willWinList;//4->5:即将致胜点，只在生车致胜步时使用
 	vector<Point> triThreatList;//多威胁点
+	//上面三类只保存一个即可
+
 	vector<Point> duoThreatList;//可以生成双威胁的点
 	vector<Point> solThreatList;//可以生成单威胁的点
 	vector<Point> duoPotenList;//可以生成双潜力的点
@@ -56,12 +58,13 @@ typedef struct _syninfo	//有用点信息
 
 typedef struct _lineinfo//线信息
 {
-	vector<Point> defPointList;
 	vector<Step> defStepList;
+	vector<Point> defPointList;
 
 	vector<Point> winList;//5->6：致胜点
 	vector<Point> willWinList;//4->5:即将致胜点
 	vector<Point> triThreatList;//多威胁点
+	//上面三类只保存一个即可
 
 	vector<Point> duoThreatList;//可以生成双威胁的点
 	vector<Point> solThreatList;//可以生成单威胁的点

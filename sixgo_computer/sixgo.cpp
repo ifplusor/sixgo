@@ -227,12 +227,13 @@ int main(int argc, char *argv[])
 	Step step;
 	char message[256];
 
+	atexit(StopEndLib);
 	printf("sixgo 2.0.1\n");
 	printf("Copyright 2014 ifplusor\n");
 	printf("initial...\n");
 	initialLineTypeTable(preTable);
 	initialLineInfoTable(linetypeInfo);
-	initialHash();
+	//StartEndLib();
 	printf("successed!\n");
 	while (1)
 	{
@@ -390,11 +391,12 @@ int main(int argc, char *argv[])
 				computerSide=BLACK;
 			else
 				computerSide=WHITE;
+			initialGame();
+			initialAllLine();//对92条线的信息进行初始化
+			initialHash();//清空置换表
 #ifdef CM
 			ReadCM(computerSide);//读取定式
 #endif
-			initialGame();
-			initialAllLine();//对92条线的信息进行初始化
 			showBoard();
 			if(computerSide==curside)//程序先手
 			{
@@ -413,10 +415,10 @@ int main(int argc, char *argv[])
 		{
 			start = 0;
 		}
-		else if (strcmp(message, "stop") == 0)
+		else if (strcmp(message, "quit") == 0)
 		{
-			printf("End!\n");
-			exit(0);
+			printf("Quit!\n");
+			break;
 		}
 	}
 	return 0;

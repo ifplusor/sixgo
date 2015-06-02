@@ -4,14 +4,14 @@
 #include "connect_six.h"
 
 #define NEW
-#define _K_
-//#define OUT
-//#define ANALY
+#define _K_		//简明开关
+
 
 #define TableSize 1048576     //新线型表大小
-#define TabSize 1048512		//老线型表大小
+#define TabSize 1048512		//老线型表大小，为了读取老线型表文件而设
 
 #ifdef NEW
+//新线型表是对老线型表的扩展，通过对新线型表类型从标记可得就线型表，故可复用新线型表生成代码生成老线型表
 
 #define WIN 27						//已胜线型
 #define THREAT_five_THIRD 26
@@ -97,25 +97,25 @@ typedef struct _iStep
 
 typedef struct _linetypeinfo
 {
+	int lineType;			//线的类型  0：无威胁；1：单潜力；2：双潜力；3：多潜力；4:单威胁；5：双威胁；6：多威胁；7：已胜；
+
 	int win;//5->6：致胜点
-	int willWin;//4->5:即将致胜点（每个线型只取一个，只在单威胁生成致胜步时使用）
-	int triThreat;//多威胁点（每个线型只取一个，只在不受威胁的情况下使用）
-	//以上三类点，一个线型只取一个即可
+	int willWin;//4->5:即将致胜点（只在单威胁生成致胜步时使用）
+	int triThreat;//4.2->5.1/4.1 4.4->4.1:多威胁点（只在不受威胁的情况下使用）
+	//以上三类点用于特殊情况，一个线型只取一个即可
 
 	vector<iStep> defStepList;//防御步，用于破解双威胁
 	vector<iPoint> defPointList;//防御点，用于破解单威胁
+
 	vector<iPoint> duoThreatList;//双威胁点，可以生成双威胁的点
 	vector<iPoint> solThreatList;//单威胁点，可以生成单威胁的点
 	vector<iPoint> duoPotenList;//双潜力点，可以生成双潜力的点
 	vector<iPoint> solPotenList;//单潜力点，可以生成单潜力的点
 	vector<iPoint> toDuoTwoList;//潜双潜力点
 
-	int lineType;			//线的类型  0：无威胁；1：单潜力；2：双潜力；3：多潜力；4:单威胁；5：双威胁；6：多威胁；7：已胜；
-
 	//以下成员不重要
 	vector<iPoint> toSolTwoList;//潜单潜力点
 	int toOne;//一阶点
-
 }LineTypeInfo;
 
 typedef struct _linesum
