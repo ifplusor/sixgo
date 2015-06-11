@@ -914,7 +914,7 @@ void analyTHREAT_four_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//四阶
 #endif
 	}
 #ifdef _K_
-	the->willWin = the->duoPotenList[0];
+	the->willWin = the->duoThreatList[0];
 #endif
 	AnalyDefentPoint(shapeIndex, len, the);
 
@@ -1222,6 +1222,11 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 		}
 		AnalyDefentStep(shapeIndex, len, the);
 		break;
+	case THREAT_four_DOUBLE://四阶三级  即将胜利点和破解步
+		the->lineType = 5;
+		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//衍生五阶二级（即将胜利点）
+		AnalyDefentStep(shapeIndex, len, the);
+		break;
 	case THREAT_four_BIGPOTEN://四阶四级  衍生即将胜利点和多威胁点；破解点
 		the->lineType = 4;
 		the->triThreat = getPointIndex(shapeIndex, len, THREAT_four_THIRD);//衍生四阶一级（多威胁点）
@@ -1230,8 +1235,8 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 			the->willWin = getPointIndex(shapeIndex, len, THREAT_five_SINGLE);//衍生五阶二级（即将胜利点）
 		AnalyDefentPoint(shapeIndex, len, the);
 		break;
-	case THREAT_four_ADDITION:
-		analyTHREAT_four_ADDITION(shapeIndex, len, the);//四阶五级  衍生即将胜利点，双威胁点，破解步，破解点
+	case THREAT_four_ADDITION://四阶五级  衍生即将胜利点，双威胁点，破解步，破解点
+		analyTHREAT_four_ADDITION(shapeIndex, len, the);
 		break;
 	case THREAT_four_POTEN://四阶六级  即将胜利点，双威胁点；破解点
 		analyTHREAT_four_POTEN(shapeIndex, len, the);

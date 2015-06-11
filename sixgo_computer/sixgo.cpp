@@ -21,6 +21,9 @@ void initialGame()
 	curside=BLACK;//设置先手行棋方
 	HandNum=1;//设置第一手标志
 	start=1;
+#ifdef DEBUGVALUE
+	debugger.InitDir();
+#endif
 }
 
 //显示棋盘状态
@@ -373,7 +376,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				step=sixgo_carry(step,computerSide);
+				step=sixgo_carry(step,nBoard,computerSide);
 				if(judgeLegal(step))
 				{
 					moveStep(step);

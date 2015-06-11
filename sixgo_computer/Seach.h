@@ -42,6 +42,7 @@
 
 typedef struct _syninfo	//有用点信息
 {
+	vector<Step> defStepList;
  	vector<Point> defPointList;
 
 	vector<Point> winList;//5->6：致胜点
@@ -79,7 +80,7 @@ typedef struct _lineinfo//线信息
 
 
 void initialAllLine();
-Step sixgo_carry(const Step moveStep,const BYTE side);
+Step sixgo_carry(const Step moveStep,const int nBoard[19][19],const BYTE side);
 Step SeachValuableStep(const BYTE side);
 int nega_alpha_beta(const BYTE side,int alpha,int beta,const int depth);//负极大值搜索
 int ExtendSeach(BYTE side,int alpha,int beta,const int depth);

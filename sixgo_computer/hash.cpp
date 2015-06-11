@@ -62,7 +62,7 @@ void initialHash()
 	for (int i = 0; i<MAXSIZE; i++)
 	{
 		initialCode(hashList[i].code);
-		hashList[i].index = -2;
+		hashList[i].timestamp = -2;
 	}
 	initialHashBoard();
 	hashnum = realnum = 0;
@@ -198,7 +198,7 @@ void ReadCM(int color)
 							{
 								hashList[hash].stepList.push_back(step[i]);
 								hashList[hash].code=HashCM[i];
-								hashList[hash].index=handNum/2;
+								hashList[hash].timestamp = handNum / 2;
 							}
 						}
 					}
@@ -251,7 +251,7 @@ void ReadCM(int color)
 							{
 								hashList[hash].stepList.push_back(step[i]);
 								hashList[hash].code=HashCM[i];
-								hashList[hash].index=handNum/2;
+								hashList[hash].timestamp = handNum / 2;
 							}
 						}
 					}

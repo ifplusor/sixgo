@@ -1,10 +1,11 @@
-#include <Windows.h>
 #include "Debug.h"
 
 
 extern int virtualBoard[edge][edge];
 
-void showBoard(FILE *fp, const int nBoard[edge][edge])
+Debugger debugger = Debugger();
+
+void Debugger::showBoard(FILE *fp, const int nBoard[edge][edge])
 {
 	fprintf(fp,"   A B C D E F G H I J K L M N O P Q R S\n");//输出列编号
 	for (int j = 0; j<edge; j++)
@@ -55,88 +56,110 @@ void showBoard(FILE *fp, const int nBoard[edge][edge])
 	}
 }
 
-void OutputStep(vector<Step> &stepList,const int side,int tag)
+void Debugger::OutputStep(vector<Step> &stepList, const int side)
 {
 	vector<Step>::iterator iterS;
-	FILE *fp=NULL;
-	char filename[_MAX_PATH];
+	string filename = getPath() + "\\step.sif";
+	FILE * fp = fopen(filename.c_str(), "wt");
 
-	SYSTEMTIME sys;
-	GetLocalTime( &sys );
-	sprintf(filename,"H:\\尹伟和\\sixgo_computer2.0.1\\Release\\SIXGO_DEBUG\\Log_%d_%d_%d_%d_%d_%d_%d__%d.txt",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds,tag);
-	
-	fp=fopen(filename,"r");
-	if(fp==NULL)
+	if(fp == NULL)
 	{
-		fp=fopen(filename,"wt");
-		if(fp==NULL)
+		fp = fopen(filename.c_str(), "wt");
+		if (fp == NULL)
 		{
-			printf("create file failed!\n");
+			printf("error: create file failed!\n");
 			return;
 		}
 	}
-	else
+	fprintf(fp, "side=%s\n", side == 0 ? "黑方" : "白方");
+	showBoard(fp, virtualBoard);
+	fprintf(fp, "list size: %d\n", stepList.size());
+	for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 	{
-		return OutputStep(stepList,side,tag+1);
-	}
-	fprintf(fp,"side=%s\n",side==0?"黑方":"白方");
-	showBoard(fp,virtualBoard);
-	for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-	{
-		fprintf(fp,"%c%c%c%c %d\n",iterS->first.x+'A',iterS->first.y+'A',iterS->second.x+'A',iterS->second.y+'A',iterS->value);
+		fprintf(fp, "%c%c%c%c %d\n", iterS->first.x + 'A', iterS->first.y + 'A', iterS->second.x + 'A', iterS->second.y + 'A', iterS->value);
 	}
 	fclose(fp);
 }
 
-int CheckChess(const int nBoard[edge][edge], const int side)
-{
-	int whiteNum=0,blackNum=0;
-	for(int i=0;i<edge;i++)
-	{
-		for(int j=0;j<edge;j++)
-		{
-			if(nBoard[i][j]==BLACK)
-				blackNum++;
-			else if(nBoard[i][j]==WHITE)
-				whiteNum++;
-		}
-	}
-	if( ((blackNum-whiteNum)!=1) && ((whiteNum-blackNum)!=1) )
-	{
-		FILE *fp;
-		char filename[_MAX_PATH];
 
-		SYSTEMTIME sys;
-		GetLocalTime( &sys );
-		sprintf(filename,"SIXGO_DEBUG\\Log_%d_%d_%d_%d_%d_%d_%d__error.txt",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		fp=fopen(filename,"wt");
-		if(fp!=NULL)
-		{
-			fprintf(fp,"side=%s\n",side==0?"黑方":"白方");
-			showBoard(fp,nBoard);
-			fclose(fp);
-		}
-		else
-			printf("create file failed!\n");
-		return 1;
-	}
-	return 0;
-}
-
-void OutputBoard(const int nBoard[edge][edge], const int side)
+void Debugger::OutputMessage(char *message, const int side)
 {
-	FILE *fp;
-	char filename[_MAX_PATH];
-	SYSTEMTIME sys;
-	GetLocalTime( &sys );
-	sprintf(filename,"SIXGO_DEBUG\\Log_%d_%d_%d_%d_%d_%d_%d__board.txt",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-	fp=fopen(filename,"wt");
+	string filename = getPath() + "\\message.sif";
+	FILE * fp = fopen(filename.c_str(), "wt");
 	if(fp!=NULL)
 	{
 		fprintf(fp,"side=%s\n",side==0?"黑方":"白方");
-		showBoard(fp,nBoard);
+		showBoard(fp,virtualBoard);
+		fprintf(fp, "message: %s\n", message);
 		fclose(fp);
 	}
 	else
-		printf("create file failed!\n");
+		printf("error: create file failed!\n");
+}
+
+string Debugger::getPath()
+{
+	char temp[10];
+	sprintf(temp, "\\%d", timestamp);
+	string path(pathRoot + temp);
+	for (int i = 0; i <= stepStack.top; ++i)
+	{
+		path = path + (i==0?'_':'\\') + (char)(stepStack.stepStack[i].first.x + 'A') + (char)(stepStack.stepStack[i].first.y + 'A')
+			+ (char)(stepStack.stepStack[i].second.x + 'A') + (char)(stepStack.stepStack[i].second.y + 'A');
+	}
+	return path;
+}
+
+void Debugger::MakeMove(Step step)
+{
+	if (stepStack.push(step))
+	{
+		printf("error: stack overflow\n");
+		return;
+	}
+	string path = getPath();
+	if(_mkdir(path.c_str()))
+		printf("error: make folder failed!\n");
+}
+
+void Debugger::BackMove(Step step)
+{
+	string filename = getPath() + "\\value.sif";
+	FILE *fp = fopen(filename.c_str(), "wt");
+	if (fp == NULL)
+		printf("error: create file failed!\n");
+	fprintf(fp, "value: %d\n", step.value);
+	fclose(fp);
+	stepStack.pop();
+}
+
+void Debugger::InitDir()
+{
+	timeDir = time(NULL);
+	char temp[_MAX_PATH];
+	sprintf(temp, "SIXGO_DEBUG\\%I64d", timeDir);
+	pathRoot = temp;
+	if(_mkdir(temp))
+		printf("error: make folder failed!\n");
+}
+
+void Debugger::InitDebugger(int timestamp, Step step)
+{
+	this->timestamp = timestamp;
+	MakeMove(step);
+}
+
+void Debugger::OutSelect(Step step)
+{
+	string filename = getPath() + "\\select.sif";
+	FILE * fp = fopen(filename.c_str(), "wt");
+	if (fp != NULL)
+	{
+		showBoard(fp, virtualBoard);
+		fprintf(fp, "select: %c%c%c%c\nvalue: %d\n", step.first.x + 'A', step.first.y + 'A',
+			step.second.x + 'A', step.second.y + 'A', step.value);
+		fclose(fp);
+	}
+	else
+		printf("error: create file failed!\n");
 }

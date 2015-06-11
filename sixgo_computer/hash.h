@@ -17,8 +17,7 @@ typedef struct _HashInfo
 	BoardCode code;//棋盘状态编码
 	vector<Step> stepList;//着法列表
 	int value,myType,denType;//保存威胁类型的主要目的是为了指导招法生成
-	int index;//哈希表项储存时间戳，保存行棋数（HandNum）
-	int depth;//搜索深度
+	int timestamp;//哈希表项储存时间戳，保存行棋数（HandNum）
 	bool cut;//cut：剪枝标记，用于发起着法排序以提高剪枝效率
 	bool full;//full：着法列表完整性标记，常规搜索生成完整着法列表，扩展搜索生成特殊着法
 }HashInfo;

@@ -1,9 +1,10 @@
 #include "Seach.h"
 
+
 //int LineTypeValue[WIN+1]={0, 0, 0,0,0,1, 3,4,5,9, 8,12,15,16,20,31,33, 39,45,47,54,89,100,1000, 37,76,1000, 10000 };//ÏßĞÍ¼ÛÖµ±í
-int LineTypeValue[WIN+1]={0, 0, 1,1,1,3, 5,6,8,11, 15,18,20,24,28,31,39, 75,90,110,115,186,236,1000, 94,196,1000, 10000 };//ÏßĞÍ¼ÛÖµ±í
-int LineTypeThreat[WIN+1]={0, 0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0,0,0, 1,1,1,1,10,10,100, 1,10,100, 1000 };//ÏßĞÍÍşĞ²ÀàĞÍ±í£º1µ¥ÍşĞ²¡¢10Ë«ÍşĞ²¡¢100ÈıÍşĞ²¡¢1000ÒÑÊ¤
-int LineTypeType[WIN+1]={0, 0, 0,0,0,0, 0,0,0,1, 10,10,11,11,10,100,100, 1000,1100,1100,1000,2000,2000,3000, 1000,2000,3000, 10000 };//ÏßĞÍÀàĞÍ±í
+int LineTypeValue[WIN + 1] = { 0, 0, 1, 1, 1, 3, 5, 6, 8, 11, 15, 18, 20, 24, 28, 31, 39, 75, 90, 110, 115, 186, 236, 99999, 94, 196, 99999, 100000 };//ÏßĞÍ¼ÛÖµ±í
+int LineTypeThreat[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 10, 10, 100, 1, 10, 100, 1000 };//ÏßĞÍÍşĞ²ÀàĞÍ±í£º1µ¥ÍşĞ²¡¢10Ë«ÍşĞ²¡¢100ÈıÍşĞ²¡¢1000ÒÑÊ¤
+int LineTypeType[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 10, 11, 11, 10, 100, 100, 1000, 1100, 1100, 1000, 2000, 2000, 3000, 1000, 2000, 3000, 10000 };//ÏßĞÍÀàĞÍ±í
 //ÎŞ¼ÛÖµ£¬|0Ç±Ç±Ë«Ç±Á¦£¬1Ç±µ¥Ç±Á¦£¬2Ç±ÈõË«Ç±Á¦£¬3Ç±Ë«Ç±Á¦£¬4Ç±¶àÇ±Á¦£¬5µ¥Ç±Á¦£¬
 //         6ÈõË«Ç±Á¦£¬7Ë«Ç±Á¦£¬8¶àÇ±Á¦£¬9µ¥ÍşĞ²£¬10ÈõË«ÍşĞ²£¬11Ë«ÍşĞ²|£¬¶àÍşĞ²£¬ÒÑÊ¤
 //             Ç±¶àÇ±Á¦16->¶àÇ±Á¦100->¶àÍşĞ²1000->ÒÑÊ¤
@@ -24,9 +25,9 @@ int MaxDepth = MAXDEPTH;//×î´óËÑË÷Éî¶È
  */
 inline void addHash(HashInfo &data)
 {
-	unsigned long hash=hashCode(data.code);//Ö±½ÓµØÖ·Ó³Éä
-	if(data.index>hashList[hash].index||data.depth<hashList[hash].depth)//Ê±¼ä´Á½ÏĞÂÇÒËÑË÷Éî¶ÈÇ³µÄ±íÏî¸²¸Ç¾É±íÏî
-		hashList[hash]=data;
+	unsigned long hash = hashCode(data.code);//Ö±½ÓµØÖ·Ó³Éä
+	if (data.timestamp > hashList[hash].timestamp)//Ê±¼ä´Á½ÏĞÂµÄ±íÏî¸²¸Ç¾É±íÏî
+		hashList[hash] = data;
 }
 
 /**
@@ -35,24 +36,31 @@ inline void addHash(HashInfo &data)
  * @moveStep:	¶ÔÊÖĞĞÆå×Å·¨
  * @side:		ÆåÊÖÖ´ÆåÑÕÉ«
  */
-Step sixgo_carry(Step moveStep,BYTE side)
+Step sixgo_carry(const Step moveStep, const int nBoard[19][19], const BYTE side)
 {
-	int i,j;
+	int i, j;
 	Point point;
 	//¸´ÖÆĞéÄâÆåÅÌ
 	initialCode(boardCode);
-	for (i = 0; i<edge; i++)
-		for (j = 0; j<edge; j++)
+	for (i = 0; i < edge; i++)
+		for (j = 0; j < edge; j++)
 		{
-			if(nBoard[i][j]!=2)
+			if (nBoard[i][j] != 2)
 			{
-				point.x=i;point.y=j;
-				moveCodeP(boardCode,point,nBoard[i][j]);//½øĞĞ¹şÏ£±àÂë
+				point.x = i; point.y = j;
+				moveCodeP(boardCode, point, nBoard[i][j]);//½øĞĞ¹şÏ£±àÂë
 			}
-			virtualBoard[i][j]=nBoard[i][j];
+			virtualBoard[i][j] = nBoard[i][j];
 		}
+#ifdef DEBUGVALUE
+	debugger.InitDebugger(HandNum, moveStep);
+#endif
 	//ËÑË÷×î¼ÑÕĞ·¨
-	return SeachValuableStep(side);
+	Step step = SeachValuableStep(side);
+#ifdef DEBUGVALUE
+	debugger.BackMove(step);
+#endif
+	return step;
 }
 
 /**
@@ -63,12 +71,12 @@ Step sixgo_carry(Step moveStep,BYTE side)
  */
 Step SeachValuableStep(BYTE side)
 {
-	Step step={{-1,-1},{-1,-1},0};//³õÊ¼»¯ÎªÆú×Ó£¬·ÀÖ¹³öÏÖ·µ»ØÂÒÂë
-	int myType,denType;
-	LineInfo tempLine[2][4],tempLine2[2][4];
+	Step step = { { -1, -1 }, { -1, -1 }, 0 };//³õÊ¼»¯ÎªÆú×Ó£¬·ÀÖ¹³öÏÖ·µ»ØÂÒÂë
+	int myType, denType;
+	LineInfo tempLine[2][4], tempLine2[2][4];
 	vector<Step> stepList;
 	vector<Step>::iterator iterS;
-	int value=-WINLOSE,val,unside=1-side;
+	int alpha = -WINLOSE, unside = 1 - side;
 	HashInfo *hashP;
 
 	//ÏòÀúÊ·¹şÏ£±íÖĞ²éÕÒ
@@ -81,64 +89,80 @@ Step SeachValuableStep(BYTE side)
 	}
 	else
 	{
-		myType=GetBoardType(side);
-		denType=GetBoardType(unside);
-		if(myType>0)//Èô±¾·½ÄÜ¶Ô¶Ô·½¹¹³ÉÍşĞ²£¬ÕâÊÇ¿ÉÊ¤¾ÖÃæ£¬Éú³É±ØÊ¤²½£¨µã£©
-			stepList=MakeStepListForWin(side,20);
-		else if(denType==1)//ÊÜµ½µ¥ÍşĞ²
-			stepList=MakeStepListForDefendSingle(side,20);
-		else if(denType>1)//ÊÜµ½Ë«ÍşĞ²£¬¶àÍşĞ²£¬Î±Ë«ÍşĞ²£¬Î±¶àÍşĞ²
-			stepList=MakeStepListForDefendDouble(side,20);
+		myType = GetBoardType(side);
+		denType = GetBoardType(unside);
+		if (myType > 0)//Èô±¾·½ÄÜ¶Ô¶Ô·½¹¹³ÉÍşĞ²£¬ÕâÊÇ¿ÉÊ¤¾ÖÃæ£¬Éú³É±ØÊ¤²½£¨µã£©
+			stepList = MakeStepListForWin(side, 20);
+		else if (denType == 1)//ÊÜµ½µ¥ÍşĞ²
+			stepList = MakeStepListForDefendSingle(side, 20);
+		else if (denType > 1)//ÊÜµ½Ë«ÍşĞ²£¬¶àÍşĞ²£¬Î±Ë«ÍşĞ²£¬Î±¶àÍşĞ²
+			stepList = MakeStepListForDefendDouble(side, 20);
 		else//´¦ÀíÎŞÍşĞ²ÇéĞÎ£¨²»´æÔÚ4ĞÍºÍ5ĞÍ£©
-			stepList=MakeStepListForNone(side,20);
+			stepList = MakeStepListForNone(side, 20);
 	}
-	if(stepList.size()==0)
+#ifdef DEBUGVALUE
+	debugger.OutputStep(stepList, side);
+#endif
+	if (stepList.size() == 0)
 	{
 		printf("The engine don't create step,so the engine give up!\n");
 		return step;
 	}
-	else if(stepList.size()==1)
+	else if (stepList.size() == 1)
 	{
 		return stepList[0];
 	}
 	else
 	{
-		for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
+		for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 		{
-			MakeMove(iterS->first,tempLine,side);
-			MakeMove(iterS->second,tempLine2,side);
-			moveCodeS(boardCode,*iterS,side);
-			val=-nega_alpha_beta(unside,-WINLOSE,-value,1);//¸º¼«´óÖµËÑË÷alpha-beta¼ôÖ¦Çó¾ÖÃæ¼ÛÖµ
-			iterS->value=val;
-			moveCodeS(boardCode,*iterS,side);
-			BackMove(iterS->second,tempLine2,side);
-			BackMove(iterS->first,tempLine,side);
-			if(val>value)
+			MakeMove(iterS->first, tempLine, side);
+			MakeMove(iterS->second, tempLine2, side);
+			moveCodeS(boardCode, *iterS, side);
+#ifdef DEBUGVALUE
+			debugger.MakeMove(*iterS);
+#endif
+			iterS->value = -nega_alpha_beta(unside, -WINLOSE, -alpha, 1);//¸º¼«´óÖµËÑË÷alpha-beta¼ôÖ¦Çó¾ÖÃæ¼ÛÖµ
+#ifdef DEBUGVALUE
+			debugger.BackMove(*iterS);
+#endif
+			moveCodeS(boardCode, *iterS, side);
+			BackMove(iterS->second, tempLine2, side);
+			BackMove(iterS->first, tempLine, side);
+			if (iterS->value > alpha)
 			{
-				if(val==WINLOSE)//¿É»ñÊ¤²½Ö±½Ó·µ»Ø
-					return *iterS;
-				value=val;
-				step=*iterS;
+				alpha = iterS->value;
+				step = *iterS;
+				if (alpha >= WINLOSE - MAXDEPTH)//¿É»ñÊ¤²½Ö±½Ó·µ»Ø
+				{
+#ifdef DEBUGVALUE
+					debugger.OutSelect(*iterS);
+#endif
+					break;
+				}
 			}
 		}
 	}
-	if(value>=WINLOSE-MAXDEPTH)
+	if (alpha >= WINLOSE - MAXDEPTH)
 	{
-		int depth=WINLOSE-value;
-		if(depth>SearchDepth)
-			MaxDepth=depth-2;
+		int depth = WINLOSE - step.value;
+		if (depth > SearchDepth)
+			MaxDepth = depth - 2;
 		else
-			SearchDepth=MaxDepth=depth-2;
+			SearchDepth = MaxDepth = depth - 2;
 	}
-	if(value==-WINLOSE)
+	if (alpha <= -WINLOSE + MAXDEPTH)
 	{
-		if(stepList.size()!=0)
-			step=stepList[0];
+		if (stepList.size() != 0)
+			step = stepList[0];
 	}
+#ifdef DEBUGVALUE
+	debugger.OutSelect(step);
+#endif
 	return step;
 }
 
-/**	
+/**
  * nega-alpha-beta - ¸º¼«´óÖµËÑË÷£¬Í¨¹ıalpha-beta¼ôÖ¦½øĞĞÓÅ»¯¡£alpha-beta¼ôÖ¦ÊÇÒ»¸öËõĞ¡´°¿ÚµÄ¹ı³Ì£¬±»¼ôÖ¦µÄ×´Ì¬±ØÊÇÆäÖµ³¬³ö´°¿Ú·¶Î§
  * @return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
  * @side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
@@ -146,217 +170,201 @@ Step SeachValuableStep(BYTE side)
  * @beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
  * @depth:		µ±Ç°ËÑË÷Éî¶È
  */
-int nega_alpha_beta(BYTE side,int alpha,int beta,const int depth)
+int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 {
-	int unside=1-side;
-	LineInfo tempLine[2][4],tempLine2[2][4];
+	int unside = 1 - side;
+	LineInfo tempLine[2][4], tempLine2[2][4];
 	vector<Step>::iterator iterS;
-	HashInfo *hashT,hashP;//¹şÏ£½Úµã
-	unsigned long hash=hashCode(boardCode);
+	HashInfo *hashT, hashP;//¹şÏ£½Úµã
+	unsigned long hash = hashCode(boardCode);
+	Step select;
 
 	hashT = findHash(boardCode, 0);//ÌáÈ¡ÀúÊ·
 	if (hashT != NULL)//Èç¹û´æÔÚÀúÊ·£¬ÓÅÏÈÖ±½Óµ÷ÓÃÀúÊ·
 	{
-		hashP = *hashT;
+		//Èç¹û´æÔÚÀúÊ·£¬ÇÒÊ±¼ä´ÁÓëµ±Ç°Ò»ÖÂ£¨±ØÊÇ³£¹æ±¾ÂÖËÑË÷×îĞÂ½á¹û£©£¬ÔòÖ±½Ó·µ»Ø±íÖĞ±£´æµÄ²©ŞÄÖµ
+		//Í¬Ò»Æå¾Ö×´Ì¬ÏòÏÂÕ¹¿ªµÄ²©ŞÄÊ÷×ÓÊ÷ÏàÍ¬£¨Ëù´¦Éî¶Èºã¶¨£©£¬²©ŞÄÖµÊÇÓÉÏÂÏòÉÏ½¨Á¢µÄ£¬alpha-beta´°¿ÚÏòÇ°¼Ì³Ğ£¨betaµ¥µ÷µİ¼õ£©
+		if (compareCode(hashList[hash].code, boardCode) && hashList[hash].timestamp == HandNum)
+			return hashList[hash].value;
+		else
+			hashP = *hashT;
 	}
 	else//²»´æÔÚÀúÊ·Ôò·ÖÅä±íÏî²¢²åÈë¹şÏ£±í
 	{
-		hashP.code=boardCode;//¸³Öµ±íÏîÎ¨Ò»±êÊ¶
-		hashP.cut=true;//³õÊ¼»¯Îªtrue£¬±íÃ÷¾­¹ı¼ôÖ¦
-		hashP.full=false;//³õÊ¼»¯Îªfalse£¬±íÃ÷²»¾ßÓĞÍêÕû×Å·¨ÁĞ±í
-		hashP.myType=GetBoardType(side);//»ñÈ¡±¾·½ÍşĞ²ÀàĞÍ
-		hashP.denType=GetBoardType(unside);//»ñÈ¡·´·½ÍşĞ²ÀàĞÍ
+		hashP.code = boardCode;//¸³Öµ±íÏîÎ¨Ò»±êÊ¶
+		hashP.cut = true;//³õÊ¼»¯Îªtrue£¬±íÃ÷¾­¹ı¼ôÖ¦
+		hashP.full = false;//³õÊ¼»¯Îªfalse£¬±íÃ÷²»¾ßÓĞÍêÕû×Å·¨ÁĞ±í
+		hashP.myType = GetBoardType(side);//»ñÈ¡±¾·½ÍşĞ²ÀàĞÍ
+		hashP.denType = GetBoardType(unside);//»ñÈ¡·´·½ÍşĞ²ÀàĞÍ
 	}
-	hashP.index=HandNum;//¸üĞÂ¹şÏ£±íÏîÊ±¼ä´Á
-	hashP.depth=depth;//¸üĞÂËÑË÷Éî¶È
+	hashP.timestamp = HandNum;//¸üĞÂ¹şÏ£±íÏîÊ±¼ä´Á
 
 	//µİ¹é³ö¿Ú
-	if(hashP.denType>=1000)//¶Ô·½ÒÑÊ¤
+	if (hashP.denType >= 1000)//¶Ô·½ÒÑÊ¤
 	{
-		hashP.value=depth-WINLOSE;
-		addHash(hashP);
-		return depth-WINLOSE;
+		hashP.value = depth - WINLOSE;
+		goto appendReturn;
 	}
-	else if(hashP.myType>0)//´æÔÚÍşĞ²¶Ô·½µÄÏßĞÍ£¨ÔÚµİ¹é¹ı³ÌÖĞ£¬¿ÉÄÜÊ¹µÚÒ»¸öÌõ¼ş²»´æÔÚ£©
+	else if (hashP.myType > 0)//´æÔÚÍşĞ²¶Ô·½µÄÏßĞÍ£¨ÔÚµİ¹é¹ı³ÌÖĞ£¬¿ÉÄÜÊ¹µÚÒ»¸öÌõ¼ş²»´æÔÚ£©
 	{
-		hashP.value=WINLOSE-depth;
-		addHash(hashP);
-		return WINLOSE-depth;
+		hashP.value = WINLOSE - depth;
+		goto appendReturn;
 	}
+	else if (depth >= SearchDepth)//ËÑË÷µ½ÏŞÖÆÉî¶È
+	{
+		//À©Õ¹ËÑË÷
 
-	if(depth>=SearchDepth)//ËÑË÷µ½×î´óÉî¶È
-	{
 		//´ïµ½×î´óËÑË÷Éî¶ÈÖ±½Ó·µ»Ø£¬²»½øĞĞÀ©Õ¹ËÑË÷
 		hashP.value = GetBoardValue(side) - GetBoardValue(unside);
-		addHash(hashP);
-		return hashP.value;
-/*		if(HandNum<=6)
-		{
-			hashP.value=GetBoardValue(side)-GetBoardValue(unside);
-			addHash(hashP);
-			return hashP.value;
-		}
-		else
-		{
-			hashP.value=ExtendSeach(side,alpha,beta,depth);//À©Õ¹ËÑË÷ÒÔ¶ÔÈËµÄÄ£ÄâÎªÈë¿Ú
-			if(hashP.value>MAXDEPTH-WINLOSE&&hashP.value<WINLOSE-MAXDEPTH)
-				hashP.value=(hashP.value*2+(GetBoardValue(side)-GetBoardValue(unside))*8)/10;
-			addHash(hashP);
-			return hashP.value;
-		}*/
+		goto appendReturn;
+	}
+
+	//Éú³ÉÈ«²¿×Å·¨
+	if (hashP.full == false)//µ±¹şÏ£±íÏîµÄfull×Ö¶ÎÖµÎªfalseÊ±£¬Ö¤Ã÷¸Ã±íÏîµÄstepList×Ö¶ÎÖµ²»ÍêÕû£¬²»ÄÜ±»Ö±½ÓÀûÓÃ¡£
+	{
+		if (hashP.myType > 0)//Èô±¾·½ÄÜ¶Ô¶Ô·½¹¹³ÉÍşĞ²£¬ÕâÊÇ¿ÉÊ¤¾ÖÃæ£¬Éú³É±ØÊ¤²½£¨µã£©
+			hashP.stepList = MakeStepListForWin(side, 20);
+		else if (hashP.denType == 1)//ÊÜµ½µ¥ÍşĞ²
+			hashP.stepList = MakeStepListForDefendSingle(side, 20);
+		else if (hashP.denType > 1)//ÊÜµ½Ë«ÍşĞ²£¬¶àÍşĞ²£¬Î±Ë«ÍşĞ²£¬Î±¶àÍşĞ²
+			hashP.stepList = MakeStepListForDefendDouble(side, 20);
+		else//´¦ÀíÎŞÍşĞ²ÇéĞÎ£¨²»´æÔÚ4ĞÍºÍ5ĞÍ£©
+			hashP.stepList = MakeStepListForNone(side, 20);
+		hashP.full = true;
 	}
 	else
 	{
-		//Éú³ÉÈ«²¿×Å·¨
-		if(hashP.full==false)//µ±¹şÏ£±íÏîµÄfull×Ö¶ÎÖµÎªfalseÊ±£¬Ö¤Ã÷¸Ã±íÏîµÄstepList×Ö¶ÎÖµ²»ÍêÕû£¬²»ÄÜ±»Ö±½ÓÀûÓÃ¡£
+		if (hashP.cut == false)//cut×Ö¶ÎÎªfalse(Î´¼ôÖ¦)£¬Ö¤Ã÷stepListÖĞÃ¿Ò»ÏîµÄvalueÆÀ¼Û±ê×¼Ò»ÖÂ¡£´ËÊ±¿ÉÒÔ¶ÔstepListÖĞµÄ×Å·¨½øĞĞÖØĞÂÅÅĞò£¬ÒÔÌá¸ß¼ôÖ¦Ğ§ÂÊ
 		{
-			if(hashP.myType>0)//Èô±¾·½ÄÜ¶Ô¶Ô·½¹¹³ÉÍşĞ²£¬ÕâÊÇ¿ÉÊ¤¾ÖÃæ£¬Éú³É±ØÊ¤²½£¨µã£©
-				hashP.stepList=MakeStepListForWin(side,20);
-			else if(hashP.denType==1)//ÊÜµ½µ¥ÍşĞ²
-				hashP.stepList=MakeStepListForDefendSingle(side,20);
-			else if(hashP.denType>1)//ÊÜµ½Ë«ÍşĞ²£¬¶àÍşĞ²£¬Î±Ë«ÍşĞ²£¬Î±¶àÍşĞ²
-				hashP.stepList=MakeStepListForDefendDouble(side,20);
-			else//´¦ÀíÎŞÍşĞ²ÇéĞÎ£¨²»´æÔÚ4ĞÍºÍ5ĞÍ£©
-				hashP.stepList=MakeStepListForNone(side,20);
-//			if(depth>=5)
-//			{
-//				int limit=hashP.stepList.size();
-//				if(limit>19)
-//					hashP.stepList.resize(limit*0.8);
-//			}
-			hashP.full=true;
+			sort(hashP.stepList.begin(), hashP.stepList.end(), cmpStepValue);
+			hashP.cut = true;
 		}
+	}
+	if (hashP.stepList.size() == 0)//ÒòÎª²»¿ÉÆÆ½â¾ÖÃæ£¬²»ÄÜÉú³É×Å·¨
+	{
+#ifdef DEBUGVALUE
+		if (hashP.denType == 2 || hashP.denType == 10)
+			debugger.OutputMessage("´¦ÀíË«µ¥ÍşĞ²³ö´í£¡", side);
 		else
-		{
-			if(hashP.cut==false)//cut×Ö¶ÎÎªfalse£¬Ö¤Ã÷stepListÖĞÃ¿Ò»ÏîµÄvalueÆÀ¼Û±ê×¼Ò»ÖÂ¡£´ËÊ±¿ÉÒÔ¶ÔstepListÖĞµÄ×Å·¨½øĞĞÖØĞÂÅÅĞò£¬ÒÔÌá¸ß¼ôÖ¦Ğ§ÂÊ
-			{
-				sort(hashP.stepList.begin(),hashP.stepList.end(),cmpStepValue);
-//				if(hashP.stepList.size()>15)
-//					hashP.stepList.resize(hashP.stepList.size()*0.8);
-				hashP.cut=true;
-			}
-		}
-		if(hashP.stepList.size()==0)//ÒòÎª²»¿ÉÆÆ½â¾ÖÃæ£¬²»ÄÜÉú³É×Å·¨
-		{
-			if(hashP.denType==2)
-				printf("´¦ÀíË«µ¥ÍşĞ²³ö´í\n");
-			else if(hashP.denType==10)
-				printf("´¦ÀíË«ÍşĞ²³ö´í\n");
-			hashP.value=depth-WINLOSE;
-			addHash(hashP);
-			return depth-WINLOSE;
-		}
+			debugger.OutputMessage("×Å·¨Éú³ÉÆ÷Î´ÄÜÉú³É×Å·¨£¡", side);
+#endif
+		printf("error: can't create step!\n");
+		hashP.value = depth - WINLOSE;
+		goto appendReturn;
 	}
 
-	for(iterS=hashP.stepList.begin();iterS!=hashP.stepList.end();iterS++)
+#ifdef DEBUGVALUE
+	debugger.OutputStep(hashP.stepList, side);
+#endif
+	for (iterS = hashP.stepList.begin(); iterS != hashP.stepList.end(); iterS++)
 	{
-		moveCodeS(boardCode,*iterS,side);//×ß×Ó
-		hash=hashCode(boardCode);
-		if(compareCode(hashList[hash].code,boardCode)&&hashList[hash].index==HandNum)//Èç¹û´æÔÚÀúÊ·£¬ÇÒÊ±¼ä´ÁÓëµ±Ç°Ò»ÖÂ£¨±ØÊÇ³£¹æËÑË÷£©£¬ÔòÖ±½Ó·µ»Ø±íÖĞ±£´æµÄÖµ
+		moveCodeS(boardCode, *iterS, side);//×ß×Ó
+		MakeMove(iterS->first, tempLine, side);
+		MakeMove(iterS->second, tempLine2, side);
+#ifdef DEBUGVALUE
+		debugger.MakeMove(*iterS);
+#endif
+		iterS->value = -nega_alpha_beta(unside, -beta, -alpha, depth + 1);
+#ifdef DEBUGVALUE
+		debugger.BackMove(*iterS);
+#endif
+		BackMove(iterS->second, tempLine2, side);
+		BackMove(iterS->first, tempLine, side);
+		moveCodeS(boardCode, *iterS, side);//»Ö¸´
+		if (alpha < iterS->value)
 		{
-			if(hashList[hash].value<-alpha)
-				iterS->value=-hashList[hash].value;
-			else
-				iterS->value=alpha;
-		}
-		else 
-		{
-			MakeMove(iterS->first,tempLine,side);
-			MakeMove(iterS->second,tempLine2,side);
-			iterS->value=-nega_alpha_beta(unside,-beta,-alpha,depth+1);
-			BackMove(iterS->second,tempLine2,side);
-			BackMove(iterS->first,tempLine,side);
-		}
-		moveCodeS(boardCode,*iterS,side);//»Ö¸´
-		if(alpha<iterS->value)
-		{
-			alpha=iterS->value;
-			if(beta<=alpha)//max²ãÓÃbeta¼ôÖ¦
+			alpha = iterS->value;
+			select = *iterS;
+			if (beta <= alpha)//max²ãÓÃbeta¼ôÖ¦
 			{
-				hashP.value=beta;
-				addHash(hashP);
-				return beta;
+				hashP.value = alpha;
+				goto appendReturn;
 			}
 		}
 	}
-	hashP.cut=false;//Î´±»¼ôÖ¦
-	hashP.value=alpha;
+	hashP.cut = false;//Î´±»¼ôÖ¦
+	hashP.value = alpha;
+#ifdef DEBUGVALUE
+	debugger.OutSelect(select);
+#endif
+
+appendReturn:
 	addHash(hashP);
-	return alpha;
+	return hashP.value;
 }
 
-/**	
- * ExtendSeach - À©Õ¹¸º¼«´óÖµËÑË÷£¬Í¨¹ıDTSS½øĞĞÓÅ»¯£¬»òÊ¹¾ÖÃæµ½´ïÒ»¸öÆ½ÎÈ×´Ì¬ÔÙĞĞ¹ÀÖµ
+/**
+ * ExtendSeach - À©Õ¹¸º¼«´óÖµËÑË÷£¬Í¨¹ıDTSS/STSS½øĞĞÓÅ»¯£¬»òÊ¹¾ÖÃæµ½´ïÒ»¸öÆ½ÎÈ×´Ì¬ÔÙĞĞ¹ÀÖµ
  * @return:	·µ»ØËÑË÷µÃ³öµÄ¾ÖÃæÇ±ÄÜÌØÕ÷Öµ£¨¾ÖÃæ¼ÛÖµ£©
  * @side:		Ä£ÄâĞĞÆå·½Ö´ÆåÑÕÉ«
  * @alpha:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÏÂÏŞ
  * @beta:		Ö¸µ¼¼ôÖ¦µÄÇø¼äÉÏÏŞ
  * @depth:		µ±Ç°ËÑË÷Éî¶È
  */
-int ExtendSeach(BYTE side,int alpha,int beta,const int depth)
+int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 {
-	int unside=1-side,val;
-	LineInfo tempLine[2][4],tempLine2[2][4];
+	int unside = 1 - side, val;
+	LineInfo tempLine[2][4], tempLine2[2][4];
 	vector<Step> stepList;
 	vector<Step>::iterator iterS;
-	int myType,denType;
+	int myType, denType;
 
-	myType=GetBoardType(side);
-	denType=GetBoardType(unside);
+	myType = GetBoardType(side);
+	denType = GetBoardType(unside);
 
 	//µİ¹é³ö¿Ú
-	if(denType>=1000)//ÒÑÊ¤
-		return depth-WINLOSE;
-	else if(myType>0)//´æÔÚÍşĞ²¶Ô·½µÄÏßĞÍ£¨ÔÚµİ¹é¹ı³ÌÖĞ£¬¿ÉÄÜÊ¹µÚÒ»¸öÌõ¼ş²»´æÔÚ£©
-		return WINLOSE-depth;
+	if (denType >= 1000)//ÒÑÊ¤
+		return depth - WINLOSE;
+	else if (myType > 0)//´æÔÚÍşĞ²¶Ô·½µÄÏßĞÍ£¨ÔÚµİ¹é¹ı³ÌÖĞ£¬¿ÉÄÜÊ¹µÚÒ»¸öÌõ¼ş²»´æÔÚ£©
+		return WINLOSE - depth;
 
-	if(depth>=MaxDepth)//µ½´ïËÑË÷×î´óÉî¶È½øĞĞ·µ»Ø
-		return GetBoardValue(side)-GetBoardValue(unside);
+	if (depth >= MaxDepth)//µ½´ïËÑË÷×î´óÉî¶È½øĞĞ·µ»Ø
+		return GetBoardValue(side) - GetBoardValue(unside);
 
 	//À©Õ¹ËÑË÷ÖĞ²»ĞèÒª±£´æ×Å·¨ÁĞ±í£¬ÒòÆä²»ÍêÕûĞÔ£¬ÔÚ³£¹æËÑË÷ÖĞ½«²»»á±»ÒıÓÃ
-	if(denType==1)//Èç¹ûÊÜµ½µ¥ÍşĞ²£¬´¥·¢Á¬Ğøµ¥ÍşĞ²ËÑË÷
-		stepList=MakeStepListForDefendSingleEx(side,3);
-	else if(denType>1)//ÊÜµ½Ë«ÍşĞ²£¬±Ø½øĞĞÆÆÕĞ£¬ÊôÓÚË«ÆÈÕĞËÑË÷µÄÒ»²¿·Ö
-		stepList=MakeStepListForDefendDoubleEx(side,4);
+	if (denType == 1)//Èç¹ûÊÜµ½µ¥ÍşĞ²£¬´¥·¢Á¬Ğøµ¥ÍşĞ²ËÑË÷
+		stepList = MakeStepListForDefendSingleEx(side, 3);
+	else if (denType > 1)//ÊÜµ½Ë«ÍşĞ²£¬±Ø½øĞĞÆÆÕĞ£¬ÊôÓÚË«ÆÈÕĞËÑË÷µÄÒ»²¿·Ö
+		stepList = MakeStepListForDefendDoubleEx(side, 4);
 	else//ÎŞÍşĞ²Ê±Ñ°ÕÒ·¢Æğ Ë«ÆÆÕĞËÑË÷ µÄ»ú»á
-		stepList=MakeStepListForDouble(side,3);
+		stepList = MakeStepListForDouble(side, 3);
 
-	if(stepList.size()==0)
+	if (stepList.size() == 0)
 	{
-		if(denType>2)//¶àÍşĞ²²»¿ÉÆÆ½â
-			return depth-WINLOSE;
+		if (denType > 2)//¶àÍşĞ²²»¿ÉÆÆ½â
+			return depth - WINLOSE;
 		else//²»Âú×ã¼ÓÉîËÑË÷Ìõ¼ş
-			return GetBoardValue(side)-GetBoardValue(unside);
+			return GetBoardValue(side) - GetBoardValue(unside);
 	}
 
-	for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
+	for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 	{
-		MakeMove(iterS->first,tempLine,side);
-		MakeMove(iterS->second,tempLine2,side);
-		val=-ExtendSeach(unside,-beta,-alpha,depth+1);
-		BackMove(iterS->second,tempLine2,side);
-		BackMove(iterS->first,tempLine,side);
-		if(val>=WINLOSE-MaxDepth)//Ö»ÒªÓĞÒ»¸ö×Å·¨¿ÉÒÔ»ñÊ¤£¬½«±ØÊ¤
+		MakeMove(iterS->first, tempLine, side);
+		MakeMove(iterS->second, tempLine2, side);
+		val = -ExtendSeach(unside, -beta, -alpha, depth + 1);
+		BackMove(iterS->second, tempLine2, side);
+		BackMove(iterS->first, tempLine, side);
+		if (val >= WINLOSE - MaxDepth)//Ö»ÒªÓĞÒ»¸ö×Å·¨¿ÉÒÔ»ñÊ¤£¬½«±ØÊ¤
 			return val;
-		if(alpha<val)
+		if (alpha < val)
 		{
-			alpha=val;
-			if(beta<=val)
+			alpha = val;
+			if (beta <= val)
 				return beta;
 		}
 	}
 	return alpha;
 }
 
-/**	
+/**
  * initialAllLine - ³õÊ¼»¯±£´æ¶ÔŞÄË«·½92ÌõÏßĞÅÏ¢µÄlineInfo[2][92]Êı×é
  * @return:	ÎŞ·µ»ØÖµ
  */
 void initialAllLine()
 {
-	int i,j;
-	for(i=0;i<2;i++)
-		for(j=0;j<92;j++)
+	int i, j;
+	for (i = 0; i < 2; i++)
+		for (j = 0; j < 92; j++)
 			initialLine(&lineInfo[i][j]);
 }
 
@@ -367,10 +375,10 @@ void initialAllLine()
  */
 void UpdataBoard(Step step)
 {
-	UpdateLineForCross(step.first,BLACK);
-	UpdateLineForCross(step.first,WHITE);
-	UpdateLineForCross(step.second,BLACK);
-	UpdateLineForCross(step.second,WHITE);
+	UpdateLineForCross(step.first, BLACK);
+	UpdateLineForCross(step.first, WHITE);
+	UpdateLineForCross(step.second, BLACK);
+	UpdateLineForCross(step.second, WHITE);
 }
 
 /**
@@ -379,36 +387,36 @@ void UpdataBoard(Step step)
  * @point:		Âä×Óµã
  * @side:		µãËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
-void UpdateLineForCross(Point point,BYTE side,int tag)
+void UpdateLineForCross(Point point, BYTE side, int tag)
 {
 	int key;
 	Point start;
 	LineInfo lineTemp[4];
-	if(point.x==-1)//Æú×Óµã
+	if (point.x == -1)//Æú×Óµã
 		return;
-	key=GetLineKey(point,&start,ANGLE0);//»ñµÃµãËùÔÚºáÏòÏßµÄË÷ÒıºÍÏßµÄÆğÊ¼µã
-	if(key!=-1)
+	key = GetLineKey(point, &start, ANGLE0);//»ñµÃµãËùÔÚºáÏòÏßµÄË÷ÒıºÍÏßµÄÆğÊ¼µã
+	if (key != -1)
 	{
-		lineTemp[ANGLE0]=AnalyzeLine(start,ANGLE0,side,tag);//´ÓÏßµÄÆğÊ¼µã¿ªÊ¼·ÖÎö¸ÃÏßµÄĞÅÏ¢
-		CopyLineInfo(lineInfo[side][key],lineTemp[ANGLE0],tag);//¸´ÖÆÏßµÄĞÅÏ¢µ½±íÖĞ
+		lineTemp[ANGLE0] = AnalyzeLine(start, ANGLE0, side, tag);//´ÓÏßµÄÆğÊ¼µã¿ªÊ¼·ÖÎö¸ÃÏßµÄĞÅÏ¢
+		CopyLineInfo(lineInfo[side][key], lineTemp[ANGLE0], tag);//¸´ÖÆÏßµÄĞÅÏ¢µ½±íÖĞ
 	}
-	key=GetLineKey(point,&start,ANGLE90);//×İÏò
-	if(key!=-1)
+	key = GetLineKey(point, &start, ANGLE90);//×İÏò
+	if (key != -1)
 	{
-		lineTemp[ANGLE90]=AnalyzeLine(start,ANGLE90,side,tag);
-		CopyLineInfo(lineInfo[side][key],lineTemp[ANGLE90],tag);
+		lineTemp[ANGLE90] = AnalyzeLine(start, ANGLE90, side, tag);
+		CopyLineInfo(lineInfo[side][key], lineTemp[ANGLE90], tag);
 	}
-	key=GetLineKey(point,&start,ANGLE45);//ÏòÓÒĞ±ÏÂ
-	if(key!=-1)
+	key = GetLineKey(point, &start, ANGLE45);//ÏòÓÒĞ±ÏÂ
+	if (key != -1)
 	{
-		lineTemp[ANGLE45]=AnalyzeLine(start,ANGLE45,side,tag);
-		CopyLineInfo(lineInfo[side][key],lineTemp[ANGLE45],tag);
+		lineTemp[ANGLE45] = AnalyzeLine(start, ANGLE45, side, tag);
+		CopyLineInfo(lineInfo[side][key], lineTemp[ANGLE45], tag);
 	}
-	key=GetLineKey(point,&start,ANGLE135);//Ïò×óĞ±ÏÂ
-	if(key!=-1)
+	key = GetLineKey(point, &start, ANGLE135);//Ïò×óĞ±ÏÂ
+	if (key != -1)
 	{
-		lineTemp[ANGLE135]=AnalyzeLine(start,ANGLE135,side,tag);
-		CopyLineInfo(lineInfo[side][key],lineTemp[ANGLE135],tag);
+		lineTemp[ANGLE135] = AnalyzeLine(start, ANGLE135, side, tag);
+		CopyLineInfo(lineInfo[side][key], lineTemp[ANGLE135], tag);
 	}
 }
 
@@ -419,134 +427,138 @@ void UpdateLineForCross(Point point,BYTE side,int tag)
  * @lineDirec:	ÏßµÄ·½Ïò±êÖ¾
  * @side:		·ÖÎöµÄÏßĞÅÏ¢ËùÊô·½Ö´ÆåÑÕÉ«
  */
-LineInfo AnalyzeLine(Point start,BYTE lineDirec,BYTE side,int tag)
+LineInfo AnalyzeLine(Point start, BYTE lineDirec, BYTE side, int tag)
 {
-	int shapeIndex=0;	// ÏßĞÍË÷Òı
-	int x=start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
-	int y=start.y;
+	int shapeIndex = 0;	// ÏßĞÍË÷Òı
+	int x = start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
+	int y = start.y;
 	Point LinePos;		//±»·ÖÎöµÄÏßĞÎµÄÆğµã¾ø¶Ô×ø±ê¡£ÓÃ-1±íÊ¾»¹Î´È·¶¨³ö±»·ÖÎöÏßĞÎµÄÆğµã£¨ÆåÅÌµÄÓĞĞ§µãµÄ×ø±êÖµ¶¼²»Ğ¡ÓÚ0£©¡£
-	int len=0;			//¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
-	int value=0;
-	vector<Point>::iterator iterP; 
-	vector<Step>::iterator iterS; 
-	LineInfo lineInfo_1,lineInfo_2;
+	int len = 0;			//¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
+	int value = 0;
+	vector<Point>::iterator iterP;
+	vector<Step>::iterator iterS;
+	LineInfo lineInfo_1, lineInfo_2;
 
-//	lineInfo_2.side=side;
-	lineInfo_2.value=0;
-	lineInfo_2.LineType=0;
-	LinePos.x=-1;
+	//	lineInfo_2.side=side;
+	lineInfo_2.value = 0;
+	lineInfo_2.LineType = 0;
+	LinePos.x = -1;
 
 	//ÌáÈ¡ÏßĞÍ
 	while (x<edge&&y<edge&&x>-1 && y>-1)	//	µãÔÚÆåÅÌÄÚ
-	{							
-		if(virtualBoard[x][y]==EMPTY)//¿Õµã
+	{
+		if (virtualBoard[x][y] == EMPTY)//¿Õµã
 		{
 			len++;
-			if(LinePos.x==-1)//È·¶¨ÆğÊ¼Î»ÖÃ
-			{ LinePos.x=x; LinePos.y=y; }
+			if (LinePos.x == -1)//È·¶¨ÆğÊ¼Î»ÖÃ
+			{
+				LinePos.x = x; LinePos.y = y;
+			}
 		}
-		else if(virtualBoard[x][y]==side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
+		else if (virtualBoard[x][y] == side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
 		{
-			shapeIndex+=(1<<len);	
+			shapeIndex += (1 << len);
 			len++;
-			if(LinePos.x==-1)//È·¶¨ÆğÊ¼Î»ÖÃ
-			{ LinePos.x=x; LinePos.y=y; }
-		}	
+			if (LinePos.x == -1)//È·¶¨ÆğÊ¼Î»ÖÃ
+			{
+				LinePos.x = x; LinePos.y = y;
+			}
+		}
 		else		//  Èç¹ûÊÇ¶Ô·½Æå×Ó£¬±¾·½ÏßĞÍÒÑÈ·¶¨¡£
 		{
-			if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+			if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 			{
-				shapeIndex+=(1<<len);	  //ÉèÖÃÏßĞÍ±ß½ç£¬µÃµ½ÏßĞÍË÷Òı¡£
-				lineInfo_1=ValuateType(shapeIndex,LinePos,lineDirec,tag);//·ÖÎö¸ÃÏßĞÍ°üº¬µÄĞÅÏ¢
-			/*  ²»»á¶Ô¾ßÓĞÒÑÊ¤ÏßĞÍµÄÒÑÊ¤¾ÖÃæ½øĞĞĞÅÏ¢²É¼¯
-				if(lineInfo_1.LineType>=1000)//Èç¹ûÒÑÊ¤£¬Ö±½Ó·µ»Ø
+				shapeIndex += (1 << len);	  //ÉèÖÃÏßĞÍ±ß½ç£¬µÃµ½ÏßĞÍË÷Òı¡£
+				lineInfo_1 = ValuateType(shapeIndex, LinePos, lineDirec, tag);//·ÖÎö¸ÃÏßĞÍ°üº¬µÄĞÅÏ¢
+				/*  ²»»á¶Ô¾ßÓĞÒÑÊ¤ÏßĞÍµÄÒÑÊ¤¾ÖÃæ½øĞĞĞÅÏ¢²É¼¯
+					if(lineInfo_1.LineType>=1000)//Èç¹ûÒÑÊ¤£¬Ö±½Ó·µ»Ø
 					return lineInfo_1;
-			*/
-				lineInfo_2.value+=lineInfo_1.value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ
-				lineInfo_2.LineType+=lineInfo_1.LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ
+					*/
+				lineInfo_2.value += lineInfo_1.value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ
+				lineInfo_2.LineType += lineInfo_1.LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ
 				//¸´ÖÆÏßĞÍĞÅÏ¢
-				if(lineInfo_1.LineType)//ÍşĞ²ĞÍ
+				if (lineInfo_1.LineType)//ÍşĞ²ĞÍ
 				{
-					if(lineInfo_1.defPointList.size()>0)//·ÀÓùµã
-						for(iterP=lineInfo_1.defPointList.begin();iterP!=lineInfo_1.defPointList.end();iterP++)
+					if (lineInfo_1.defPointList.size() > 0)//·ÀÓùµã
+						for (iterP = lineInfo_1.defPointList.begin(); iterP != lineInfo_1.defPointList.end(); iterP++)
 							lineInfo_2.defPointList.push_back(*iterP);
-					if(lineInfo_1.defStepList.size()>0)//·ÀÓù²½
-						for(iterS=lineInfo_1.defStepList.begin();iterS!=lineInfo_1.defStepList.end();iterS++)
+					if (lineInfo_1.defStepList.size() > 0)//·ÀÓù²½
+						for (iterS = lineInfo_1.defStepList.begin(); iterS != lineInfo_1.defStepList.end(); iterS++)
 							lineInfo_2.defStepList.push_back(*iterS);
-					if(lineInfo_1.winList.size()>0)//ÖÂÊ¤µã
-						for(iterP=lineInfo_1.winList.begin();iterP!=lineInfo_1.winList.end();iterP++)
+					if (lineInfo_1.winList.size() > 0)//ÖÂÊ¤µã
+						for (iterP = lineInfo_1.winList.begin(); iterP != lineInfo_1.winList.end(); iterP++)
 							lineInfo_2.winList.push_back(*iterP);
-					if(lineInfo_1.willWinList.size()>0)//¼´½«Ê¤Àûµã
-						for(iterP=lineInfo_1.willWinList.begin();iterP!=lineInfo_1.willWinList.end();iterP++)
+					if (lineInfo_1.willWinList.size() > 0)//¼´½«Ê¤Àûµã
+						for (iterP = lineInfo_1.willWinList.begin(); iterP != lineInfo_1.willWinList.end(); iterP++)
 							lineInfo_2.willWinList.push_back(*iterP);
-					if(lineInfo_1.triThreatList.size()>0)//¶àÍşĞ²µã
-						for(iterP=lineInfo_1.triThreatList.begin();iterP!=lineInfo_1.triThreatList.end();iterP++)
+					if (lineInfo_1.triThreatList.size() > 0)//¶àÍşĞ²µã
+						for (iterP = lineInfo_1.triThreatList.begin(); iterP != lineInfo_1.triThreatList.end(); iterP++)
 							lineInfo_2.triThreatList.push_back(*iterP);
 				}
-				if(lineInfo_1.duoThreatList.size()>0)//Ë«ÍşĞ²µã
-					for(iterP=lineInfo_1.duoThreatList.begin();iterP!=lineInfo_1.duoThreatList.end();iterP++)
+				if (lineInfo_1.duoThreatList.size() > 0)//Ë«ÍşĞ²µã
+					for (iterP = lineInfo_1.duoThreatList.begin(); iterP != lineInfo_1.duoThreatList.end(); iterP++)
 						lineInfo_2.duoThreatList.push_back(*iterP);
-				if(lineInfo_1.solThreatList.size()>0)//µ¥ÍşĞ²µã
-					for(iterP=lineInfo_1.solThreatList.begin();iterP!=lineInfo_1.solThreatList.end();iterP++)
+				if (lineInfo_1.solThreatList.size() > 0)//µ¥ÍşĞ²µã
+					for (iterP = lineInfo_1.solThreatList.begin(); iterP != lineInfo_1.solThreatList.end(); iterP++)
 						lineInfo_2.solThreatList.push_back(*iterP);
-				if(lineInfo_1.duoPotenList.size()>0)//Ë«Ç±Á¦µã
-					for(iterP=lineInfo_1.duoPotenList.begin();iterP!=lineInfo_1.duoPotenList.end();iterP++)
+				if (lineInfo_1.duoPotenList.size() > 0)//Ë«Ç±Á¦µã
+					for (iterP = lineInfo_1.duoPotenList.begin(); iterP != lineInfo_1.duoPotenList.end(); iterP++)
 						lineInfo_2.duoPotenList.push_back(*iterP);
-				if(lineInfo_1.solPotenList.size()>0)//µ¥Ç±Á¦µã
-					for(iterP=lineInfo_1.solPotenList.begin();iterP!=lineInfo_1.solPotenList.end();iterP++)
+				if (lineInfo_1.solPotenList.size() > 0)//µ¥Ç±Á¦µã
+					for (iterP = lineInfo_1.solPotenList.begin(); iterP != lineInfo_1.solPotenList.end(); iterP++)
 						lineInfo_2.solPotenList.push_back(*iterP);
-				if(lineInfo_1.toDuoTwoList.size()>0)//Ç±Ë«Ç±Á¦µã
-					for(iterP=lineInfo_1.toDuoTwoList.begin();iterP!=lineInfo_1.toDuoTwoList.end();iterP++)
+				if (lineInfo_1.toDuoTwoList.size() > 0)//Ç±Ë«Ç±Á¦µã
+					for (iterP = lineInfo_1.toDuoTwoList.begin(); iterP != lineInfo_1.toDuoTwoList.end(); iterP++)
 						lineInfo_2.toDuoTwoList.push_back(*iterP);
 			}
-			shapeIndex=0;	// Ë÷Òı¹éÁã
-			len=0;		// ³¤¶È¹éÁã
-			LinePos.x=-1;
+			shapeIndex = 0;	// Ë÷Òı¹éÁã
+			len = 0;		// ³¤¶È¹éÁã
+			LinePos.x = -1;
 		}
 		Increment(x, y, lineDirec);
 	}
-	if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+	if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 	{
-		shapeIndex+=(1<<len);	  // µÃµ½ÏßĞÍË÷Òı
-		lineInfo_1=ValuateType(shapeIndex,LinePos,lineDirec,tag);
-	/*  ²»»á¶Ô¾ßÓĞÒÑÊ¤ÏßĞÍµÄÒÑÊ¤¾ÖÃæ½øĞĞĞÅÏ¢²É¼¯
-		if(lineInfo_1.LineType>=1000)//Èç¹ûÒÑÊ¤£¬Ö±½Ó·µ»Ø
+		shapeIndex += (1 << len);	  // µÃµ½ÏßĞÍË÷Òı
+		lineInfo_1 = ValuateType(shapeIndex, LinePos, lineDirec, tag);
+		/*  ²»»á¶Ô¾ßÓĞÒÑÊ¤ÏßĞÍµÄÒÑÊ¤¾ÖÃæ½øĞĞĞÅÏ¢²É¼¯
+			if(lineInfo_1.LineType>=1000)//Èç¹ûÒÑÊ¤£¬Ö±½Ó·µ»Ø
 			return lineInfo_1;
-	*/
-		lineInfo_2.value+=lineInfo_1.value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ
-		lineInfo_2.LineType+=lineInfo_1.LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ
-		if(lineInfo_1.LineType>0)//ÍşĞ²ĞÍ
+			*/
+		lineInfo_2.value += lineInfo_1.value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ
+		lineInfo_2.LineType += lineInfo_1.LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ
+		if (lineInfo_1.LineType > 0)//ÍşĞ²ĞÍ
 		{
-			if(lineInfo_1.defPointList.size()>0)
-				for(iterP=lineInfo_1.defPointList.begin();iterP!=lineInfo_1.defPointList.end();iterP++)
+			if (lineInfo_1.defPointList.size() > 0)
+				for (iterP = lineInfo_1.defPointList.begin(); iterP != lineInfo_1.defPointList.end(); iterP++)
 					lineInfo_2.defPointList.push_back(*iterP);
-			if(lineInfo_1.defStepList.size()>0)
-				for(iterS=lineInfo_1.defStepList.begin();iterS!=lineInfo_1.defStepList.end();iterS++)
+			if (lineInfo_1.defStepList.size() > 0)
+				for (iterS = lineInfo_1.defStepList.begin(); iterS != lineInfo_1.defStepList.end(); iterS++)
 					lineInfo_2.defStepList.push_back(*iterS);
-			if(lineInfo_1.winList.size()>0)
-				for(iterP=lineInfo_1.winList.begin();iterP!=lineInfo_1.winList.end();iterP++)
+			if (lineInfo_1.winList.size() > 0)
+				for (iterP = lineInfo_1.winList.begin(); iterP != lineInfo_1.winList.end(); iterP++)
 					lineInfo_2.winList.push_back(*iterP);
-			if(lineInfo_1.willWinList.size()>0)
-				for(iterP=lineInfo_1.willWinList.begin();iterP!=lineInfo_1.willWinList.end();iterP++)
+			if (lineInfo_1.willWinList.size() > 0)
+				for (iterP = lineInfo_1.willWinList.begin(); iterP != lineInfo_1.willWinList.end(); iterP++)
 					lineInfo_2.willWinList.push_back(*iterP);
-			if(lineInfo_1.triThreatList.size()>0)
-				for(iterP=lineInfo_1.triThreatList.begin();iterP!=lineInfo_1.triThreatList.end();iterP++)
+			if (lineInfo_1.triThreatList.size() > 0)
+				for (iterP = lineInfo_1.triThreatList.begin(); iterP != lineInfo_1.triThreatList.end(); iterP++)
 					lineInfo_2.triThreatList.push_back(*iterP);
 		}
-		if(lineInfo_1.duoThreatList.size()>0)
-			for(iterP=lineInfo_1.duoThreatList.begin();iterP!=lineInfo_1.duoThreatList.end();iterP++)
+		if (lineInfo_1.duoThreatList.size() > 0)
+			for (iterP = lineInfo_1.duoThreatList.begin(); iterP != lineInfo_1.duoThreatList.end(); iterP++)
 				lineInfo_2.duoThreatList.push_back(*iterP);
-		if(lineInfo_1.solThreatList.size()>0)
-			for(iterP=lineInfo_1.solThreatList.begin();iterP!=lineInfo_1.solThreatList.end();iterP++)
+		if (lineInfo_1.solThreatList.size() > 0)
+			for (iterP = lineInfo_1.solThreatList.begin(); iterP != lineInfo_1.solThreatList.end(); iterP++)
 				lineInfo_2.solThreatList.push_back(*iterP);
-		if(lineInfo_1.duoPotenList.size()>0)
-			for(iterP=lineInfo_1.duoPotenList.begin();iterP!=lineInfo_1.duoPotenList.end();iterP++)
+		if (lineInfo_1.duoPotenList.size() > 0)
+			for (iterP = lineInfo_1.duoPotenList.begin(); iterP != lineInfo_1.duoPotenList.end(); iterP++)
 				lineInfo_2.duoPotenList.push_back(*iterP);
-		if(lineInfo_1.solPotenList.size()>0)
-			for(iterP=lineInfo_1.solPotenList.begin();iterP!=lineInfo_1.solPotenList.end();iterP++)
+		if (lineInfo_1.solPotenList.size() > 0)
+			for (iterP = lineInfo_1.solPotenList.begin(); iterP != lineInfo_1.solPotenList.end(); iterP++)
 				lineInfo_2.solPotenList.push_back(*iterP);
-		if(lineInfo_1.toDuoTwoList.size()>0)
-			for(iterP=lineInfo_1.toDuoTwoList.begin();iterP!=lineInfo_1.toDuoTwoList.end();iterP++)
+		if (lineInfo_1.toDuoTwoList.size() > 0)
+			for (iterP = lineInfo_1.toDuoTwoList.begin(); iterP != lineInfo_1.toDuoTwoList.end(); iterP++)
 				lineInfo_2.toDuoTwoList.push_back(*iterP);
 	}
 	return lineInfo_2;
@@ -559,9 +571,9 @@ LineInfo AnalyzeLine(Point start,BYTE lineDirec,BYTE side,int tag)
  * @start:		ÏßĞÍµÄÆğÊ¼µã¾ø¶Ô×ø±ê
  * @lineDirec:	ÏßĞÍËùÔÚÏßµÄ·½Ïò
  */
-LineInfo ValuateType(int style,Point start,BYTE lineDirec,int tag)
+LineInfo ValuateType(int style, Point start, BYTE lineDirec, int tag)
 {
-	int i,len;	//len:ÏßĞÍµÄ³¤¶È¡£
+	int i, len;	//len:ÏßĞÍµÄ³¤¶È¡£
 	int ShapeStyleId;	//ÆåĞÎÀàĞÍ±àºÅ£¨1~14£©¡£
 	Point tempPoint;
 	Step tempStep;
@@ -569,92 +581,94 @@ LineInfo ValuateType(int style,Point start,BYTE lineDirec,int tag)
 	vector<iPoint>::iterator iterP;
 	vector<iStep>::iterator iterS;
 
-	ShapeStyleId=preTable[style];//»ñµÃÏßĞÍÀàĞÍ
-	lineInfo.value=LineTypeValue[ShapeStyleId];//»ñµÃÏßĞÍ¼ÛÖµ
-	lineInfo.LineType=LineTypeThreat[ShapeStyleId];//»ñµÃÏßĞÍµÄÍşĞ²ÀàĞÍ
+	ShapeStyleId = preTable[style];//»ñµÃÏßĞÍÀàĞÍ
+	lineInfo.value = LineTypeValue[ShapeStyleId];//»ñµÃÏßĞÍ¼ÛÖµ
+	lineInfo.LineType = LineTypeThreat[ShapeStyleId];//»ñµÃÏßĞÍµÄÍşĞ²ÀàĞÍ
 
-	if(ShapeStyleId==ZERO)//¿ÕÏßĞÍ
+	if (ShapeStyleId == ZERO)//¿ÕÏßĞÍ
 		return lineInfo;
-	if(ShapeStyleId>=WIN)//ÒÑÊ¤ÏßĞÍ
+	if (ShapeStyleId >= WIN)//ÒÑÊ¤ÏßĞÍ
 		return lineInfo;
 
-	for(i=19;i>=0;i--)//¼ÆËãstyleµÄÓĞĞ§¶ş½øÖÆÎ»Êı£¬¼´ÏßĞÍ³¤¶È¡£ÖÁÉÙÎª6Î»£¬ÕâÊÇÓÉAnalyzeLineº¯Êı¾ö¶¨µÄ¡£
-		if(GetABit(style,i))
-		{ len=i; break; }
-
-	if(ShapeStyleId>=THREAT_four_SINGLE)//ÍşĞ²ĞÍ
-	{
-		if(tag&TODEFENT)
+	for (i = 19; i >= 0; i--)//¼ÆËãstyleµÄÓĞĞ§¶ş½øÖÆÎ»Êı£¬¼´ÏßĞÍ³¤¶È¡£ÖÁÉÙÎª6Î»£¬ÕâÊÇÓÉAnalyzeLineº¯Êı¾ö¶¨µÄ¡£
+		if (GetABit(style, i))
 		{
-			if(linetypeInfo[style].defStepList.size()!=0)//·ÀÓù²½
-				for(iterS=linetypeInfo[style].defStepList.begin();iterS!=linetypeInfo[style].defStepList.end();iterS++)
+			len = i; break;
+		}
+
+	if (ShapeStyleId >= THREAT_four_SINGLE)//ÍşĞ²ĞÍ
+	{
+		if (tag&TODEFENT)
+		{
+			if (linetypeInfo[style].defStepList.size() != 0)//·ÀÓù²½
+				for (iterS = linetypeInfo[style].defStepList.begin(); iterS != linetypeInfo[style].defStepList.end(); iterS++)
 				{
-					tempStep.first.x=start.x+iterS->first*lineVector[lineDirec][0];
-					tempStep.first.y=start.y+iterS->first*lineVector[lineDirec][1];
-					tempStep.second.x=start.x+iterS->second*lineVector[lineDirec][0];
-					tempStep.second.y=start.y+iterS->second*lineVector[lineDirec][1];
+					tempStep.first.x = start.x + iterS->first*lineVector[lineDirec][0];
+					tempStep.first.y = start.y + iterS->first*lineVector[lineDirec][1];
+					tempStep.second.x = start.x + iterS->second*lineVector[lineDirec][0];
+					tempStep.second.y = start.y + iterS->second*lineVector[lineDirec][1];
 					lineInfo.defStepList.push_back(tempStep);
 				}
-			if(linetypeInfo[style].defPointList.size()!=0)//·ÀÓùµã
-				for(iterP=linetypeInfo[style].defPointList.begin();iterP!=linetypeInfo[style].defPointList.end();iterP++)
+			if (linetypeInfo[style].defPointList.size() != 0)//·ÀÓùµã
+				for (iterP = linetypeInfo[style].defPointList.begin(); iterP != linetypeInfo[style].defPointList.end(); iterP++)
 				{
-					tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-					tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
+					tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+					tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
 					lineInfo.defPointList.push_back(tempPoint);
 				}
 		}
-		if((tag&TOWIN) && linetypeInfo[style].win!=-1)//ÖÆÊ¤µã
+		if ((tag&TOWIN) && linetypeInfo[style].win != -1)//ÖÆÊ¤µã
 		{
-			tempPoint.x=start.x+linetypeInfo[style].win*lineVector[lineDirec][0];
-			tempPoint.y=start.y+linetypeInfo[style].win*lineVector[lineDirec][1];
+			tempPoint.x = start.x + linetypeInfo[style].win*lineVector[lineDirec][0];
+			tempPoint.y = start.y + linetypeInfo[style].win*lineVector[lineDirec][1];
 			lineInfo.winList.push_back(tempPoint);
 		}
-		if((tag&TOWILLWIN) && linetypeInfo[style].willWin!=-1)//¼´½«ÖÆÊ¤µã
+		if ((tag&TOWILLWIN) && linetypeInfo[style].willWin != -1)//¼´½«ÖÆÊ¤µã
 		{
-			tempPoint.x=start.x+linetypeInfo[style].willWin*lineVector[lineDirec][0];
-			tempPoint.y=start.y+linetypeInfo[style].willWin*lineVector[lineDirec][1];
+			tempPoint.x = start.x + linetypeInfo[style].willWin*lineVector[lineDirec][0];
+			tempPoint.y = start.y + linetypeInfo[style].willWin*lineVector[lineDirec][1];
 			lineInfo.willWinList.push_back(tempPoint);
 		}
-		if(linetypeInfo[style].triThreat!=-1)//¶àÍşĞ²µã
+		if (linetypeInfo[style].triThreat != -1)//¶àÍşĞ²µã
 		{
-			tempPoint.x=start.x+linetypeInfo[style].triThreat*lineVector[lineDirec][0];
-			tempPoint.y=start.y+linetypeInfo[style].triThreat*lineVector[lineDirec][1];
+			tempPoint.x = start.x + linetypeInfo[style].triThreat*lineVector[lineDirec][0];
+			tempPoint.y = start.y + linetypeInfo[style].triThreat*lineVector[lineDirec][1];
 			lineInfo.triThreatList.push_back(tempPoint);
 		}
 	}
-	if((tag&TODUOTHREAT) && linetypeInfo[style].duoThreatList.size()!=0)
-		for(iterP=linetypeInfo[style].duoThreatList.begin();iterP!=linetypeInfo[style].duoThreatList.end();iterP++)
+	if ((tag&TODUOTHREAT) && linetypeInfo[style].duoThreatList.size() != 0)
+		for (iterP = linetypeInfo[style].duoThreatList.begin(); iterP != linetypeInfo[style].duoThreatList.end(); iterP++)
 		{
-			tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-			tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
+			tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+			tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
 			lineInfo.duoThreatList.push_back(tempPoint);
 		}
-	if((tag&TOSOLTHREAT) && linetypeInfo[style].solThreatList.size()!=0)
-		for(iterP=linetypeInfo[style].solThreatList.begin();iterP!=linetypeInfo[style].solThreatList.end();iterP++)
+	if ((tag&TOSOLTHREAT) && linetypeInfo[style].solThreatList.size() != 0)
+		for (iterP = linetypeInfo[style].solThreatList.begin(); iterP != linetypeInfo[style].solThreatList.end(); iterP++)
 		{
-			tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-			tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
+			tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+			tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
 			lineInfo.solThreatList.push_back(tempPoint);
 		}
-	if((tag&TODUOPOTEN) &&  linetypeInfo[style].duoPotenList.size()!=0)
-		for(iterP=linetypeInfo[style].duoPotenList.begin();iterP!=linetypeInfo[style].duoPotenList.end();iterP++)
+	if ((tag&TODUOPOTEN) && linetypeInfo[style].duoPotenList.size() != 0)
+		for (iterP = linetypeInfo[style].duoPotenList.begin(); iterP != linetypeInfo[style].duoPotenList.end(); iterP++)
 		{
-			tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-			tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
+			tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+			tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
 			lineInfo.duoPotenList.push_back(tempPoint);
 		}
-	if((tag&TOSOLPOTEN) && linetypeInfo[style].solPotenList.size()!=0)
-		for(iterP=linetypeInfo[style].solPotenList.begin();iterP!=linetypeInfo[style].solPotenList.end();iterP++)
-			{
-				tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-				tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
-				lineInfo.solPotenList.push_back(tempPoint);
-			}
-	if((tag&TOCOMMON) && linetypeInfo[style].toDuoTwoList.size()!=0)
-		for(iterP=linetypeInfo[style].toDuoTwoList.begin();iterP!=linetypeInfo[style].toDuoTwoList.end();iterP++)
+	if ((tag&TOSOLPOTEN) && linetypeInfo[style].solPotenList.size() != 0)
+		for (iterP = linetypeInfo[style].solPotenList.begin(); iterP != linetypeInfo[style].solPotenList.end(); iterP++)
 		{
-			tempPoint.x=start.x+(*iterP)*lineVector[lineDirec][0];
-			tempPoint.y=start.y+(*iterP)*lineVector[lineDirec][1];
+			tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+			tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
+			lineInfo.solPotenList.push_back(tempPoint);
+		}
+	if ((tag&TOCOMMON) && linetypeInfo[style].toDuoTwoList.size() != 0)
+		for (iterP = linetypeInfo[style].toDuoTwoList.begin(); iterP != linetypeInfo[style].toDuoTwoList.end(); iterP++)
+		{
+			tempPoint.x = start.x + (*iterP)*lineVector[lineDirec][0];
+			tempPoint.y = start.y + (*iterP)*lineVector[lineDirec][1];
 			lineInfo.toDuoTwoList.push_back(tempPoint);
 		}
 	return lineInfo;
@@ -667,9 +681,9 @@ LineInfo ValuateType(int style,Point start,BYTE lineDirec,int tag)
  */
 int GetBoardType(BYTE side)
 {
-	int i,type=0;
-	for(i=0;i<92;i++)//²éÕÒ92ÌõÏß
-		type+=lineInfo[side][i].LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ×÷Îª¾ÖÃæµÄÍşĞ²ÀàĞÍ
+	int i, type = 0;
+	for (i = 0; i < 92; i++)//²éÕÒ92ÌõÏß
+		type += lineInfo[side][i].LineType;//ÀÛ¼ÓÏßµÄÍşĞ²ÀàĞÍ×÷Îª¾ÖÃæµÄÍşĞ²ÀàĞÍ
 	return type;
 }
 
@@ -679,9 +693,9 @@ int GetBoardType(BYTE side)
  */
 int GetBoardValue(BYTE side)
 {
-	int i,value=0;
-	for(i=0;i<92;i++)//²éÕÒ92ÌõÏß
-		value+=lineInfo[side][i].value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ×÷Îª¾ÖÃæ¼ÛÖµ
+	int i, value = 0;
+	for (i = 0; i < 92; i++)//²éÕÒ92ÌõÏß
+		value += lineInfo[side][i].value;//ÀÛ¼ÓÏßµÄ¼ÛÖµ×÷Îª¾ÖÃæ¼ÛÖµ
 	return value;
 }
 
@@ -690,60 +704,60 @@ int GetBoardValue(BYTE side)
  * @side	Ó¦ÊÕ¼¯ĞÅÏ¢µÄÆåÊÖ·½±êÖ¾
  * @tag	ÊÕ¼¯ĞÅÏ¢²ßÂÔ°´Î»±êÖ¾£¬³ı1±êÖ¾ÍâÆå¾Ö¼ÛÖµºÍÍşĞ²ÀàĞÍÎªÄ¬ÈÏÊÕ¼¯ĞÅÏ¢
  */
-SynInfo GetBoardInfo(BYTE side,int tag)
+SynInfo GetBoardInfo(BYTE side, int tag)
 {
 	int i;
 	SynInfo tempSynInfo;
-	vector<Point>::iterator iterP;	
-	vector<Step>::iterator iterS;		
+	vector<Point>::iterator iterP;
+	vector<Step>::iterator iterS;
 
-	for(i=0;i<92;i++)//²éÕÒ92ÌõÏß
+	for (i = 0; i < 92; i++)//²éÕÒ92ÌõÏß
 	{
-		if(tag&TODEFENT)//·ÀÓùĞÅÏ¢
+		if (tag&TODEFENT)//·ÀÓùĞÅÏ¢
 		{
-			if(lineInfo[side][i].defPointList.size()!=0)
-				for(iterP=lineInfo[side][i].defPointList.begin();iterP!=lineInfo[side][i].defPointList.end();iterP++)
+			if (lineInfo[side][i].defPointList.size() != 0)
+				for (iterP = lineInfo[side][i].defPointList.begin(); iterP != lineInfo[side][i].defPointList.end(); iterP++)
 					tempSynInfo.defPointList.push_back(*iterP);
-			if(lineInfo[side][i].defStepList.size()!=0)
-				for(iterS=lineInfo[side][i].defStepList.begin();iterS!=lineInfo[side][i].defStepList.end();iterS++)
+			if (lineInfo[side][i].defStepList.size() != 0)
+				for (iterS = lineInfo[side][i].defStepList.begin(); iterS != lineInfo[side][i].defStepList.end(); iterS++)
 					tempSynInfo.defStepList.push_back(*iterS);
 		}
-		if((tag&TOWIN) && lineInfo[side][i].winList.size()!=0)//ÖÂÊ¤µã
-			for(iterP=lineInfo[side][i].winList.begin();iterP!=lineInfo[side][i].winList.end();iterP++)
+		if ((tag&TOWIN) && lineInfo[side][i].winList.size() != 0)//ÖÂÊ¤µã
+			for (iterP = lineInfo[side][i].winList.begin(); iterP != lineInfo[side][i].winList.end(); iterP++)
 				tempSynInfo.winList.push_back(*iterP);
-		if((tag&TOWILLWIN) && lineInfo[side][i].willWinList.size()!=0)//¼´½«Ê¤Àûµã
-			for(iterP=lineInfo[side][i].willWinList.begin();iterP!=lineInfo[side][i].willWinList.end();iterP++)
+		if ((tag&TOWILLWIN) && lineInfo[side][i].willWinList.size() != 0)//¼´½«Ê¤Àûµã
+			for (iterP = lineInfo[side][i].willWinList.begin(); iterP != lineInfo[side][i].willWinList.end(); iterP++)
 				tempSynInfo.willWinList.push_back(*iterP);
-		if((tag&TODUOTHREAT)&&lineInfo[side][i].duoThreatList.size()!=0)//Ë«ÍşĞ²µã
-			for(iterP=lineInfo[side][i].duoThreatList.begin();iterP!=lineInfo[side][i].duoThreatList.end();iterP++)
+		if ((tag&TODUOTHREAT) && lineInfo[side][i].duoThreatList.size() != 0)//Ë«ÍşĞ²µã
+			for (iterP = lineInfo[side][i].duoThreatList.begin(); iterP != lineInfo[side][i].duoThreatList.end(); iterP++)
 				tempSynInfo.duoThreatList.push_back(*iterP);
-		if((tag&TOSOLTHREAT)&&lineInfo[side][i].solThreatList.size()!=0)//µ¥ÍşĞ²¶¨
-			for(iterP=lineInfo[side][i].solThreatList.begin();iterP!=lineInfo[side][i].solThreatList.end();iterP++)
+		if ((tag&TOSOLTHREAT) && lineInfo[side][i].solThreatList.size() != 0)//µ¥ÍşĞ²¶¨
+			for (iterP = lineInfo[side][i].solThreatList.begin(); iterP != lineInfo[side][i].solThreatList.end(); iterP++)
 				tempSynInfo.solThreatList.push_back(*iterP);
-		if(lineInfo[side][i].triThreatList.size()!=0)//ÈıÇ±Á¦µã
-			for(iterP=lineInfo[side][i].triThreatList.begin();iterP!=lineInfo[side][i].triThreatList.end();iterP++)
+		if (lineInfo[side][i].triThreatList.size() != 0)//ÈıÇ±Á¦µã
+			for (iterP = lineInfo[side][i].triThreatList.begin(); iterP != lineInfo[side][i].triThreatList.end(); iterP++)
 				tempSynInfo.triThreatList.push_back(*iterP);
-		if((tag&TODUOPOTEN) && lineInfo[side][i].duoPotenList.size()!=0)//Ë«Ç±Á¦µã
-			for(iterP=lineInfo[side][i].duoPotenList.begin();iterP!=lineInfo[side][i].duoPotenList.end();iterP++)
+		if ((tag&TODUOPOTEN) && lineInfo[side][i].duoPotenList.size() != 0)//Ë«Ç±Á¦µã
+			for (iterP = lineInfo[side][i].duoPotenList.begin(); iterP != lineInfo[side][i].duoPotenList.end(); iterP++)
 				tempSynInfo.duoPotenList.push_back(*iterP);
-		if((tag&TOSOLPOTEN) && lineInfo[side][i].solPotenList.size()!=0)//µ¥Ç±Á¦µã
-			for(iterP=lineInfo[side][i].solPotenList.begin();iterP!=lineInfo[side][i].solPotenList.end();iterP++)
+		if ((tag&TOSOLPOTEN) && lineInfo[side][i].solPotenList.size() != 0)//µ¥Ç±Á¦µã
+			for (iterP = lineInfo[side][i].solPotenList.begin(); iterP != lineInfo[side][i].solPotenList.end(); iterP++)
 				tempSynInfo.solPotenList.push_back(*iterP);
-		if((tag&TOCOMMON) && lineInfo[side][i].toDuoTwoList.size()!=0)//ÆÕÍ¨µã
-			for(iterP=lineInfo[side][i].toDuoTwoList.begin();iterP!=lineInfo[side][i].toDuoTwoList.end();iterP++)
+		if ((tag&TOCOMMON) && lineInfo[side][i].toDuoTwoList.size() != 0)//ÆÕÍ¨µã
+			for (iterP = lineInfo[side][i].toDuoTwoList.begin(); iterP != lineInfo[side][i].toDuoTwoList.end(); iterP++)
 				tempSynInfo.toDuoTwoList.push_back(*iterP);
 	}
-	if(tag&TODEFENT)
+	if (tag&TODEFENT)
 		UniquePoint(tempSynInfo.defPointList);
-	if(tag&TODUOTHREAT)
+	if (tag&TODUOTHREAT)
 		UniquePoint(tempSynInfo.duoThreatList);
-	if(tag&TOSOLTHREAT)
+	if (tag&TOSOLTHREAT)
 		UniquePoint(tempSynInfo.solThreatList);
-	if(tag&TODUOPOTEN)
+	if (tag&TODUOPOTEN)
 		UniquePoint(tempSynInfo.duoPotenList);
-	if(tag&TOSOLPOTEN)
+	if (tag&TOSOLPOTEN)
 		UniquePoint(tempSynInfo.solPotenList);
-	if(tag&TOCOMMON)
+	if (tag&TOCOMMON)
 		UniquePoint(tempSynInfo.toDuoTwoList);
 	return tempSynInfo;
 }
@@ -759,32 +773,32 @@ SynInfo GetBoardInfo(BYTE side,int tag)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForWin(int side,unsigned int limit)
+vector<Step> MakeStepListForWin(int side, unsigned int limit)
 {
-	SynInfo myInfo=GetBoardInfo(side,TOWIN|TOWILLWIN);
+	SynInfo myInfo = GetBoardInfo(side, TOWIN | TOWILLWIN);
 	SynInfo tempMy;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
 
 	//Èç¹û´æÔÚÖÂÊ¤µã£¬ÔòÖ±½Ó·µ»ØµÚÒ»¸öÖÆÊ¤µã×÷ÎªÕĞ·¨
 	//·ñÔòÑ¡È¡µÚÒ»¸ö¼´½«ÖÂÊ¤µã½øĞĞÊÔÏÂ£¬²¢ÓÃÆäÓàÊÔÏÂºóµÄµÚÒ»¸öÖÂÊ¤µã½øĞĞ×é²½
-	if(myInfo.winList.size()>0)
+	if (myInfo.winList.size() > 0)
 	{
-		tempStep.first=myInfo.winList[0];
-		tempStep.second.x=tempStep.second.y=-1;
-		tempStep.value=WINLOSE;
+		tempStep.first = myInfo.winList[0];
+		tempStep.second.x = tempStep.second.y = -1;
+		tempStep.value = WINLOSE;
 		stepList.push_back(tempStep);
 	}
 	else
 	{
 		tempStep.first = myInfo.willWinList[0];
-		MakeMove(tempStep.first,tempLine,side,TOWIN);//ÒòÎª±ØÊ¤£¬¹ÊÖ»¶ÔÖÂÊ¤µã½øĞĞÊÕ¼¯
-		tempMy=GetBoardInfo(side,TOWIN);
-		BackMove(tempStep.first,tempLine,side);
-		tempStep.second=tempMy.winList[0];
-		tempStep.value=WINLOSE;
+		MakeMove(tempStep.first, tempLine, side, TOWIN);//ÒòÎª±ØÊ¤£¬¹ÊÖ»¶ÔÖÂÊ¤µã½øĞĞÊÕ¼¯
+		tempMy = GetBoardInfo(side, TOWIN);
+		BackMove(tempStep.first, tempLine, side);
+		tempStep.second = tempMy.winList[0];
+		tempStep.value = WINLOSE;
 		stepList.push_back(tempStep);
 	}
 	return stepList;
@@ -797,95 +811,95 @@ vector<Step> MakeStepListForWin(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForDefendSingle(int side,unsigned int limit)
+vector<Step> MakeStepListForDefendSingle(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo denInfo=GetBoardInfo(unside,TODEFENT);
-	SynInfo tempMy,tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
+	int unside = 1 - side;
+	SynInfo denInfo = GetBoardInfo(unside, TODEFENT);
+	SynInfo tempMy, tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
 	vector<Point> pointList;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
 
 	//Ñ¡È¡Ò»¸öÆÆ½âµã½øĞĞÊÔÏÂ£¬È»ºóÕë¶ÔÊÔÏÂºóµÄ¾ÖÃæ½øĞĞ×é²½£¬Ò»Ìõµ¥ÍşĞ²ÏßĞÍÖÁ¶à°üº¬Á½¸öÆÆ½âµã
-	for(iterP=denInfo.defPointList.begin();iterP!=denInfo.defPointList.end();iterP++)
+	for (iterP = denInfo.defPointList.begin(); iterP != denInfo.defPointList.end(); iterP++)
 	{
-		tempStep.first=*iterP;
-		MakeMove(tempStep.first,tempLine,side,FORNONTHREAT);//ÊÔÏÂºóÊÕ¼¯È«²¿ĞÅÏ¢
-		tempMy=GetBoardInfo(side,FORNONTHREAT);//Õë¶ÔÎŞÍşĞ²Çé¿öÊÕ¼¯±¾·½ĞÅÏ¢
-		if(tempMy.triThreatList.size()>0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
+		tempStep.first = *iterP;
+		MakeMove(tempStep.first, tempLine, side, FORNONTHREAT);//ÊÔÏÂºóÊÕ¼¯È«²¿ĞÅÏ¢
+		tempMy = GetBoardInfo(side, FORNONTHREAT);//Õë¶ÔÎŞÍşĞ²Çé¿öÊÕ¼¯±¾·½ĞÅÏ¢
+		if (tempMy.triThreatList.size() > 0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
 		{
 			stepList.resize(0);//ÊÍ·ÅÕĞ·¨ÁĞ±íÖĞÒÑ´æÔÚµÄÕĞ·¨£¬Ö»±£Áô¿ÉÉú³É¶àÍşĞ²ÏßĞÍµÄÕĞ·¨
-			tempStep.second=tempMy.triThreatList[0];
-			tempStep.value=WINLOSE-1;
+			tempStep.second = tempMy.triThreatList[0];
+			tempStep.value = WINLOSE - 1;
 			stepList.push_back(tempStep);
-			BackMove(tempStep.first,tempLine,side);//ÒòÎªÒª½øĞĞ·µ»Ø£¬¹ÊÈ¡ÏûÊÔ×ß
+			BackMove(tempStep.first, tempLine, side);//ÒòÎªÒª½øĞĞ·µ»Ø£¬¹ÊÈ¡ÏûÊÔ×ß
 			return stepList;
 		}
-		tempDen=GetBoardInfo(unside,FORPOTEN);//ÊÕ¼¯¶ÔÊÖµÄÇ±Á¦ĞÅÏ¢£¨ÎŞ£©
+		tempDen = GetBoardInfo(unside, FORPOTEN);//ÊÕ¼¯¶ÔÊÖµÄÇ±Á¦ĞÅÏ¢£¨ÎŞ£©
 		//½«±¾·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã>ºÍ¶Ô·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã>×÷Îª±¸Ñ¡µã
-		if(tempMy.duoThreatList.size()!=0)
-			for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
-					pointList.push_back(*iterP2);
-		if(tempMy.solThreatList.size()!=0)
-			for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)
+		if (tempMy.duoThreatList.size() != 0)
+			for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-		if(tempMy.duoPotenList.size()!=0)
-			for(iterP2=tempMy.duoPotenList.begin();iterP2!=tempMy.duoPotenList.end();iterP2++)
+		if (tempMy.solThreatList.size() != 0)
+			for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-		if(tempDen.duoThreatList.size()!=0)
-			for(iterP2=tempDen.duoThreatList.begin();iterP2!=tempDen.duoThreatList.end();iterP2++)
+		if (tempMy.duoPotenList.size() != 0)
+			for (iterP2 = tempMy.duoPotenList.begin(); iterP2 != tempMy.duoPotenList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-		if(tempDen.solThreatList.size()!=0)
-			for(iterP2=tempDen.solThreatList.begin();iterP2!=tempDen.solThreatList.end();iterP2++)
+		if (tempDen.duoThreatList.size() != 0)
+			for (iterP2 = tempDen.duoThreatList.begin(); iterP2 != tempDen.duoThreatList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-		if(tempDen.duoPotenList.size()!=0)
-			for(iterP2=tempDen.duoPotenList.begin();iterP2!=tempDen.duoPotenList.end();iterP2++)
+		if (tempDen.solThreatList.size() != 0)
+			for (iterP2 = tempDen.solThreatList.begin(); iterP2 != tempDen.solThreatList.end(); iterP2++)
+				pointList.push_back(*iterP2);
+		if (tempDen.duoPotenList.size() != 0)
+			for (iterP2 = tempDen.duoPotenList.begin(); iterP2 != tempDen.duoPotenList.end(); iterP2++)
 				pointList.push_back(*iterP2);
 		UniquePoint(pointList);//È¥ÖØ²Ù×÷
-		if(pointList.size()<10)//Èç¹û±¸Ñ¡µãÉÙÓÚ10¸ö£¬ÔòÆôÓÃ±¾·½µ¥Ç±Á¦µã£¬Ç±Ë«Ç±Á¦µãºÍ¶Ô·½µ¥Ç±Á¦µã
+		if (pointList.size() < 10)//Èç¹û±¸Ñ¡µãÉÙÓÚ10¸ö£¬ÔòÆôÓÃ±¾·½µ¥Ç±Á¦µã£¬Ç±Ë«Ç±Á¦µãºÍ¶Ô·½µ¥Ç±Á¦µã
 		{
-			for(iterP2=tempMy.solPotenList.begin();iterP2!=tempMy.solPotenList.end();iterP2++)
+			for (iterP2 = tempMy.solPotenList.begin(); iterP2 != tempMy.solPotenList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-			for(iterP2=tempMy.toDuoTwoList.begin();iterP2!=tempMy.toDuoTwoList.end();iterP2++)
+			for (iterP2 = tempMy.toDuoTwoList.begin(); iterP2 != tempMy.toDuoTwoList.end(); iterP2++)
 				pointList.push_back(*iterP2);
-			for(iterP2=tempDen.solPotenList.begin();iterP2!=tempDen.solPotenList.end();iterP2++)
+			for (iterP2 = tempDen.solPotenList.begin(); iterP2 != tempDen.solPotenList.end(); iterP2++)
 				pointList.push_back(*iterP2);
 			UniquePoint(pointList);
-			if(pointList.size()==0)
+			if (pointList.size() == 0)
 			{
-				for(iterP2=tempDen.toDuoTwoList.begin();iterP2!=tempDen.toDuoTwoList.end();iterP2++)
+				for (iterP2 = tempDen.toDuoTwoList.begin(); iterP2 != tempDen.toDuoTwoList.end(); iterP2++)
 					pointList.push_back(*iterP2);
 				UniquePoint(pointList);
 			}
 		}
-		BackMove(tempStep.first,tempLine,side);
-		for(iterP2=pointList.begin();iterP2!=pointList.end();iterP2++)
+		BackMove(tempStep.first, tempLine, side);
+		for (iterP2 = pointList.begin(); iterP2 != pointList.end(); iterP2++)
 		{
-			tempStep.second=*iterP2;
-			tempStep.value=CalculateStepValue(tempStep,side);
+			tempStep.second = *iterP2;
+			tempStep.value = CalculateStepValue(tempStep, side);
 			stepList.push_back(tempStep);
 		}
 		pointList.resize(0);
 	}
-	for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)//¼ÓÈëÓÉTHREAT_four_ADDITIONÒıÆğµÄ¶îÍâÆÆ½â²½
+	for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)//¼ÓÈëÓÉTHREAT_four_ADDITIONÒıÆğµÄ¶îÍâÆÆ½â²½
 	{
-		iterS->value=CalculateStepValue(*iterS,side);
+		iterS->value = CalculateStepValue(*iterS, side);
 		stepList.push_back(*iterS);
 	}
-	if(stepList.size()==0)
+	if (stepList.size() == 0)
 	{
 		printf("Òì³£: On make step list for Defend solthreat!\n");
 	}
 	else
 	{
 		UniqueStep(stepList);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
 
-		unsigned int size=stepList.size();
-		if(size>limit)
+		unsigned int size = stepList.size();
+		if (size > limit)
 			stepList.resize(limit);
 	}
 	return stepList;
@@ -898,128 +912,128 @@ vector<Step> MakeStepListForDefendSingle(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForDefendDouble(int side,unsigned int limit)
+vector<Step> MakeStepListForDefendDouble(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo denInfo=GetBoardInfo(unside,TODEFENT);
-	SynInfo tempMy,tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
-	LineInfo tempLine[2][4],tempLine2[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
+	int unside = 1 - side;
+	SynInfo denInfo = GetBoardInfo(unside, TODEFENT);
+	SynInfo tempMy, tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
+	LineInfo tempLine[2][4], tempLine2[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
 	vector<Point> pointList;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
-	int denType=GetBoardType(unside);
+	int denType = GetBoardType(unside);
 
-	if(denType>=20)//¶Ô·½´æÔÚ¶àÍşĞ²ÏßĞÍ»òÒÑÊ¤ÏßĞÍ£¬»ò´æÔÚÁ½¸öÒÔÉÏË«ÍşĞ²ÏßĞÍ£¬±¾·½±Ø°ÜÖ±½Ó·µ»Ø¿ÕÕĞ·¨ÁĞ±í
+	if (denType >= 20)//¶Ô·½´æÔÚ¶àÍşĞ²ÏßĞÍ»òÒÑÊ¤ÏßĞÍ£¬»ò´æÔÚÁ½¸öÒÔÉÏË«ÍşĞ²ÏßĞÍ£¬±¾·½±Ø°ÜÖ±½Ó·µ»Ø¿ÕÕĞ·¨ÁĞ±í
 	{
 		stepList.resize(0);
 		return stepList;
 	}
-	else if(denType==10)//´Ë¾ÖÃæÖ»´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬¹ÊÖ»½«ÆÆ½â²½×÷Îª±¸Ñ¡ÕĞ·¨¼ÓÈëÕĞ·¨ÁĞ±í
+	else if (denType == 10)//´Ë¾ÖÃæÖ»´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬¹ÊÖ»½«ÆÆ½â²½×÷Îª±¸Ñ¡ÕĞ·¨¼ÓÈëÕĞ·¨ÁĞ±í
 	{
-		for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)
+		for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)
 			stepList.push_back(*iterS);
 		UniqueStep(stepList);
-		for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-			iterS->value=CalculateStepValue(*iterS,side);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
+		for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+			iterS->value = CalculateStepValue(*iterS, side);
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
 		return stepList;
 	}
 	else//º¬ÓĞµ¥ÍşĞ²ÏßĞÍµÄÆå¾Ö£¬¶à¸öµ¥ÍşĞ²£¨¿ÉÄÜ´æÔÚÎ±Ë«£©£¬Ò»¸öË«ÍşĞ²¼Óµ¥ÍşĞ²£¨¿ÉÄÜ´æÔÚÎ±¶à£©
 	{
-		if(denType>10&&denType<20)//´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬Í¬Ê±´æÔÚµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±¶àÍşĞ²£©
+		if (denType > 10 && denType < 20)//´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬Í¬Ê±´æÔÚµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±¶àÍşĞ²£©
 		{
-			for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)//ÒÔË«ÍşĞ²ÏßĞÍÎªÖ÷Òª³É·Ö£¬Èô¿ÉÆÆ½â±ØÊ¹ÓÃË«ÍşĞ²ÏßĞÍµÄÆÆ½â²½
+			for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)//ÒÔË«ÍşĞ²ÏßĞÍÎªÖ÷Òª³É·Ö£¬Èô¿ÉÆÆ½â±ØÊ¹ÓÃË«ÍşĞ²ÏßĞÍµÄÆÆ½â²½
 			{
-				MakeMove(iterS->first,tempLine,side,0);//²é¿´ÊÇ·ñ¿ÉÒÔÆÆ½âÍşĞ²£¬Ö»ÒªÇóÏßµÄÀàĞÍ£¬¹Ê²»ÓÃÊÕ¼¯¸üĞÂµÄµãĞÅÏ¢
-				MakeMove(iterS->second,tempLine2,side,0);
-				if(GetBoardType(unside)==0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦£¬¿ÉÄÜÒòÎªTHREAT_four_ADDITIONµÄ¶îÍâÆÆ½â·¨µ±³ÉË«ÍşĞ²
+				MakeMove(iterS->first, tempLine, side, 0);//²é¿´ÊÇ·ñ¿ÉÒÔÆÆ½âÍşĞ²£¬Ö»ÒªÇóÏßµÄÀàĞÍ£¬¹Ê²»ÓÃÊÕ¼¯¸üĞÂµÄµãĞÅÏ¢
+				MakeMove(iterS->second, tempLine2, side, 0);
+				if (GetBoardType(unside) == 0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦£¬¿ÉÄÜÒòÎªTHREAT_four_ADDITIONµÄ¶îÍâÆÆ½â·¨µ±³ÉË«ÍşĞ²
 					stepList.push_back(*iterS);
-				BackMove(iterS->second,tempLine2,side);
-				BackMove(iterS->first,tempLine,side);
+				BackMove(iterS->second, tempLine2, side);
+				BackMove(iterS->first, tempLine, side);
 			}
-			if(stepList.size()!=0)//¿ÉÆÆ½â
+			if (stepList.size() != 0)//¿ÉÆÆ½â
 			{
 				UniqueStep(stepList);
-				for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-					iterS->value=CalculateStepValue(*iterS,side);
-				sort(stepList.begin(),stepList.end(),cmpStepValue);
+				for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+					iterS->value = CalculateStepValue(*iterS, side);
+				sort(stepList.begin(), stepList.end(), cmpStepValue);
 			}
 			return stepList;//°üº¬²»¿ÉÆÆ½â¾ÖÃæ£¬Èô²»¿ÉÆÆ½â·µ»Ø¿ÕÕĞ·¨ÁĞ±í
 		}
 		else//Ö»´æÔÚ¶à¸öµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±Ë«£©
 		{
-			for(iterP=denInfo.defPointList.begin();iterP!=denInfo.defPointList.end();iterP++)
+			for (iterP = denInfo.defPointList.begin(); iterP != denInfo.defPointList.end(); iterP++)
 			{
-				tempStep.first=*iterP;
-				MakeMove(tempStep.first,tempLine,side,FORNONTHREAT+TODEFENT);
-				tempDen=GetBoardInfo(unside,FORPOTEN+TODEFENT);//Ò»×ÓÊÔ×ßºó½øĞĞ¶ş´Î·ÖÎö£¬ÕâÑù¿É±ÜÃâÕë¶ÔÎ±Ë«ÍşĞ²µÄÕĞ·¨µÄµÚ¶ş×Ó³öÏÖµ¥×ÓÆÆ½â×´Ì¬£¬´Ó¶øÊ¹µÚÒ»×ÓÎŞÓÃ
-				if(GetBoardType(unside)==0)//Ò»×ÓÆÆ½â£¬Î±Ë«ÍşĞ²£¬°´µ¥ÍşĞ²·½°¸Éú³É£»¸ù¾İÎŞ½ÄĞÒĞĞÆåÂß¼­£¬²»´æÔÚ¿Éµ¥×ÓÆÆ½âµÄÈı×ÓÒÔÉÏÍşĞ²
+				tempStep.first = *iterP;
+				MakeMove(tempStep.first, tempLine, side, FORNONTHREAT + TODEFENT);
+				tempDen = GetBoardInfo(unside, FORPOTEN + TODEFENT);//Ò»×ÓÊÔ×ßºó½øĞĞ¶ş´Î·ÖÎö£¬ÕâÑù¿É±ÜÃâÕë¶ÔÎ±Ë«ÍşĞ²µÄÕĞ·¨µÄµÚ¶ş×Ó³öÏÖµ¥×ÓÆÆ½â×´Ì¬£¬´Ó¶øÊ¹µÚÒ»×ÓÎŞÓÃ
+				if (GetBoardType(unside) == 0)//Ò»×ÓÆÆ½â£¬Î±Ë«ÍşĞ²£¬°´µ¥ÍşĞ²·½°¸Éú³É£»¸ù¾İÎŞ½ÄĞÒĞĞÆåÂß¼­£¬²»´æÔÚ¿Éµ¥×ÓÆÆ½âµÄÈı×ÓÒÔÉÏÍşĞ²
 				{
-					tempMy=GetBoardInfo(side,FORNONTHREAT);
-					if(tempMy.triThreatList.size()>0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
+					tempMy = GetBoardInfo(side, FORNONTHREAT);
+					if (tempMy.triThreatList.size() > 0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
 					{
 						stepList.resize(0);
-						tempStep.second=tempMy.triThreatList[0];
-						tempStep.value=WINLOSE-1;
+						tempStep.second = tempMy.triThreatList[0];
+						tempStep.value = WINLOSE - 1;
 						stepList.push_back(tempStep);
-						BackMove(tempStep.first,tempLine,side);
+						BackMove(tempStep.first, tempLine, side);
 						return stepList;
 					}
 					//½«±¾·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã>ºÍ¶Ô·½<¶àÍşĞ²µã£¬Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã>×÷Îª±¸Ñ¡µã
-					for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
+					for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)
+					for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempMy.duoPotenList.begin();iterP2!=tempMy.duoPotenList.end();iterP2++)
+					for (iterP2 = tempMy.duoPotenList.begin(); iterP2 != tempMy.duoPotenList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempDen.duoThreatList.begin();iterP2!=tempDen.duoThreatList.end();iterP2++)
+					for (iterP2 = tempDen.duoThreatList.begin(); iterP2 != tempDen.duoThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempDen.solThreatList.begin();iterP2!=tempDen.solThreatList.end();iterP2++)
+					for (iterP2 = tempDen.solThreatList.begin(); iterP2 != tempDen.solThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempDen.duoPotenList.begin();iterP2!=tempDen.duoPotenList.end();iterP2++)
+					for (iterP2 = tempDen.duoPotenList.begin(); iterP2 != tempDen.duoPotenList.end(); iterP2++)
 						pointList.push_back(*iterP2);
 					UniquePoint(pointList);
-					if(pointList.size()<10)
+					if (pointList.size() < 10)
 					{
-						for(iterP2=tempMy.solPotenList.begin();iterP2!=tempMy.solPotenList.end();iterP2++)
+						for (iterP2 = tempMy.solPotenList.begin(); iterP2 != tempMy.solPotenList.end(); iterP2++)
 							pointList.push_back(*iterP2);
-						for(iterP2=tempMy.toDuoTwoList.begin();iterP2!=tempMy.toDuoTwoList.end();iterP2++)
+						for (iterP2 = tempMy.toDuoTwoList.begin(); iterP2 != tempMy.toDuoTwoList.end(); iterP2++)
 							pointList.push_back(*iterP2);
-						for(iterP2=tempDen.solPotenList.begin();iterP2!=tempDen.solPotenList.end();iterP2++)
+						for (iterP2 = tempDen.solPotenList.begin(); iterP2 != tempDen.solPotenList.end(); iterP2++)
 							pointList.push_back(*iterP2);
 						UniquePoint(pointList);
 					}
-					for(iterP2=pointList.begin();iterP2!=pointList.end();iterP2++)
+					for (iterP2 = pointList.begin(); iterP2 != pointList.end(); iterP2++)
 					{
-						tempStep.second=*iterP2;
+						tempStep.second = *iterP2;
 						stepList.push_back(tempStep);
 					}
 					pointList.resize(0);
 				}
 				else//Á½×ÓÆÆ½â£¬°üÀ¨Î±Ë«ÍşĞ²
 				{
-					for(iterP2=tempDen.defPointList.begin();iterP2!=tempDen.defPointList.end();iterP2++)
+					for (iterP2 = tempDen.defPointList.begin(); iterP2 != tempDen.defPointList.end(); iterP2++)
 					{
-						MakeMove(*iterP2,tempLine2,side,0);
-						if(GetBoardType(unside)==0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦
+						MakeMove(*iterP2, tempLine2, side, 0);
+						if (GetBoardType(unside) == 0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦
 						{
-							tempStep.second=*iterP2;
+							tempStep.second = *iterP2;
 							stepList.push_back(tempStep);
 						}
-						BackMove(*iterP2,tempLine2,side);
+						BackMove(*iterP2, tempLine2, side);
 					}
 				}
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 			}
-			if(stepList.size()!=0)//¿ÉÆÆ½â
+			if (stepList.size() != 0)//¿ÉÆÆ½â
 			{
 				UniqueStep(stepList);
-				for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-					iterS->value=CalculateStepValue(*iterS,side);
-				sort(stepList.begin(),stepList.end(),cmpStepValue);
-				if(stepList.size()>limit)
+				for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+					iterS->value = CalculateStepValue(*iterS, side);
+				sort(stepList.begin(), stepList.end(), cmpStepValue);
+				if (stepList.size() > limit)
 					stepList.resize(limit);
 			}
 			return stepList;//°üº¬²»¿ÉÆÆ½â¾ÖÃæ£¬Èô²»¿ÉÆÆ½â·µ»Ø¿ÕÕĞ·¨ÁĞ±í
@@ -1034,145 +1048,145 @@ vector<Step> MakeStepListForDefendDouble(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForNone(int side,unsigned int limit)
+vector<Step> MakeStepListForNone(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo myInfo=GetBoardInfo(side,FORNONTHREAT);
-	SynInfo denInfo=GetBoardInfo(unside,FORNONTHREAT);
-	SynInfo tempMy,tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
+	int unside = 1 - side;
+	SynInfo myInfo = GetBoardInfo(side, FORNONTHREAT);
+	SynInfo denInfo = GetBoardInfo(unside, FORNONTHREAT);
+	SynInfo tempMy, tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
-	vector<Point> pointList,pointList2;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point> pointList, pointList2;//µãÁĞ±í
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
 
 	//»ùÓÚÒ»×Ó·ÖÎöµÄÏßĞÍ·ÖÎö·½·¨ÖĞ£¬¶àÇ±Á¦ÏßĞÍÖ»´æÔÚÓÚ4ĞÍÖĞ£¨5ĞÍ¿¼ÂÇ¶àÇ±Á¦ÎŞÒâÒå£©£¬
-	if(myInfo.triThreatList.size()>0)//ÓÉµ¥¡¢Ë«ÍşĞ²µãÖØºÏ¹¹³ÉµÄ¶àÍşĞ²µã
+	if (myInfo.triThreatList.size() > 0)//ÓÉµ¥¡¢Ë«ÍşĞ²µãÖØºÏ¹¹³ÉµÄ¶àÍşĞ²µã
 	{
-		for(iterP=myInfo.triThreatList.begin();iterP!=myInfo.triThreatList.end();iterP++)
+		for (iterP = myInfo.triThreatList.begin(); iterP != myInfo.triThreatList.end(); iterP++)
 			pointList.push_back(*iterP);
 	}
 	else
 	{
 		//ÏÈÑ¡È¡±¾·½µÄ<Ë«ÍşĞ²µã£¬Ë«Ç±Á¦µã£¬µ¥ÍşĞ²µã£¬µ¥Ç±Á¦µã>£¬¶Ô·½<¶àÍşĞ²µã£¨µ¥¡¢Ë«×é³É£©£¬Ë«ÍşĞ²µã£¬Ë«Ç±Á¦µã£¬µ¥ÍşĞ²µã> ×÷ÎªµÚÒ»Åúµã½øĞĞÊÔ×ß
-		if(myInfo.duoThreatList.size()>0)
-			for(iterP=myInfo.duoThreatList.begin();iterP!=myInfo.duoThreatList.end();iterP++)
+		if (myInfo.duoThreatList.size() > 0)
+			for (iterP = myInfo.duoThreatList.begin(); iterP != myInfo.duoThreatList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(myInfo.duoPotenList.size()>0)
-			for(iterP=myInfo.duoPotenList.begin();iterP!=myInfo.duoPotenList.end();iterP++)
+		if (myInfo.duoPotenList.size() > 0)
+			for (iterP = myInfo.duoPotenList.begin(); iterP != myInfo.duoPotenList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(myInfo.solThreatList.size()>0)
-			for(iterP=myInfo.solThreatList.begin();iterP!=myInfo.solThreatList.end();iterP++)
+		if (myInfo.solThreatList.size() > 0)
+			for (iterP = myInfo.solThreatList.begin(); iterP != myInfo.solThreatList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(myInfo.solPotenList.size()>0)
-			for(iterP=myInfo.solPotenList.begin();iterP!=myInfo.solPotenList.end();iterP++)
+		if (myInfo.solPotenList.size() > 0)
+			for (iterP = myInfo.solPotenList.begin(); iterP != myInfo.solPotenList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(denInfo.duoThreatList.size()>0)
-			for(iterP=denInfo.duoThreatList.begin();iterP!=denInfo.duoThreatList.end();iterP++)
+		if (denInfo.duoThreatList.size() > 0)
+			for (iterP = denInfo.duoThreatList.begin(); iterP != denInfo.duoThreatList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(denInfo.duoPotenList.size()>0)
-			for(iterP=denInfo.duoPotenList.begin();iterP!=denInfo.duoPotenList.end();iterP++)
+		if (denInfo.duoPotenList.size() > 0)
+			for (iterP = denInfo.duoPotenList.begin(); iterP != denInfo.duoPotenList.end(); iterP++)
 				pointList.push_back(*iterP);
-		if(denInfo.solThreatList.size()>0)
-			for(iterP=denInfo.solThreatList.begin();iterP!=denInfo.solThreatList.end();iterP++)
+		if (denInfo.solThreatList.size() > 0)
+			for (iterP = denInfo.solThreatList.begin(); iterP != denInfo.solThreatList.end(); iterP++)
 				pointList.push_back(*iterP);
 		UniquePoint(pointList);
-		if(pointList.size()<5)//ÈôµÚÒ»ÅúµãÉÙÓÚ5¸ö£¬Ê×ÏÈ¼ÓÈë±¾·½Ç±Ë«Ç±Á¦µã
+		if (pointList.size() < 5)//ÈôµÚÒ»ÅúµãÉÙÓÚ5¸ö£¬Ê×ÏÈ¼ÓÈë±¾·½Ç±Ë«Ç±Á¦µã
 		{
-			if(myInfo.toDuoTwoList.size()>0)
-				for(iterP=myInfo.toDuoTwoList.begin();iterP!=myInfo.toDuoTwoList.end();iterP++)
+			if (myInfo.toDuoTwoList.size() > 0)
+				for (iterP = myInfo.toDuoTwoList.begin(); iterP != myInfo.toDuoTwoList.end(); iterP++)
 					pointList.push_back(*iterP);
 			UniquePoint(pointList);
-/*			if(pointList.size()<5)//ÔÙ¼ÓÈë¶Ô·½µ¥Ç±Á¦µãºÍÇ±Ë«Ç±Á¦µã
-			{
-				if(denInfo.solPotenList.size()>0)
-					for(iterP=denInfo.solPotenList.begin();iterP!=denInfo.solPotenList.end();iterP++)
+			/*			if(pointList.size()<5)//ÔÙ¼ÓÈë¶Ô·½µ¥Ç±Á¦µãºÍÇ±Ë«Ç±Á¦µã
+						{
+						if(denInfo.solPotenList.size()>0)
+						for(iterP=denInfo.solPotenList.begin();iterP!=denInfo.solPotenList.end();iterP++)
 						pointList.push_back(*iterP);
-				if(denInfo.toDuoTwoList.size()>0)
-					for(iterP=denInfo.toDuoTwoList.begin();iterP!=denInfo.toDuoTwoList.end();iterP++)
+						if(denInfo.toDuoTwoList.size()>0)
+						for(iterP=denInfo.toDuoTwoList.begin();iterP!=denInfo.toDuoTwoList.end();iterP++)
 						pointList.push_back(*iterP);
-				UniquePoint(pointList);
-			}*/
+						UniquePoint(pointList);
+						}*/
 		}
 	}
-	for(iterP=pointList.begin();iterP!=pointList.end();iterP++)
+	for (iterP = pointList.begin(); iterP != pointList.end(); iterP++)
 	{
-		tempStep.first=*iterP;
-		MakeMove(tempStep.first,tempLine,side,FORNONTHREAT);
-		tempMy=GetBoardInfo(side,FORNONTHREAT);
-		if(tempMy.triThreatList.size()>0)//¾ßÓĞ¶àÍşĞ²µã£¨°üÀ¨Éú³É¶àÍşĞ²ÏßĞÍµÄµãºÍÓÉµ¥¡¢Ë«ÍşĞ²µã×é³ÉµÄµã£©
+		tempStep.first = *iterP;
+		MakeMove(tempStep.first, tempLine, side, FORNONTHREAT);
+		tempMy = GetBoardInfo(side, FORNONTHREAT);
+		if (tempMy.triThreatList.size() > 0)//¾ßÓĞ¶àÍşĞ²µã£¨°üÀ¨Éú³É¶àÍşĞ²ÏßĞÍµÄµãºÍÓÉµ¥¡¢Ë«ÍşĞ²µã×é³ÉµÄµã£©
 		{
 			stepList.resize(0);
-			tempStep.second=tempMy.triThreatList[0];
-			tempStep.value=WINLOSE-1;
+			tempStep.second = tempMy.triThreatList[0];
+			tempStep.value = WINLOSE - 1;
 			stepList.push_back(tempStep);
-			BackMove(tempStep.first,tempLine,side);
+			BackMove(tempStep.first, tempLine, side);
 			return stepList;
 		}
-		tempDen=GetBoardInfo(unside,FORPOTEN);
+		tempDen = GetBoardInfo(unside, FORPOTEN);
 		//°Ñ±¾·½µÄË«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã£¬¶Ô·½µÄ¶àÍşĞ²µã£¬Ë«ÍşĞ²µã£¬Ë«Ç±Á¦µã£¬µ¥ÍşĞ²µã¼ÓÈëµÚ¶şÅúµã
-		if(tempMy.duoThreatList.size()>0)
-			for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
+		if (tempMy.duoThreatList.size() > 0)
+			for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
-		if(tempMy.duoPotenList.size()>0)
-			for(iterP2=tempMy.duoPotenList.begin();iterP2!=tempMy.duoPotenList.end();iterP2++)
+		if (tempMy.duoPotenList.size() > 0)
+			for (iterP2 = tempMy.duoPotenList.begin(); iterP2 != tempMy.duoPotenList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
-		if(tempMy.solThreatList.size()>0)
-			for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)
+		if (tempMy.solThreatList.size() > 0)
+			for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
-		if(tempDen.duoThreatList.size()>0)
-			for(iterP2=tempDen.duoThreatList.begin();iterP2!=tempDen.duoThreatList.end();iterP2++)
+		if (tempDen.duoThreatList.size() > 0)
+			for (iterP2 = tempDen.duoThreatList.begin(); iterP2 != tempDen.duoThreatList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
-		if(tempDen.duoPotenList.size()>0)
-			for(iterP2=tempDen.duoPotenList.begin();iterP2!=tempDen.duoPotenList.end();iterP2++)
+		if (tempDen.duoPotenList.size() > 0)
+			for (iterP2 = tempDen.duoPotenList.begin(); iterP2 != tempDen.duoPotenList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
-		if(tempDen.solThreatList.size()>0)
-			for(iterP2=tempDen.solThreatList.begin();iterP2!=tempDen.solThreatList.end();iterP2++)
+		if (tempDen.solThreatList.size() > 0)
+			for (iterP2 = tempDen.solThreatList.begin(); iterP2 != tempDen.solThreatList.end(); iterP2++)
 				pointList2.push_back(*iterP2);
 		UniquePoint(pointList2);
 		//Èç¹ûÃ»ÓĞÒÔÉÏµÚ¶şÅúµã£¬ÔòÆôÓÃ±¾·½µÄµ¥Ç±Á¦µã£¬Ç±Ë«Ç±Á¦µãºÍ¶Ô·½µÄµ¥Ç±Á¦µã
-		if(pointList2.size()<5)
+		if (pointList2.size() < 5)
 		{
-			if(tempMy.solPotenList.size()>0)
-				for(iterP2=tempMy.solPotenList.begin();iterP2!=tempMy.solPotenList.end();iterP2++)
+			if (tempMy.solPotenList.size() > 0)
+				for (iterP2 = tempMy.solPotenList.begin(); iterP2 != tempMy.solPotenList.end(); iterP2++)
 					pointList2.push_back(*iterP2);
-			if(tempMy.toDuoTwoList.size()>0)
-				for(iterP2=tempMy.toDuoTwoList.begin();iterP2!=tempMy.toDuoTwoList.end();iterP2++)
+			if (tempMy.toDuoTwoList.size() > 0)
+				for (iterP2 = tempMy.toDuoTwoList.begin(); iterP2 != tempMy.toDuoTwoList.end(); iterP2++)
 					pointList2.push_back(*iterP2);
-			if(tempDen.solPotenList.size()>0)
-				for(iterP2=tempDen.solPotenList.begin();iterP2!=tempDen.solPotenList.end();iterP2++)
+			if (tempDen.solPotenList.size() > 0)
+				for (iterP2 = tempDen.solPotenList.begin(); iterP2 != tempDen.solPotenList.end(); iterP2++)
 					pointList2.push_back(*iterP2);
 			UniquePoint(pointList2);
 		}
-		BackMove(tempStep.first,tempLine,side);
-		for(iterP2=pointList2.begin();iterP2!=pointList2.end();iterP2++)
+		BackMove(tempStep.first, tempLine, side);
+		for (iterP2 = pointList2.begin(); iterP2 != pointList2.end(); iterP2++)
 		{
-			tempStep.second=*iterP2;
-			tempStep.value=CalculateStepValue(tempStep,side);
+			tempStep.second = *iterP2;
+			tempStep.value = CalculateStepValue(tempStep, side);
 			stepList.push_back(tempStep);
 		}
 		pointList2.resize(0);
 	}
-	if(stepList.size()==0)
+	if (stepList.size() == 0)
 	{
 		printf("Òì³£: On make step list for none!\n");
-		bool first=false;
-		for(int i=0;i<edge;i++)
+		bool first = false;
+		for (int i = 0; i < edge; i++)
 		{
-			for(int j=0;j<edge;j++)
+			for (int j = 0; j < edge; j++)
 			{
-				if(virtualBoard[i][j]==2)
+				if (virtualBoard[i][j] == 2)
 				{
-					if(!first)
+					if (!first)
 					{
-						tempStep.first.x=i;
-						tempStep.first.y=j;
+						tempStep.first.x = i;
+						tempStep.first.y = j;
 					}
 					else
 					{
-						tempStep.second.x=i;
-						tempStep.second.y=j;
+						tempStep.second.x = i;
+						tempStep.second.y = j;
 						stepList.push_back(tempStep);
 						return stepList;
 					}
@@ -1183,18 +1197,18 @@ vector<Step> MakeStepListForNone(int side,unsigned int limit)
 	else
 	{
 		UniqueStep(stepList);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
-		unsigned int size=stepList.size();
-		if(size>limit)
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
+		unsigned int size = stepList.size();
+		if (size > limit)
 		{
 			unsigned int i;
-			for(i=limit;i<size;i++)
-				if(stepList[i].value!=stepList[limit-1].value)
+			for (i = limit; i < size; i++)
+				if (stepList[i].value != stepList[limit - 1].value)
 					break;
-//			if(i>25)
-//				limit=25;
-//			else
-				limit=i;
+			//			if(i>25)
+			//				limit=25;
+			//			else
+			limit = i;
 			stepList.resize(limit);
 		}
 	}
@@ -1208,57 +1222,57 @@ vector<Step> MakeStepListForNone(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForDefendSingleEx(int side,unsigned int limit)
+vector<Step> MakeStepListForDefendSingleEx(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo denInfo=GetBoardInfo(unside,TODEFENT);
+	int unside = 1 - side;
+	SynInfo denInfo = GetBoardInfo(unside, TODEFENT);
 	SynInfo tempMy;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
 	vector<Point> pointList;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
 
 	//Ñ¡È¡Ò»¸öÆÆ½âµã½øĞĞÊÔÏÂ£¬È»ºóÕë¶ÔÊÔÏÂºóµÄ¾ÖÃæ½øĞĞ×é²½£¬Ò»Ìõµ¥ÍşĞ²ÏßĞÍÖÁ¶à°üº¬Á½¸öÆÆ½âµã
-	for(iterP=denInfo.defPointList.begin();iterP!=denInfo.defPointList.end();iterP++)
+	for (iterP = denInfo.defPointList.begin(); iterP != denInfo.defPointList.end(); iterP++)
 	{
-		tempStep.first=*iterP;
-		MakeMove(tempStep.first,tempLine,side,TODUOTHREAT+TOSOLTHREAT);//ÊÔÏÂºóÊÕ¼¯È«²¿ĞÅÏ¢
-		tempMy=GetBoardInfo(side,TODUOTHREAT+TOSOLTHREAT);//Õë¶ÔÎŞÍşĞ²Çé¿öÊÕ¼¯±¾·½ĞÅÏ¢
-		if(tempMy.triThreatList.size()>0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
+		tempStep.first = *iterP;
+		MakeMove(tempStep.first, tempLine, side, TODUOTHREAT + TOSOLTHREAT);//ÊÔÏÂºóÊÕ¼¯È«²¿ĞÅÏ¢
+		tempMy = GetBoardInfo(side, TODUOTHREAT + TOSOLTHREAT);//Õë¶ÔÎŞÍşĞ²Çé¿öÊÕ¼¯±¾·½ĞÅÏ¢
+		if (tempMy.triThreatList.size() > 0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
 		{
 			stepList.resize(0);//ÊÍ·ÅÕĞ·¨ÁĞ±íÖĞÒÑ´æÔÚµÄÕĞ·¨£¬Ö»±£Áô¿ÉÉú³É¶àÍşĞ²ÏßĞÍµÄÕĞ·¨
-			tempStep.second=tempMy.triThreatList[0];
-			tempStep.value=WINLOSE-1;
+			tempStep.second = tempMy.triThreatList[0];
+			tempStep.value = WINLOSE - 1;
 			stepList.push_back(tempStep);
-			BackMove(tempStep.first,tempLine,side);//ÒòÎªÒª½øĞĞ·µ»Ø£¬¹ÊÈ¡ÏûÊÔ×ß
+			BackMove(tempStep.first, tempLine, side);//ÒòÎªÒª½øĞĞ·µ»Ø£¬¹ÊÈ¡ÏûÊÔ×ß
 			return stepList;
 		}
 		//½«±¾·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã>×÷Îª±¸Ñ¡µã
-		for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
+		for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 			pointList.push_back(*iterP2);
-		for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)
+		for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)
 			pointList.push_back(*iterP2);
-//		UniquePoint(pointList);//È¥ÖØ²Ù×÷
-		BackMove(tempStep.first,tempLine,side);
-		for(iterP2=pointList.begin();iterP2!=pointList.end();iterP2++)
+		//		UniquePoint(pointList);//È¥ÖØ²Ù×÷
+		BackMove(tempStep.first, tempLine, side);
+		for (iterP2 = pointList.begin(); iterP2 != pointList.end(); iterP2++)
 		{
-			tempStep.second=*iterP2;
-			tempStep.value=CalculateStepValue(tempStep,side);
+			tempStep.second = *iterP2;
+			tempStep.value = CalculateStepValue(tempStep, side);
 			stepList.push_back(tempStep);
 		}
 		pointList.resize(0);
 	}
-	for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)//¼ÓÈëÓÉTHREAT_four_ADDITIONÒıÆğµÄ¶îÍâÆÆ½â²½
+	for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)//¼ÓÈëÓÉTHREAT_four_ADDITIONÒıÆğµÄ¶îÍâÆÆ½â²½
 		stepList.push_back(*iterS);
-	if(stepList.size()!=0)
+	if (stepList.size() != 0)
 	{
 		UniqueStep(stepList);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
 
-		unsigned int size=stepList.size();
-		if(size>limit)
+		unsigned int size = stepList.size();
+		if (size > limit)
 			stepList.resize(limit);
 	}
 	return stepList;
@@ -1271,111 +1285,111 @@ vector<Step> MakeStepListForDefendSingleEx(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForDefendDoubleEx(int side,unsigned int limit)
+vector<Step> MakeStepListForDefendDoubleEx(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo denInfo=GetBoardInfo(unside,TODEFENT);
-	SynInfo tempMy,tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
-	LineInfo tempLine[2][4],tempLine2[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
+	int unside = 1 - side;
+	SynInfo denInfo = GetBoardInfo(unside, TODEFENT);
+	SynInfo tempMy, tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
+	LineInfo tempLine[2][4], tempLine2[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
 	vector<Point> pointList;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
-	int denType=GetBoardType(unside);
+	int denType = GetBoardType(unside);
 
-	if(denType>=20)//¶Ô·½´æÔÚ¶àÍşĞ²ÏßĞÍ»òÒÑÊ¤ÏßĞÍ£¬»ò´æÔÚÁ½¸öÒÔÉÏË«ÍşĞ²ÏßĞÍ£¬±¾·½±Ø°ÜÖ±½Ó·µ»Ø¿ÕÕĞ·¨ÁĞ±í
+	if (denType >= 20)//¶Ô·½´æÔÚ¶àÍşĞ²ÏßĞÍ»òÒÑÊ¤ÏßĞÍ£¬»ò´æÔÚÁ½¸öÒÔÉÏË«ÍşĞ²ÏßĞÍ£¬±¾·½±Ø°ÜÖ±½Ó·µ»Ø¿ÕÕĞ·¨ÁĞ±í
 	{
 		stepList.resize(0);
 		return stepList;
 	}
-	else if(denType==10)//´Ë¾ÖÃæÖ»´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬¹ÊÖ»½«ÆÆ½â²½×÷Îª±¸Ñ¡ÕĞ·¨¼ÓÈëÕĞ·¨ÁĞ±í
+	else if (denType == 10)//´Ë¾ÖÃæÖ»´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬¹ÊÖ»½«ÆÆ½â²½×÷Îª±¸Ñ¡ÕĞ·¨¼ÓÈëÕĞ·¨ÁĞ±í
 	{
-		for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)
+		for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)
 			stepList.push_back(*iterS);
 		UniqueStep(stepList);
-		for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-			iterS->value=CalculateStepValue(*iterS,side);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
+		for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+			iterS->value = CalculateStepValue(*iterS, side);
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
 		return stepList;
 	}
 	else//º¬ÓĞµ¥ÍşĞ²ÏßĞÍµÄÆå¾Ö£¬¶à¸öµ¥ÍşĞ²£¨¿ÉÄÜ´æÔÚÎ±Ë«£©£¬Ò»¸öË«ÍşĞ²¼Óµ¥ÍşĞ²£¨¿ÉÄÜ´æÔÚÎ±¶à£©
 	{
-		if(denType>10&&denType<20)//´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬Í¬Ê±´æÔÚµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±¶àÍşĞ²£©
+		if (denType > 10 && denType < 20)//´æÔÚÒ»¸öË«ÍşĞ²ÏßĞÍ£¬Í¬Ê±´æÔÚµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±¶àÍşĞ²£©
 		{
-			for(iterS=denInfo.defStepList.begin();iterS!=denInfo.defStepList.end();iterS++)//ÒÔË«ÍşĞ²ÏßĞÍÎªÖ÷Òª³É·Ö£¬Èô¿ÉÆÆ½â±ØÊ¹ÓÃË«ÍşĞ²ÏßĞÍµÄÆÆ½â²½
+			for (iterS = denInfo.defStepList.begin(); iterS != denInfo.defStepList.end(); iterS++)//ÒÔË«ÍşĞ²ÏßĞÍÎªÖ÷Òª³É·Ö£¬Èô¿ÉÆÆ½â±ØÊ¹ÓÃË«ÍşĞ²ÏßĞÍµÄÆÆ½â²½
 			{
-				MakeMove(iterS->first,tempLine,side,0);//²é¿´ÊÇ·ñ¿ÉÒÔÆÆ½âÍşĞ²£¬Ö»ÒªÇóÏßµÄÀàĞÍ£¬¹Ê²»ÓÃÊÕ¼¯¸üĞÂµÄµãĞÅÏ¢
-				MakeMove(iterS->second,tempLine2,side,0);
-				if(GetBoardType(unside)==0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦£¬¿ÉÄÜÒòÎªTHREAT_four_ADDITIONµÄ¶îÍâÆÆ½â·¨µ±³ÉË«ÍşĞ²
+				MakeMove(iterS->first, tempLine, side, 0);//²é¿´ÊÇ·ñ¿ÉÒÔÆÆ½âÍşĞ²£¬Ö»ÒªÇóÏßµÄÀàĞÍ£¬¹Ê²»ÓÃÊÕ¼¯¸üĞÂµÄµãĞÅÏ¢
+				MakeMove(iterS->second, tempLine2, side, 0);
+				if (GetBoardType(unside) == 0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦£¬¿ÉÄÜÒòÎªTHREAT_four_ADDITIONµÄ¶îÍâÆÆ½â·¨µ±³ÉË«ÍşĞ²
 					stepList.push_back(*iterS);
-				BackMove(iterS->second,tempLine2,side);
-				BackMove(iterS->first,tempLine,side);
+				BackMove(iterS->second, tempLine2, side);
+				BackMove(iterS->first, tempLine, side);
 			}
-			if(stepList.size()!=0)//¿ÉÆÆ½â
+			if (stepList.size() != 0)//¿ÉÆÆ½â
 			{
 				UniqueStep(stepList);
-				for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-					iterS->value=CalculateStepValue(*iterS,side);
-				sort(stepList.begin(),stepList.end(),cmpStepValue);
+				for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+					iterS->value = CalculateStepValue(*iterS, side);
+				sort(stepList.begin(), stepList.end(), cmpStepValue);
 			}
 			return stepList;//°üº¬²»¿ÉÆÆ½â¾ÖÃæ£¬Èô²»¿ÉÆÆ½â·µ»Ø¿ÕÕĞ·¨ÁĞ±í
 		}
 		else//Ö»´æÔÚ¶à¸öµ¥ÍşĞ²ÏßĞÍ£¨¿ÉÄÜ´æÔÚÎ±Ë«£©
 		{
-			for(iterP=denInfo.defPointList.begin();iterP!=denInfo.defPointList.end();iterP++)
+			for (iterP = denInfo.defPointList.begin(); iterP != denInfo.defPointList.end(); iterP++)
 			{
-				tempStep.first=*iterP;
-				MakeMove(tempStep.first,tempLine,side,TODUOTHREAT+TOSOLTHREAT);
+				tempStep.first = *iterP;
+				MakeMove(tempStep.first, tempLine, side, TODUOTHREAT + TOSOLTHREAT);
 				//Ò»×ÓÊÔ×ßºó½øĞĞ¶ş´Î·ÖÎö£¬ÕâÑù¿É±ÜÃâÕë¶ÔÎ±Ë«ÍşĞ²µÄÕĞ·¨µÄµÚ¶ş×Ó³öÏÖµ¥×ÓÆÆ½â×´Ì¬£¬´Ó¶øÊ¹µÚÒ»×ÓÎŞÓÃ
-				if(GetBoardType(unside)==0)//Ò»×ÓÆÆ½â£¬Î±Ë«ÍşĞ²£¬°´µ¥ÍşĞ²·½°¸Éú³É£»¸ù¾İÎŞ½ÄĞÒĞĞÆåÂß¼­£¬²»´æÔÚ¿Éµ¥×ÓÆÆ½âµÄÈı×ÓÒÔÉÏÍşĞ²
+				if (GetBoardType(unside) == 0)//Ò»×ÓÆÆ½â£¬Î±Ë«ÍşĞ²£¬°´µ¥ÍşĞ²·½°¸Éú³É£»¸ù¾İÎŞ½ÄĞÒĞĞÆåÂß¼­£¬²»´æÔÚ¿Éµ¥×ÓÆÆ½âµÄÈı×ÓÒÔÉÏÍşĞ²
 				{
-					tempMy=GetBoardInfo(side,TODUOTHREAT+TOSOLTHREAT);
-					if(tempMy.triThreatList.size()>0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
+					tempMy = GetBoardInfo(side, TODUOTHREAT + TOSOLTHREAT);
+					if (tempMy.triThreatList.size() > 0)//Èô±¾·½¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬ÔòÓÃË«ÍşĞ²ÏßĞÍÓëÊÔÏÂÆÆ½âµã½øĞĞ×é²½²¢·µ»Ø£¬ÒòÎªÓĞ¶àÍşĞ²ÏßĞÍ£¬±¾·½½«ÔÚÏÂÒ»´ÎĞĞÆåÊ±»ñÊ¤
 					{
 						stepList.resize(0);
-						tempStep.second=tempMy.triThreatList[0];
-						tempStep.value=WINLOSE-1;
+						tempStep.second = tempMy.triThreatList[0];
+						tempStep.value = WINLOSE - 1;
 						stepList.push_back(tempStep);
-						BackMove(tempStep.first,tempLine,side);
+						BackMove(tempStep.first, tempLine, side);
 						return stepList;
 					}
 					//½«±¾·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã>
-					for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
+					for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-					for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)
+					for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)
 						pointList.push_back(*iterP2);
-//					UniquePoint(pointList);
-					for(iterP2=pointList.begin();iterP2!=pointList.end();iterP2++)
+					//					UniquePoint(pointList);
+					for (iterP2 = pointList.begin(); iterP2 != pointList.end(); iterP2++)
 					{
-						tempStep.second=*iterP2;
+						tempStep.second = *iterP2;
 						stepList.push_back(tempStep);
 					}
 					pointList.resize(0);
 				}
 				else//Á½×ÓÆÆ½â£¬°üÀ¨Î±Ë«ÍşĞ²
 				{
-					tempDen=GetBoardInfo(unside,2);
-					for(iterP2=tempDen.defPointList.begin();iterP2!=tempDen.defPointList.end();iterP2++)
+					tempDen = GetBoardInfo(unside, 2);
+					for (iterP2 = tempDen.defPointList.begin(); iterP2 != tempDen.defPointList.end(); iterP2++)
 					{
-						MakeMove(*iterP2,tempLine2,side,0);
-						if(GetBoardType(unside)==0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦
+						MakeMove(*iterP2, tempLine2, side, 0);
+						if (GetBoardType(unside) == 0)//ÅĞ¶ÏÊÇ·ñÆÆ½â³É¹¦
 						{
-							tempStep.second=*iterP2;
+							tempStep.second = *iterP2;
 							stepList.push_back(tempStep);
 						}
-						BackMove(*iterP2,tempLine2,side);
+						BackMove(*iterP2, tempLine2, side);
 					}
 				}
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 			}
-			if(stepList.size()!=0)//¿ÉÆÆ½â
+			if (stepList.size() != 0)//¿ÉÆÆ½â
 			{
 				UniqueStep(stepList);
-				for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-					iterS->value=CalculateStepValue(*iterS,side);
-				sort(stepList.begin(),stepList.end(),cmpStepValue);
-				if(stepList.size()>limit)
+				for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+					iterS->value = CalculateStepValue(*iterS, side);
+				sort(stepList.begin(), stepList.end(), cmpStepValue);
+				if (stepList.size() > limit)
 					stepList.resize(limit);
 			}
 			return stepList;//°üº¬²»¿ÉÆÆ½â¾ÖÃæ£¬Èô²»¿ÉÆÆ½â·µ»Ø¿ÕÕĞ·¨ÁĞ±í
@@ -1390,137 +1404,137 @@ vector<Step> MakeStepListForDefendDoubleEx(int side,unsigned int limit)
  * @denInfo:	¶Ô·½µ±Ç°¾ÖÃæ×ÛºÏĞÅÏ¢
  * @limit:		Éú³É×Å·¨µÄÊıÁ¿ÏŞÖÆ
  */
-vector<Step> MakeStepListForDouble(int side,unsigned int limit)
+vector<Step> MakeStepListForDouble(int side, unsigned int limit)
 {
-	int unside=1-side;
-	SynInfo myInfo=GetBoardInfo(side,TODUOTHREAT+TOSOLTHREAT+TODUOPOTEN);
-	SynInfo tempMy,tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
+	int unside = 1 - side;
+	SynInfo myInfo = GetBoardInfo(side, TODUOTHREAT + TOSOLTHREAT + TODUOPOTEN);
+	SynInfo tempMy, tempDen;//ÁÙÊ±¾ÖÃæĞÅÏ¢´¢´æ
 	LineInfo tempLine[2][4];//ÁÙÊ±ÏßĞÅÏ¢±¸·İ
 	Step tempStep;
 	vector<Step> stepList;//ÕĞ·¨ÁĞ±í
-	vector<Point> pointList,pointList2;//µãÁĞ±í
-	vector<Point>::iterator iterP,iterP2;
+	vector<Point> pointList, pointList2;//µãÁĞ±í
+	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
 
-	if(myInfo.duoThreatList.size()>0)//´æÔÚË«ÍşĞ²µã
+	if (myInfo.duoThreatList.size() > 0)//´æÔÚË«ÍşĞ²µã
 	{
-		for(iterP=myInfo.duoThreatList.begin();iterP!=myInfo.duoThreatList.end();iterP++)
+		for (iterP = myInfo.duoThreatList.begin(); iterP != myInfo.duoThreatList.end(); iterP++)
 		{
-			tempStep.first=*iterP;
-			MakeMove(tempStep.first,tempLine,side,FORNONTHREAT);
-			tempMy=GetBoardInfo(side,FORNONTHREAT);
-			if(tempMy.triThreatList.size()>0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬´Ó¶ş¼¶4/ËÄ¼¶4Ñİ»¯
+			tempStep.first = *iterP;
+			MakeMove(tempStep.first, tempLine, side, FORNONTHREAT);
+			tempMy = GetBoardInfo(side, FORNONTHREAT);
+			if (tempMy.triThreatList.size() > 0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬´Ó¶ş¼¶4/ËÄ¼¶4Ñİ»¯
 			{
 				stepList.resize(0);
-				tempStep.second=tempMy.triThreatList[0];
-				tempStep.value=WINLOSE-1;
+				tempStep.second = tempMy.triThreatList[0];
+				tempStep.value = WINLOSE - 1;
 				stepList.push_back(tempStep);
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 				return stepList;
 			}
-			if(tempMy.duoThreatList.size()>0)//Á½ÌõË«ÍşĞ²ÏßĞÍ±Ø²»¿ÉÆÆ½â
+			if (tempMy.duoThreatList.size() > 0)//Á½ÌõË«ÍşĞ²ÏßĞÍ±Ø²»¿ÉÆÆ½â
 			{
 				stepList.resize(0);
-				tempStep.second=tempMy.duoThreatList[0];
-				tempStep.value=WINLOSE-2;
+				tempStep.second = tempMy.duoThreatList[0];
+				tempStep.value = WINLOSE - 2;
 				stepList.push_back(tempStep);
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 				return stepList;
 			}
-			tempDen=GetBoardInfo(unside,FORPOTEN);
+			tempDen = GetBoardInfo(unside, FORPOTEN);
 			//½«±¾·½<µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã£¬µ¥Ç±Á¦µã>ºÍ¶Ô·½<Ë«ÍşĞ²µã£¬µ¥ÍşĞ²µã£¬Ë«Ç±Á¦µã>×÷Îª±¸Ñ¡µã
-			for(iterP2=tempMy.solThreatList.begin();iterP2!=tempMy.solThreatList.end();iterP2++)//±¾·½µ¥ÍşĞ²µã
+			for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)//±¾·½µ¥ÍşĞ²µã
 				pointList.push_back(*iterP2);
-			for(iterP2=tempMy.duoPotenList.begin();iterP2!=tempMy.duoPotenList.end();iterP2++)//±¾·½Ë«Ç±Á¦µã
+			for (iterP2 = tempMy.duoPotenList.begin(); iterP2 != tempMy.duoPotenList.end(); iterP2++)//±¾·½Ë«Ç±Á¦µã
 				pointList.push_back(*iterP2);
-			if(tempDen.duoThreatList.size()>0)
+			if (tempDen.duoThreatList.size() > 0)
 			{
-				for(iterP2=tempDen.duoThreatList.begin();iterP2!=tempDen.duoThreatList.end();iterP2++)//¶Ô·½Ë«ÍşĞ²µã
+				for (iterP2 = tempDen.duoThreatList.begin(); iterP2 != tempDen.duoThreatList.end(); iterP2++)//¶Ô·½Ë«ÍşĞ²µã
 					pointList.push_back(*iterP2);
 			}
 			else
 			{
-				for(iterP2=tempMy.solPotenList.begin();iterP2!=tempMy.solPotenList.end();iterP2++)//±¾·½µ¥Ç±Á¦µã
+				for (iterP2 = tempMy.solPotenList.begin(); iterP2 != tempMy.solPotenList.end(); iterP2++)//±¾·½µ¥Ç±Á¦µã
 					pointList.push_back(*iterP2);
-				for(iterP2=tempDen.solThreatList.begin();iterP2!=tempDen.solThreatList.end();iterP2++)//¶Ô·½µ¥ÍşĞ²µã
+				for (iterP2 = tempDen.solThreatList.begin(); iterP2 != tempDen.solThreatList.end(); iterP2++)//¶Ô·½µ¥ÍşĞ²µã
 					pointList.push_back(*iterP2);
-				for(iterP2=tempDen.duoPotenList.begin();iterP2!=tempDen.duoPotenList.end();iterP2++)//¶Ô·½Ë«Ç±Á¦µã
+				for (iterP2 = tempDen.duoPotenList.begin(); iterP2 != tempDen.duoPotenList.end(); iterP2++)//¶Ô·½Ë«Ç±Á¦µã
 					pointList.push_back(*iterP2);
 			}
-			if(pointList.size()==0)
+			if (pointList.size() == 0)
 			{
-				for(iterP2=tempMy.toDuoTwoList.begin();iterP2!=tempMy.toDuoTwoList.end();iterP2++)//±¾·½Ç±Ë«Ç±Á¦µã
+				for (iterP2 = tempMy.toDuoTwoList.begin(); iterP2 != tempMy.toDuoTwoList.end(); iterP2++)//±¾·½Ç±Ë«Ç±Á¦µã
 					pointList.push_back(*iterP2);
 			}
-			BackMove(tempStep.first,tempLine,side);
+			BackMove(tempStep.first, tempLine, side);
 			UniquePoint(pointList);
-			for(iterP2=pointList.begin();iterP2!=pointList.end();iterP2++)
+			for (iterP2 = pointList.begin(); iterP2 != pointList.end(); iterP2++)
 			{
-				tempStep.second=*iterP2;
+				tempStep.second = *iterP2;
 				stepList.push_back(tempStep);
 			}
 			pointList.resize(0);
 		}
 	}
-	if(myInfo.solThreatList.size()>0)//´æÔÚµ¥ÍşĞ²&&Ë«Ç±Á¦µã
+	if (myInfo.solThreatList.size() > 0)//´æÔÚµ¥ÍşĞ²&&Ë«Ç±Á¦µã
 	{
-		for(iterP=myInfo.solThreatList.begin();iterP!=myInfo.solThreatList.end();iterP++)
+		for (iterP = myInfo.solThreatList.begin(); iterP != myInfo.solThreatList.end(); iterP++)
 		{
-			tempStep.first=*iterP;
-			MakeMove(tempStep.first,tempLine,TODUOTHREAT);
-			tempMy=GetBoardInfo(side,TODUOTHREAT);
-			if(tempMy.triThreatList.size()>0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ
+			tempStep.first = *iterP;
+			MakeMove(tempStep.first, tempLine, TODUOTHREAT);
+			tempMy = GetBoardInfo(side, TODUOTHREAT);
+			if (tempMy.triThreatList.size() > 0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ
 			{
 				stepList.resize(0);
-				tempStep.second=tempMy.triThreatList[0];
-				tempStep.value=WINLOSE-1;
+				tempStep.second = tempMy.triThreatList[0];
+				tempStep.value = WINLOSE - 1;
 				stepList.push_back(tempStep);
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 				return stepList;
 			}
-			BackMove(tempStep.first,tempLine,side);
-			if(tempMy.duoThreatList.size()!=0)
+			BackMove(tempStep.first, tempLine, side);
+			if (tempMy.duoThreatList.size() != 0)
 			{
-				for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)//±¾·½Ë«ÍşĞ²µã
+				for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)//±¾·½Ë«ÍşĞ²µã
 				{
-					tempStep.second=*iterP2;
+					tempStep.second = *iterP2;
 					stepList.push_back(tempStep);
 				}
 			}
 			pointList.resize(0);
 		}
 	}
-	if(myInfo.duoPotenList.size()>0)//´æÔÚË«Ç±Á¦µã
+	if (myInfo.duoPotenList.size() > 0)//´æÔÚË«Ç±Á¦µã
 	{
-		for(iterP=myInfo.duoPotenList.begin();iterP!=myInfo.duoPotenList.end();iterP++)
+		for (iterP = myInfo.duoPotenList.begin(); iterP != myInfo.duoPotenList.end(); iterP++)
 		{
-			tempStep.first=*iterP;
-			MakeMove(tempStep.first,tempLine,side,TODUOTHREAT);
-			tempMy=GetBoardInfo(side,TODUOTHREAT);//Éú³ÉË«ÍşĞ²²½
-			if(tempMy.triThreatList.size()>0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬´Ó¶ş¼¶4/ËÄ¼¶4Ñİ»¯
+			tempStep.first = *iterP;
+			MakeMove(tempStep.first, tempLine, side, TODUOTHREAT);
+			tempMy = GetBoardInfo(side, TODUOTHREAT);//Éú³ÉË«ÍşĞ²²½
+			if (tempMy.triThreatList.size() > 0)//¿ÉÉú³É¶àÍşĞ²ÏßĞÍ£¬´Ó¶ş¼¶4/ËÄ¼¶4Ñİ»¯
 			{
 				stepList.resize(0);
-				tempStep.second=tempMy.triThreatList[0];
-				tempStep.value=WINLOSE-1;
+				tempStep.second = tempMy.triThreatList[0];
+				tempStep.value = WINLOSE - 1;
 				stepList.push_back(tempStep);
-				BackMove(tempStep.first,tempLine,side);
+				BackMove(tempStep.first, tempLine, side);
 				return stepList;
 			}
-			BackMove(tempStep.first,tempLine,side);
-			for(iterP2=tempMy.duoThreatList.begin();iterP2!=tempMy.duoThreatList.end();iterP2++)
+			BackMove(tempStep.first, tempLine, side);
+			for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)
 			{
-				tempStep.second=*iterP2;
+				tempStep.second = *iterP2;
 				stepList.push_back(tempStep);
 			}
 		}
 	}
-	if(stepList.size()>0)
+	if (stepList.size() > 0)
 	{
 		UniqueStep(stepList);
-		for(iterS=stepList.begin();iterS!=stepList.end();iterS++)
-			iterS->value=CalculateStepValue(*iterS,side);
-		sort(stepList.begin(),stepList.end(),cmpStepValue);
-		if(stepList.size()>limit)
+		for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
+			iterS->value = CalculateStepValue(*iterS, side);
+		sort(stepList.begin(), stepList.end(), cmpStepValue);
+		if (stepList.size() > limit)
 			stepList.resize(limit);
 	}
 	return stepList;
@@ -1528,42 +1542,42 @@ vector<Step> MakeStepListForDouble(int side,unsigned int limit)
 
 
 //±¸·İÏßĞÅÏ¢£¬Õë¶ÔµãËùÔÚµÄ4ÌõÏß£¬½«ÆäĞÅÏ¢´¢´æµ½ÁÙÊ±±äÁ¿ÖĞ
-void BackupLine(Point point,LineInfo tempLine[4],BYTE side)
+void BackupLine(Point point, LineInfo tempLine[4], BYTE side)
 {
-	if(point.x==-1)return;
+	if (point.x == -1)return;
 	int key;
 	Point start;
-	key=GetLineKey(point,&start,ANGLE0);
-	if(key!=-1)
-		CopyLineInfo(tempLine[ANGLE0],lineInfo[side][key]);
-	key=GetLineKey(point,&start,ANGLE90);
-	if(key!=-1)
-		CopyLineInfo(tempLine[ANGLE90],lineInfo[side][key]);
-	key=GetLineKey(point,&start,ANGLE45);
-	if(key!=-1)
-		CopyLineInfo(tempLine[ANGLE45],lineInfo[side][key]);
-	key=GetLineKey(point,&start,ANGLE135);
-	if(key!=-1)
-		CopyLineInfo(tempLine[ANGLE135],lineInfo[side][key]);
+	key = GetLineKey(point, &start, ANGLE0);
+	if (key != -1)
+		CopyLineInfo(tempLine[ANGLE0], lineInfo[side][key]);
+	key = GetLineKey(point, &start, ANGLE90);
+	if (key != -1)
+		CopyLineInfo(tempLine[ANGLE90], lineInfo[side][key]);
+	key = GetLineKey(point, &start, ANGLE45);
+	if (key != -1)
+		CopyLineInfo(tempLine[ANGLE45], lineInfo[side][key]);
+	key = GetLineKey(point, &start, ANGLE135);
+	if (key != -1)
+		CopyLineInfo(tempLine[ANGLE135], lineInfo[side][key]);
 }
 //»Ö¸´ÏßĞÅÏ¢£¬Õë¶ÔµãËùÔÚµÄ4ÌõÏß£¬ÓÃÁÙÊ±±äÁ¿ÖĞµÄĞÅÏ¢¸²¸Çµ±Ç°ĞÅÏ¢
-void RecoverLine(Point point,LineInfo tempLine[4],BYTE side)
+void RecoverLine(Point point, LineInfo tempLine[4], BYTE side)
 {
-	if(point.x==-1)return;
+	if (point.x == -1)return;
 	int key;
 	Point start;
-	key=GetLineKey(point,&start,ANGLE0);
-	if(key!=-1)
-		CopyLineInfo(lineInfo[side][key],tempLine[ANGLE0]);
-	key=GetLineKey(point,&start,ANGLE90);
-	if(key!=-1)
-		CopyLineInfo(lineInfo[side][key],tempLine[ANGLE90]);
-	key=GetLineKey(point,&start,ANGLE45);
-	if(key!=-1)
-		CopyLineInfo(lineInfo[side][key],tempLine[ANGLE45]);
-	key=GetLineKey(point,&start,ANGLE135);
-	if(key!=-1)
-		CopyLineInfo(lineInfo[side][key],tempLine[ANGLE135]);
+	key = GetLineKey(point, &start, ANGLE0);
+	if (key != -1)
+		CopyLineInfo(lineInfo[side][key], tempLine[ANGLE0]);
+	key = GetLineKey(point, &start, ANGLE90);
+	if (key != -1)
+		CopyLineInfo(lineInfo[side][key], tempLine[ANGLE90]);
+	key = GetLineKey(point, &start, ANGLE45);
+	if (key != -1)
+		CopyLineInfo(lineInfo[side][key], tempLine[ANGLE45]);
+	key = GetLineKey(point, &start, ANGLE135);
+	if (key != -1)
+		CopyLineInfo(lineInfo[side][key], tempLine[ANGLE135]);
 }
 
 /**
@@ -1573,18 +1587,18 @@ void RecoverLine(Point point,LineInfo tempLine[4],BYTE side)
  * @side:	Ö´ÆåÑÕÉ«
  * @tag:	±êÇ©
  */
-void MakeMove(Point point,LineInfo tempLine[2][4],BYTE side,int tag)
+void MakeMove(Point point, LineInfo tempLine[2][4], BYTE side, int tag)
 {
 	//ĞÅÏ¢±¸·İ
-	BackupLine(point,tempLine[BLACK],BLACK);
-	BackupLine(point,tempLine[WHITE],WHITE);
+	BackupLine(point, tempLine[BLACK], BLACK);
+	BackupLine(point, tempLine[WHITE], WHITE);
 
 	//ÊÔ×ß
-	virtualBoard[point.x][point.y]=side;
+	virtualBoard[point.x][point.y] = side;
 
 	//¸üĞÂ
-	UpdateLineForCross(point,BLACK,tag);
-	UpdateLineForCross(point,WHITE,tag);
+	UpdateLineForCross(point, BLACK, tag);
+	UpdateLineForCross(point, WHITE, tag);
 }
 
 /**
@@ -1593,14 +1607,14 @@ void MakeMove(Point point,LineInfo tempLine[2][4],BYTE side,int tag)
  * @tempLine:	±¸·İĞÅÏ¢´¢´æÆ÷
  * @side:	Ö´ÆåÑÕÉ«
  */
-void BackMove(Point point,LineInfo tempLine[2][4],BYTE side)
+void BackMove(Point point, LineInfo tempLine[2][4], BYTE side)
 {
 	//È¡ÏûÊÔ×ß
-	virtualBoard[point.x][point.y]=EMPTY;
+	virtualBoard[point.x][point.y] = EMPTY;
 
 	//ĞÅÏ¢»Ö¸´
-	RecoverLine(point,tempLine[BLACK],BLACK);
-	RecoverLine(point,tempLine[WHITE],WHITE);
+	RecoverLine(point, tempLine[BLACK], BLACK);
+	RecoverLine(point, tempLine[WHITE], WHITE);
 }
 
 /**
@@ -1610,40 +1624,40 @@ void BackMove(Point point,LineInfo tempLine[2][4],BYTE side)
  * @Direct:	ÏßµÄ·½Ïò±êÖ¾
  * @side:		±»¼ÆËãµÄÏßµÄ¼ÛÖµĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
-int CalSingleLineValue(const Point start,const BYTE Direc,const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
+int CalSingleLineValue(const Point start, const BYTE Direc, const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
 {
-	int shapeIndex=0;	// ÏßĞÍ±àºÅ
-	int x=start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
-	int y=start.y;
-	int len=0;				//  ¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
-	int value=0;
-	while(x<edge&&y<edge&&x>-1&&y>-1)	//	µãÔÚÆåÅÌÄÚ
-	{							
-		if(virtualBoard[x][y]==EMPTY)
+	int shapeIndex = 0;	// ÏßĞÍ±àºÅ
+	int x = start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
+	int y = start.y;
+	int len = 0;				//  ¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
+	int value = 0;
+	while (x<edge&&y<edge&&x>-1 && y>-1)	//	µãÔÚÆåÅÌÄÚ
+	{
+		if (virtualBoard[x][y] == EMPTY)
 		{
 			len++;
 		}
-		else if(virtualBoard[x][y]==side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
+		else if (virtualBoard[x][y] == side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
 		{
-			shapeIndex+=(1<<len);	
+			shapeIndex += (1 << len);
 			len++;
-		}	
+		}
 		else		//  Èç¹ûÊÇ¶Ô·½Æå×Ó¡£
 		{
-			if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+			if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 			{
-				shapeIndex+=(1<<len);	  // µÃµ½µÄÀàĞÍÔÚÖªÊ¶¿âÖĞµÄÎ»ÖÃ¡£
-				value+=LineTypeValue[preTable[shapeIndex]];
+				shapeIndex += (1 << len);	  // µÃµ½µÄÀàĞÍÔÚÖªÊ¶¿âÖĞµÄÎ»ÖÃ¡£
+				value += LineTypeValue[preTable[shapeIndex]];
 			}
-			shapeIndex=0;	// Æ«ÒÆÁ¿¹éÁã
-			len=0;		// ³¤¶È¹éÁã
+			shapeIndex = 0;	// Æ«ÒÆÁ¿¹éÁã
+			len = 0;		// ³¤¶È¹éÁã
 		}
 		Increment(x, y, Direc);
 	}
-	if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+	if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 	{
-		shapeIndex+=(1<<len);	  // µÃµ½µÄÆåĞÍ
-		value+=LineTypeValue[preTable[shapeIndex]];
+		shapeIndex += (1 << len);	  // µÃµ½µÄÆåĞÍ
+		value += LineTypeValue[preTable[shapeIndex]];
 	}
 	return value;
 }
@@ -1655,40 +1669,40 @@ int CalSingleLineValue(const Point start,const BYTE Direc,const BYTE side) //¼ÆË
  * @Direct:	ÏßµÄ·½Ïò±êÖ¾
  * @side:		±»¼ÆËãµÄÏßµÄÀàĞÍĞÅÏ¢ËùÊô·½µÄÖ´ÆåÑÕÉ«
  */
-int CalSingleLineType(const Point start,const BYTE Direc,const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
+int CalSingleLineType(const Point start, const BYTE Direc, const BYTE side) //¼ÆËãµãËùÔÚDirec·½ÏòµÄÏßµÄ¼ÛÖµ
 {
-	int shapeIndex=0;	// ÏßĞÍ±àºÅ
-	int x=start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
-	int y=start.y;
-	int len=0;				//  ¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
-	int value=0;
-	while(x<edge&&y<edge&&x>-1&&y>-1)	//	µãÔÚÆåÅÌÄÚ
-	{							
-		if(virtualBoard[x][y]==EMPTY)
+	int shapeIndex = 0;	// ÏßĞÍ±àºÅ
+	int x = start.x;	// ´ÓÆğµã¿ªÊ¼ÕÒ
+	int y = start.y;
+	int len = 0;				//  ¼ÇÂ¼µ±Ç°Î»ÖÃÔÚËùÒªÇóµÄ¶ÎÖĞµÄÎ»ÖÃ, ¿ÉÒÔÀí½âÎªµ±Ç°¶Î³¤
+	int value = 0;
+	while (x<edge&&y<edge&&x>-1 && y>-1)	//	µãÔÚÆåÅÌÄÚ
+	{
+		if (virtualBoard[x][y] == EMPTY)
 		{
 			len++;
 		}
-		else if(virtualBoard[x][y]==side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
+		else if (virtualBoard[x][y] == side)		// Èç¹ûÊÇ±¾·½Æå×Ó¡£
 		{
-			shapeIndex+=(1<<len);	
+			shapeIndex += (1 << len);
 			len++;
-		}	
+		}
 		else		//  Èç¹ûÊÇ¶Ô·½Æå×Ó¡£
 		{
-			if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+			if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 			{
-				shapeIndex+=(1<<len);	  // µÃµ½µÄÀàĞÍÔÚÖªÊ¶¿âÖĞµÄÎ»ÖÃ¡£
-				value+=LineTypeType[preTable[shapeIndex]];
+				shapeIndex += (1 << len);	  // µÃµ½µÄÀàĞÍÔÚÖªÊ¶¿âÖĞµÄÎ»ÖÃ¡£
+				value += LineTypeType[preTable[shapeIndex]];
 			}
-			shapeIndex=0;	// Æ«ÒÆÁ¿¹éÁã
-			len=0;		// ³¤¶È¹éÁã
+			shapeIndex = 0;	// Æ«ÒÆÁ¿¹éÁã
+			len = 0;		// ³¤¶È¹éÁã
 		}
 		Increment(x, y, Direc);
 	}
-	if(len>5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
+	if (len > 5)	//³¤¶È³¬¹ı5¸ö²Å»áÖØÊÓ¡£
 	{
-		shapeIndex+=(1<<len);	  // µÃµ½µÄÆåĞÍ
-		value+=LineTypeType[preTable[shapeIndex]];
+		shapeIndex += (1 << len);	  // µÃµ½µÄÆåĞÍ
+		value += LineTypeType[preTable[shapeIndex]];
 	}
 	return value;
 }
@@ -1702,40 +1716,40 @@ int CalSingleLineType(const Point start,const BYTE Direc,const BYTE side) //¼ÆËã
  * @step:		ĞèÒª±»¼ÆËãµÄ×Å·¨
  * @side:		×Å·¨ËùÊô·½Ö´ÆåÑÕÉ«
  */
-int CalculateStepValue(const Step step,const BYTE side)
+int CalculateStepValue(const Step step, const BYTE side)
 #ifdef USEVALUE
 {
-	int key1,key2,i,unside=1-side;
-	int myC=0,denC=0;//Ë«·½±ä»¯ºóÏßĞÍ¼ÛÖµºÍ
+	int key1, key2, i, unside = 1 - side;
+	int myC = 0, denC = 0;//Ë«·½±ä»¯ºóÏßĞÍ¼ÛÖµºÍ
 	Point start;
 
-	virtualBoard[step.first.x][step.first.y]=side;
-	virtualBoard[step.second.x][step.second.y]=side;
-	for(i=0;i<4;i++)
+	virtualBoard[step.first.x][step.first.y] = side;
+	virtualBoard[step.second.x][step.second.y] = side;
+	for (i = 0; i < 4; i++)
 	{
-		key1=GetLineKey(step.first,&start,i);
-		if(key1!=-1)
+		key1 = GetLineKey(step.first, &start, i);
+		if (key1 != -1)
 		{
-			myC+=CalSingleLineValue(start,i,side);
-			denC+=CalSingleLineValue(start,i,unside);
-			myC-=lineInfo[side][key1].value;
-			denC-=lineInfo[unside][key1].value;
+			myC += CalSingleLineValue(start, i, side);
+			denC += CalSingleLineValue(start, i, unside);
+			myC -= lineInfo[side][key1].value;
+			denC -= lineInfo[unside][key1].value;
 		}
-		key2=GetLineKey(step.second,&start,i);
-		if(key2==key1)
+		key2 = GetLineKey(step.second, &start, i);
+		if (key2 == key1)
 			continue;
-		if(key2!=-1)
+		if (key2 != -1)
 		{
-			myC+=CalSingleLineValue(start,i,side);
-			denC+=CalSingleLineValue(start,i,unside);
-			myC-=lineInfo[side][key2].value;
-			denC-=lineInfo[unside][key2].value;
+			myC += CalSingleLineValue(start, i, side);
+			denC += CalSingleLineValue(start, i, unside);
+			myC -= lineInfo[side][key2].value;
+			denC -= lineInfo[unside][key2].value;
 		}
 	}
-	virtualBoard[step.first.x][step.first.y]=EMPTY;
-	virtualBoard[step.second.x][step.second.y]=EMPTY;
-//	return myC-denC;
-	return (myC*4-denC*7)/10;
+	virtualBoard[step.first.x][step.first.y] = EMPTY;
+	virtualBoard[step.second.x][step.second.y] = EMPTY;
+	//	return myC-denC;
+	return (myC * 4 - denC * 7) / 10;
 }
 #else if
 {

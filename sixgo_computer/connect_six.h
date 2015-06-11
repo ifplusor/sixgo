@@ -8,9 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <vector>
+#include <string>
 #include <algorithm>
 
 using namespace std;
+
 
 #define WINLOSE 1000000        //胜负局面的估值。是程序中最大的值。
 
@@ -36,7 +38,6 @@ typedef struct _Step{ //步
 
 extern const int lineVector[8][2];
 extern int SeachDepth,MaxDepth;
-extern int nBoard[edge][edge];
 extern int virtualBoard[edge][edge];
 extern int HandNum;
 
