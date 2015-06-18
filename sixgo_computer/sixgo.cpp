@@ -1,4 +1,4 @@
-#include "windows.h"
+#include "ChessManual.h"
 #include "Seach.h"
 
 
@@ -21,9 +21,7 @@ void initialGame()
 	curside=BLACK;//设置先手行棋方
 	HandNum=1;//设置第一手标志
 	start=1;
-#ifdef DEBUGVALUE
 	debugger.InitDir();
-#endif
 }
 
 //显示棋盘状态
@@ -228,7 +226,7 @@ bool WinOrLose(Step step)
 int main(int argc, char *argv[])
 {
 	Step step;
-	char message[256];
+	char message[256]="";
 
 	atexit(StopEndLib);
 	printf("sixgo 2.0.1\n");
@@ -236,7 +234,7 @@ int main(int argc, char *argv[])
 	printf("initial...\n");
 	initialLineTypeTable(preTable);
 	initialLineInfoTable(linetypeInfo);
-	//StartEndLib();
+	StartEndLib();
 	printf("successed!\n");
 	while (1)
 	{

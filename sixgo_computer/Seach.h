@@ -8,20 +8,20 @@
 #define CM
 
 #define DEPTH 5
-#define MAXDEPTH 15
+#define MAXDEPTH 13
 
 //生成标志
-#define TODEFENT 1
-#define TOWIN 2
-#define TOWILLWIN 4
-#define TODUOTHREAT 8
-#define TOSOLTHREAT 16
-#define TODUOPOTEN 32
-#define TOSOLPOTEN 64
-#define TOCOMMON 128
-#define TOALL 255 //255=1+2+4+8+16+32+64+128
-#define FORNONTHREAT 248 //252=8+16+32+64+128
-#define FORPOTEN 120 //120=8+16+32+64
+#define TODEFENT		1
+#define TOWIN			2
+#define TOWILLWIN		4
+#define TODUOTHREAT		8
+#define TOSOLTHREAT		16
+#define TODUOPOTEN		32
+#define TOSOLPOTEN		64
+#define TOCOMMON		128
+#define TOALL			255 //255=1+2+4+8+16+32+64+128
+#define FORNONTHREAT	248 //252=8+16+32+64+128
+#define FORPOTEN		120 //120=8+16+32+64
 
 //棋盘上某点4条线的方向特征。
 #define ANGLE0	 0			// 0度角
@@ -40,14 +40,14 @@
 #define Decrement90(x, y)		{(y)--;}
 #define Decrement135(x, y)		{(x)--;(y)++;}
 
+//多威胁点所涉及到的线型为废型，在正常对弈过程中出现概率近似为0，为减少处理时耗将其废弃
 typedef struct _syninfo	//有用点信息
 {
 	vector<Step> defStepList;
  	vector<Point> defPointList;
 
 	vector<Point> winList;//5->6：致胜点
-	vector<Point> willWinList;//4->5:即将致胜点，只在生车致胜步时使用
-	vector<Point> triThreatList;//多威胁点
+	vector<Point> willWinList;//4->5:即将致胜点，只在生成致胜步时使用
 	//上面三类只保存一个即可
 
 	vector<Point> duoThreatList;//可以生成双威胁的点
@@ -64,7 +64,6 @@ typedef struct _lineinfo//线信息
 
 	vector<Point> winList;//5->6：致胜点
 	vector<Point> willWinList;//4->5:即将致胜点
-	vector<Point> triThreatList;//多威胁点
 	//上面三类只保存一个即可
 
 	vector<Point> duoThreatList;//可以生成双威胁的点
@@ -73,8 +72,7 @@ typedef struct _lineinfo//线信息
 	vector<Point> solPotenList;//可以生成单潜力的点
 	vector<Point> toDuoTwoList;//可以生成潜双潜力的点
 
-//	BYTE side;
-	int LineType;			//局面的线的威胁类型  各位表示单威胁线型数量，十位表示双威胁线型数量，百位表示多威胁线型数量，千位表示已胜线型数量
+	int LineType;			//局面的线的威胁类型：位表示单威胁线型数量，十位表示双威胁线型数量，百位表示多威胁线型数量，千位表示已胜线型数量
 	int value;
 }LineInfo;
 

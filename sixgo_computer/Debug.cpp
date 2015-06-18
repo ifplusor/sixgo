@@ -127,9 +127,14 @@ void Debugger::BackMove(Step step)
 	string filename = getPath() + "\\value.sif";
 	FILE *fp = fopen(filename.c_str(), "wt");
 	if (fp == NULL)
+	{
 		printf("error: create file failed!\n");
-	fprintf(fp, "value: %d\n", step.value);
-	fclose(fp);
+	}
+	else
+	{
+		fprintf(fp, "value: %d\n", -step.value);
+		fclose(fp);
+	}
 	stepStack.pop();
 }
 

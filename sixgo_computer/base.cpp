@@ -132,7 +132,7 @@ bool EqualPoint(const Point &p1,const Point &p2)
 //对容器中的点进行去重
 void UniquePoint(vector<Point> &PointList)
 {
-	vector<Point>::iterator iter,lab;
+	vector<Point>::iterator iter;
 	sort(PointList.begin(),PointList.end(),cmpPointPosition);
 	iter=unique( PointList.begin(), PointList.end(),EqualPoint);
 	if(iter!=PointList.end())
@@ -174,7 +174,7 @@ bool EqualStep(const Step &s1,const Step &s2)
 //对容器中的步进行去重
 void UniqueStep(vector<Step> &StepList)
 {
-	vector<Step>::iterator iter,lab;
+	vector<Step>::iterator iter;
 	sort(StepList.begin(),StepList.end(),cmpStepPosition);
 	iter=unique( StepList.begin(), StepList.end(),EqualStep);
 	if(iter!=StepList.end())
@@ -191,7 +191,6 @@ void UniqueStep(vector<Step> &StepList)
  */
 void CopyLineInfo(LineInfo &dest,LineInfo &src,int tag)
 {
-//	dest.side=src.side;
 	dest.value=src.value;
 	dest.LineType=src.LineType;
 	if(tag&TODEFENT)
@@ -210,11 +209,6 @@ void CopyLineInfo(LineInfo &dest,LineInfo &src,int tag)
 	{
 		vector<Point>().swap(dest.willWinList);
 		dest.willWinList=src.willWinList;
-	}
-	if(src.triThreatList.size()!=0)
-	{
-		vector<Point>().swap(dest.triThreatList);
-		dest.triThreatList=src.triThreatList;
 	}
 	if(tag&TODUOTHREAT)
 	{
@@ -251,7 +245,6 @@ void initialLine(LineInfo *lineInfo)
 {
 	lineInfo->winList.clear();//5->6：致胜点
 	lineInfo->willWinList.clear();//4->5:即将致胜点
-	lineInfo->triThreatList.clear();//多威胁点
 	lineInfo->duoThreatList.clear();//可以生成双威胁的点
 	lineInfo->solThreatList.clear();//可以生成单威胁的点
 	lineInfo->duoPotenList.clear();//可以生成双潜力的点

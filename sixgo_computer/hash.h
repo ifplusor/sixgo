@@ -25,7 +25,6 @@ typedef struct _HashInfo
 typedef struct _EndLibInfo
 {
 	BoardCode code;
-	int side;
 	_EndLibInfo *next;
 }EndLibInfo;
 
@@ -35,15 +34,14 @@ void initialCode(BoardCode &code);
 void initialHash();
 bool compareCode(BoardCode &a,BoardCode &b);
 unsigned long hashCode(BoardCode &code);
-HashInfo *findHash(BoardCode &code,int index);
+HashInfo *findHash(BoardCode &code);
+unsigned long getHashCode(int index);
 void moveCodeP(BoardCode &code,Point point,int side);
 void moveCodeS(BoardCode &code,Step step,int side);
-void ReadCM(int color);
 
-EndLibInfo *findEndLib(BoardCode &code);
+bool findEndLib(BoardCode &code);
 bool StartEndLib();
 void StopEndLib();
-void InsertEndLib(BoardCode &code, int side);
-
+void InsertEndLib(BoardCode &code);
 
 #endif

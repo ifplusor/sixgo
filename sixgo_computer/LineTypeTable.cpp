@@ -894,28 +894,21 @@ int getPointIndex(int shapeIndex, int len, int tag)
 
 void analyTHREAT_four_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//四阶五级  衍生即将胜利点，双威胁点；破解步，破解点
 {
-	int i, sum;
+	int i, sum, t;
 	iStep tempStep;
 
 	the->lineType = 4;
+
+	the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//即将胜利点
+
 	for (i = 0; i < len; i++)
 	{
 		if (GetABit(shapeIndex, i))continue;
-		if (preTable[shapeIndex + (1 << i)] == THREAT_five_DOUBLE)//即将胜利点，双威胁点；必能生成五阶二级线型
-#ifdef _K_
+		t = preTable[shapeIndex + (1 << i)];
+		if (t == THREAT_five_DOUBLE || t == THREAT_four_DOUBLE)//双威胁点；必能生成五阶二级线型，不漏点原则
 			the->duoThreatList.push_back(i);
-#else
-		{
-			the->willWin = i;
-			the->duoThreatList.push_back(i);
-		}
-		else if (preTable[shapeIndex + (1 << i)] == THREAT_four_DOUBLE)//双威胁点，不漏点原则
-			the->duoThreatList.push_back(i);
-#endif
 	}
-#ifdef _K_
-	the->willWin = the->duoThreatList[0];
-#endif
+
 	AnalyDefentPoint(shapeIndex, len, the);
 
 	//解析破解步
@@ -941,142 +934,104 @@ void analyTHREAT_four_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//四阶
 
 void analyTHREAT_four_POTEN(int shapeIndex, int len, LineTypeInfo *the)//四阶六级  即将胜利点，双威胁点，破解点
 {
-	int i;
+	int i, t;
+
 	the->lineType = 4;
+
+	the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//即将胜利点
+	if (the->willWin == -1)
+		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_SINGLE);//即将胜利点
+
 	for (i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-		if (preTable[shapeIndex + (1 << i)] == THREAT_five_DOUBLE)//即将胜利点，双威胁点
-		{
+		t = preTable[shapeIndex + (1 << i)];
+		if (t == THREAT_five_DOUBLE || t == THREAT_four_BIGPOTEN || t == THREAT_four_DOUBLE)//双威胁点
 			the->duoThreatList.push_back(i);
-			the->willWin = i;
-		}
 	}
-	if (the->duoThreatList.size() == 0)
-	{
-		for (i = 0; i < len; ++i)
-		{
-			if (GetABit(shapeIndex, i))continue;
-			if (preTable[shapeIndex + (1 << i)] == THREAT_four_BIGPOTEN)//双威胁点
-				the->duoThreatList.push_back(i);
-		}
-	}
-	if (the->duoThreatList.size() == 0)
-	{
-		for (i = 0; i < len; ++i)
-		{
-			if (GetABit(shapeIndex, i))continue;
-			if (preTable[shapeIndex + (1 << i)] == THREAT_four_DOUBLE)//双威胁点
-				the->duoThreatList.push_back(i);
-		}
-	}
-	if (the->willWin == -1)
-		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_SINGLE);//即将胜利点
+
 	AnalyDefentPoint(shapeIndex, len, the);
 }
 
-void analyPOTEN_three_SUPERPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶一级  双威胁点，单威胁点，多潜力点
+void analyPOTEN_three_SUPERPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶一级（半废）  （双威胁点，单威胁点，）多潜力点
 {
 	the->lineType = 3;
 	for (int i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_DOUBLE)//双威胁点
+		if (preTable[shapeIndex + (1 << i)] == THREAT_four_SUPERPOTEN)//多潜力
 			the->duoThreatList.push_back(i);
-		else if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点
-			the->solThreatList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == THREAT_four_SUPERPOTEN)
-			the->duoThreatList.push_back(i);
-#endif
 	}
 }
 
 void analyPOTEN_three_DOUBLE(int shapeIndex, int len, LineTypeInfo *the)//三阶二级  双威胁点，单威胁点
 {
+	int i, t;
 	the->lineType = 2;
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_DOUBLE)//双威胁点
+		t = preTable[shapeIndex + (1 << i)];
+		if (t >= THREAT_four_DOUBLE)//双威胁点
 			the->duoThreatList.push_back(i);
-#ifndef _K_
-		else if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点
+		else if (t >= THREAT_four_SINGLE)//单威胁点
 			the->solThreatList.push_back(i);
-#endif
 	}
 }
 
-void analyPOTEN_three_BIGPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶三级  单威胁点，多潜力点
+void analyPOTEN_three_BIGPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶三级（半废）  单威胁点，多潜力点
 {
 	the->lineType = 1;
 	for (int i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点，包含多潜力
-			the->solThreatList.push_back(i);
-#else
 		if (preTable[shapeIndex + (1 << i)] == THREAT_four_BIGPOTEN)
 			the->solThreatList.push_back(i);
-#endif
 	}
 }
 
 void analyPOTEN_three_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//三阶四级  单威胁点，双潜力点
 {
+	int i, t;
 	the->lineType = 1;
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点
+		t = preTable[shapeIndex + (1 << i)];
+		if (t >= THREAT_four_SINGLE)//单威胁点
 			the->solThreatList.push_back(i);
-		else if (preTable[shapeIndex + (1 << i)] >= POTEN_three_DOUBLE)//双潜力点
+		else if (t >= POTEN_three_DOUBLE)//双潜力点
 			the->duoPotenList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == THREAT_four_ADDITION)
-			the->solThreatList.push_back(i);
-#endif
 	}
 }
 
 void analyPOTEN_three_ANDPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶五级  单威胁点，双潜力点
 {
+	int i, t;
 	the->lineType = 1;
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点
+		t = preTable[shapeIndex + (1 << i)];
+		if (t >= THREAT_four_SINGLE)//单威胁点
 			the->solThreatList.push_back(i);
-		else if (preTable[shapeIndex + (1 << i)] >= POTEN_three_DOUBLE)//双潜力点
+		else if (t >= POTEN_three_DOUBLE)//双潜力点
 			the->duoPotenList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == THREAT_four_POTEN)
-			the->solThreatList.push_back(i);
-#endif
 	}
 }
 
-void analyPOTEN_three_ORPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶六级  单威胁点，双潜力点
+void analyPOTEN_three_ORPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶六级（废型）  单威胁点，双潜力点
 {
+	int i, t;
 	the->lineType = 1;
-	for (int i = 0; i < len; ++i)
+	for (i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
-		if (preTable[shapeIndex + (1 << i)] >= THREAT_four_SINGLE)//单威胁点
+		t = preTable[shapeIndex + (1 << i)];
+		if (t == THREAT_four_SINGLE)
 			the->solThreatList.push_back(i);
-		else if (preTable[shapeIndex + (1 << i)] >= POTEN_three_DOUBLE)//双潜力点
+		else if (t == POTEN_three_SUPERPOTEN)
 			the->duoPotenList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == THREAT_four_SINGLE)
-			the->solThreatList.push_back(i);
-		if (preTable[shapeIndex + (1 << i)] == POTEN_three_SUPERPOTEN)
-			the->duoPotenList.push_back(i);
-#endif
 	}
 }
 
@@ -1106,13 +1061,8 @@ void analyPOTEN_two_TOADDITION(int shapeIndex, int len, LineTypeInfo *the)
 	for (int i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
 		if (preTable[shapeIndex + (1 << i)] >= POTEN_three_SINGLE)//单潜力点
 			the->solPotenList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == POTEN_three_ADDITION)
-			the->solPotenList.push_back(i);
-#endif
 	}
 }
 
@@ -1121,13 +1071,8 @@ void analyPOTEN_two_TOANDPOTEN(int shapeIndex, int len, LineTypeInfo *the)
 	for (int i = 0; i < len; ++i)
 	{
 		if (GetABit(shapeIndex, i))continue;
-#ifndef _K_
 		if (preTable[shapeIndex + (1 << i)] >= POTEN_three_SINGLE)//单潜力点
 			the->solPotenList.push_back(i);
-#else
-		if (preTable[shapeIndex + (1 << i)] == POTEN_three_ANDPOTEN)
-			the->solPotenList.push_back(i);
-#endif
 	}
 }
 
@@ -1194,7 +1139,7 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 		break;
 
 	//威胁型，5型取得致胜点，4型取得即将胜利点
-	case THREAT_five_THIRD://五阶一级  致胜点
+	case THREAT_five_THIRD://五阶一级(废型)  致胜点
 		the->lineType = 6;
 		the->win = getPointIndex(shapeIndex, len, WIN);
 		break;
@@ -1208,11 +1153,11 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 		the->win = getPointIndex(shapeIndex, len, WIN);
 		AnalyDefentPoint(shapeIndex, len, the);
 		break;
-	case THREAT_four_THIRD://四阶一级  即将胜利点（一级5）
+	case THREAT_four_THIRD://四阶一级（废型）  即将胜利点（一级5）
 		the->lineType = 6;
 		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_THIRD);
 		break;
-	case THREAT_four_SUPERPOTEN://四阶二级  即将胜利点和多威胁点；破解步
+	case THREAT_four_SUPERPOTEN://四阶二级（废型）  即将胜利点和多威胁点；破解步
 		the->lineType = 5;
 		the->willWin = the->triThreat = getPointIndex(shapeIndex, len, THREAT_five_THIRD);//衍生五阶一级（即将胜利点，多威胁点）
 		if (the->willWin == -1)//不能衍生五阶一级部分，衍生四阶一级
@@ -1227,11 +1172,11 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//衍生五阶二级（即将胜利点）
 		AnalyDefentStep(shapeIndex, len, the);
 		break;
-	case THREAT_four_BIGPOTEN://四阶四级  衍生即将胜利点和多威胁点；破解点
+	case THREAT_four_BIGPOTEN://四阶四级（废型）  衍生即将胜利点和多威胁点；破解点
 		the->lineType = 4;
 		the->triThreat = getPointIndex(shapeIndex, len, THREAT_four_THIRD);//衍生四阶一级（多威胁点）
 		the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//衍生五阶三级（即将胜利点）
-		if (the->willWin=-1)
+		if (the->willWin == -1)
 			the->willWin = getPointIndex(shapeIndex, len, THREAT_five_SINGLE);//衍生五阶二级（即将胜利点）
 		AnalyDefentPoint(shapeIndex, len, the);
 		break;
@@ -1248,13 +1193,13 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 		break;
 
 	//非威胁型
-	case POTEN_three_SUPERPOTEN://三阶一级  双威胁点，单威胁点，多潜力点
+	case POTEN_three_SUPERPOTEN://三阶一级（半废）  （双威胁点，单威胁点，）多潜力点
 		analyPOTEN_three_SUPERPOTEN(shapeIndex, len, the);
 		break;
 	case POTEN_three_DOUBLE://三阶二级  双威胁点，单威胁点
 		analyPOTEN_three_DOUBLE(shapeIndex, len, the);
 		break;
-	case POTEN_three_BIGPOTEN://三阶三级  单威胁点，多潜力点
+	case POTEN_three_BIGPOTEN://三阶三级（半废）  单威胁点，多潜力点
 		analyPOTEN_three_BIGPOTEN(shapeIndex, len, the);
 		break;
 	case POTEN_three_ADDITION://三阶四级  单威胁点，双潜力点
@@ -1263,7 +1208,7 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 	case POTEN_three_ANDPOTEN://三阶五级  单威胁点，双潜力点
 		analyPOTEN_three_ANDPOTEN(shapeIndex, len, the);
 		break;
-	case POTEN_three_ORPOTEN://三阶六级  单威胁点，双潜力点
+	case POTEN_three_ORPOTEN://三阶六级（废型）  单威胁点，双潜力点
 		analyPOTEN_three_ORPOTEN(shapeIndex, len, the);
 		break;
 	case POTEN_three_SINGLE://三阶七级  单威胁点
@@ -1284,16 +1229,16 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 	case VOID_one_TOBIGPOTEN:
 		analyVOID_one_TOBIGPOTEN(shapeIndex, len, the);
 		break;
-	case VOID_one_TOADDITION:
+	case VOID_one_TOADDITION://半废
 		analyVOID_one_TOADDITION(shapeIndex, len, the);
 		break;
-	case VOID_one_TOANDPOTEN:
+	case VOID_one_TOANDPOTEN://半废
 		analyVOID_one_TOANDPOTEN(shapeIndex, len, the);
 		break;
-	case VOID_one_TOPOTEN:
+	case VOID_one_TOPOTEN://半废
 		analyVOID_one_TOPOTEN(shapeIndex, len, the);
 		break;
-	case ZERO://零阶线型
+	case ZERO://零阶线型（半废）
 		if (GetABit(shapeIndex, len / 2))
 			the->toOne = len / 2 + 1;
 		else

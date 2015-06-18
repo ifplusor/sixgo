@@ -77,6 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="base.cpp" />
+    <ClCompile Include="ChessManual.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="hash.cpp" />
     <ClCompile Include="LineTypeTable.cpp" />
@@ -84,6 +85,7 @@
     <ClCompile Include="sixgo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChessManual.h" />
     <ClInclude Include="connect_six.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="hash.h" />

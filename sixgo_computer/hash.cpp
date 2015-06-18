@@ -88,7 +88,7 @@ inline unsigned long hashCode(BoardCode &code)
 * @code:	棋盘状态编码
 * @index:	时间戳
 */
-HashInfo *findHash(BoardCode &code, int index)
+HashInfo *findHash(BoardCode &code)
 {
 	unsigned long hash = hashCode(code);
 	if (compareCode(hashList[hash].code, code))
@@ -97,6 +97,10 @@ HashInfo *findHash(BoardCode &code, int index)
 		return NULL;
 }
 
+unsigned long getHashCode(int index)
+{
+	return hashBoard32[index];
+}
 
 void moveCodeP(BoardCode &code,Point point,int side)
 {
@@ -118,151 +122,6 @@ void moveCodeS(BoardCode &code,Step step,int side)
 }
 
 
-/**
- * HashImag - 棋子映射
- * @i:	映射标记
- * @x:	棋子x坐标
- * @y:	棋子y坐标
- */
-void HashImage(int i,int &x,int &y)
-{
-	int t;
-	if(i==0){x=x;y=y;} //原处不变
-	else if(i==1){x=18-x;y=y;}  //关于x=9对称
-	else if(i==2){x=x;y=18-y;}  //关于y=9对称
-	else if(i==3){x=18-x;y=18-y;}  //关于(9,9)中心对称
-	else if(i==4){t=x;x=y;y=t;}  //关于y=19-x对称
-	else if(i==5){t=x;x=y;y=18-t;}  //先关于x=9对称，再关于19-x对称
-	else if(i==6){t=x;x=18-y;y=t;}  //先关于y=9对称，再关于19-x对称
-	else if(i==7){t=x;x=18-y;y=18-t;}  //先关于(9,9),中心对称，再关于y=19-x对称
-}
-
-/**
- * ReadCM - 读取开局库
- * @color:	执棋颜色
- */
-void ReadCM(int color)
-{
-	BoardCode HashCM[8];
-	Step step[8];
-	Point point;
-	unsigned long hash;
-	int count=0,handNum;
-	char str;
-	char num[8];
-	char filename[_MAX_PATH];
-	int x,y;
-	FILE *F1;
-	if(color==BLACK)	//读取黑方的棋谱
-	{
-		for(int k=0;k<1000;k++)
-		{
-			itoa(k+1,num,10);
-			strcpy(filename,"棋谱记录\\黑方棋谱\\");strcat(filename,num);strcat(filename,".sgf");
-			if((F1=fopen(filename,"r"))==NULL)continue;	//如果没找到棋谱就找下一个
-			for(y=0;y<8;y++)
-				initialCode(HashCM[y]);
-			handNum=0;
-			while(1)
-			{		
-				handNum++;
-				fscanf(F1,"%c,%d,%d\n",&str,&x,&y);
-				if(str=='V')break;
-				else if(str=='J'||x<0)continue;
-				for(int i=0;i<8;i++)
-				{
-					point.x=x;
-					point.y=y;
-					HashImage(i,point.x,point.y);	//需要镜像成8个对称的
-					if(str=='B')
-						moveCodeP(HashCM[i],point,BLACK);
-					else if(str=='W')
-						moveCodeP(HashCM[i],point,WHITE);
-					else if(str=='P')	//对应的招法
-					{
-						if((count/8)%2==0)
-						{
-							step[i].first=point;
-							count++;
-						}
-						else if((count/8)%2==1)
-						{
-							step[i].second=point;
-							count++;
-							hash=hashCode(HashCM[i]);
-							hashList[hash].cut=true;
-							hashList[hash].full=true;
-							hashList[hash].myType=0;
-							hashList[hash].denType=0;
-							if(hashList[hash].stepList.size()==0)
-							{
-								hashList[hash].stepList.push_back(step[i]);
-								hashList[hash].code=HashCM[i];
-								hashList[hash].timestamp = handNum / 2;
-							}
-						}
-					}
-				}
-			}
-			fclose(F1);
-		}
-	}
-	else if(color==WHITE)	//读取白方棋谱
-	{
-		for(int k=0;k<1000;k++)
-		{
-			itoa(k,num,10);
-			strcpy(filename,"棋谱记录\\白方棋谱\\");strcat(filename,num);strcat(filename,".sgf");
-			if((F1=fopen(filename,"r"))==NULL)continue;
-			for(y=0;y<8;y++)
-				initialCode(HashCM[y]);
-			handNum=0;
-			while(1)
-			{		
-				fscanf(F1,"%c,%d,%d\n",&str,&x,&y);
-				if(str=='V')break;
-				else if(str=='J'||x<0)continue;
-				for(int i=0;i<8;i++)
-				{
-					point.x=x;
-					point.y=y;
-					HashImage(i,point.x,point.y);	//需要镜像成8个对称的
-					if(str=='B')
-						moveCodeP(HashCM[i],point,BLACK);
-					else if(str=='W')
-						moveCodeP(HashCM[i],point,WHITE);
-					else if(str=='P')	//对应的招法
-					{
-						if((count/8)%2==0)
-						{
-							step[i].first=point;
-							count++;
-						}
-						else if((count/8)%2==1)
-						{
-							step[i].second=point;
-							count++;
-							hash=hashCode(HashCM[i]);
-							hashList[hash].cut=true;
-							hashList[hash].full=true;
-							hashList[hash].myType=0;
-							hashList[hash].denType=0;
-							if(hashList[hash].stepList.size()==0)
-							{
-								hashList[hash].stepList.push_back(step[i]);
-								hashList[hash].code=HashCM[i];
-								hashList[hash].timestamp = handNum / 2;
-							}
-						}
-					}
-				}		
-			}
-			fclose(F1);
-		}
-	}
-}
-
-
 //残局库
 //===================================================================
 
@@ -274,46 +133,46 @@ void initialEndLib()
 	}
 }
 
-void addEndLib(BoardCode &code,int side)
+void addEndLib(BoardCode &code)
 {
 	unsigned long hash = hashCode(code);
 	EndLibInfo *p = (EndLibInfo *)malloc(sizeof(EndLibInfo));
+	if (p == NULL)
+		return;
 	p->code = code;
-	p->side = side;
 	p->next = eLib[hash];
 	eLib[hash] = p;
 }
 
-EndLibInfo *findEndLib(BoardCode &code)
+bool findEndLib(BoardCode &code)
 {
 	unsigned long hash = hashCode(code);
 	EndLibInfo *p = eLib[hash];
 	while (p != NULL)
 	{
 		if (compareCode(p->code, code))
-			return p;
+			return true;
 		p = p->next;
 	}
-	return NULL;
+	return false;
 }
 
 bool ReadEL()
 {
 	BoardCode code;
 	FILE *rfp;
-	int index, pos, side;
+	int index, pos, count = 0;
 	unsigned long t;
 
-	rfp = fopen("Sixgo.ELib", "rt");
+	rfp = fopen("Sixgo.ELib", "rb");
 	if (rfp == NULL)
 	{
 		printf("open end lib error!\n");
 		return true;
 	}
-	while (fscanf(rfp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", code.a, code.a + 1, code.a + 2, code.a + 3, code.a + 4, code.a + 5, code.a + 6,
-		code.a + 7, code.a + 8, code.a + 9, code.a + 10, code.a + 11, code.a + 12, code.a + 13, code.a + 14, code.a + 15, code.a + 16, code.a + 17, code.a + 18, code.a + 19,
-		code.a + 20, code.a + 21, code.a + 22, &side) != EOF)
+	while (fread(code.a, sizeof(code.a), 1, rfp) != 0)
 	{
+		count++;
 		code.hash32 = 0;
 		for (index = 0; index < 23; index++)
 		{
@@ -323,35 +182,34 @@ bool ReadEL()
 			{
 				if (t & 1)
 				{
-					code.hash32 ^= hashBoard32[index * 32 + pos];
+					code.hash32 ^= getHashCode(index * 32 + pos);
 				}
 				pos++;
 				t >>= 1;
 			}
 		}
-		addEndLib(code,side);
+		addEndLib(code);
 	}
 	fclose(rfp);
+	printf("read end node number: %d\n", count);
 	return false;
 }
 
-FILE *ELFP=NULL;
+FILE *ELFP = NULL;
 
-void InsertEndLib(BoardCode &code, int side)
+void InsertEndLib(BoardCode &code)
 {
-	addEndLib(code, side);
-	fprintf(ELFP, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", code.a[0], code.a[1], code.a[2], code.a[3], code.a[4], code.a[5], code.a[6],
-		code.a[7], code.a[8], code.a[9], code.a[10], code.a[11], code.a[12], code.a[13], code.a[14], code.a[15], code.a[16], code.a[17], code.a[18], code.a[19],
-		code.a[20], code.a[21], code.a[22], side);
+	addEndLib(code);
+	fwrite(code.a, sizeof(code.a), 1, ELFP);
 }
 
 bool StartEndLib()
 {
 	initialEndLib();
 	if (ReadEL())
-		ELFP = fopen("Sixgo.Elib", "wt");
+		ELFP = fopen("Sixgo.Elib", "wb");
 	else
-		ELFP = fopen("Sixgo.ELib", "at");
+		ELFP = fopen("Sixgo.ELib", "ab");
 	if (ELFP == NULL)
 	{
 		printf("Open end Lib error!\n");
@@ -362,9 +220,19 @@ bool StartEndLib()
 
 void StopEndLib()
 {
+	EndLibInfo *p;
 	if (ELFP == NULL)
 		return;
 	fclose(ELFP);
 	ELFP = NULL;
+	for (int i = 0; i<MAXSIZE; i++)
+	{
+		while (eLib[i] != NULL)
+		{
+			p = eLib[i];
+			eLib[i] = eLib[i]->next;
+			free(p);
+		}
+	}
 	printf("close end Lib successed!\n");
 }
