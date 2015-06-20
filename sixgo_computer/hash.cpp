@@ -1,12 +1,11 @@
 #include "hash.h"
+#include <time.h>
 
 EndLibInfo *eLib[MAXSIZE];//残局表，要求无冲
 
 HashInfo hashList[MAXSIZE];//置换表中只保存本轮和上一轮的信息，再向前的信息直接丢弃
-int hashnum = 0;//哈希深度
-int realnum = 0;//真实深度
 
-unsigned long hashBoard32[23*32];
+unsigned long hashBoard32[23 * 32];
 unsigned __int64 hashBoard64[23 * 32];
 
 unsigned __int64 rand64()
@@ -15,12 +14,12 @@ unsigned __int64 rand64()
 }
 unsigned long rand32()
 {
-	return (unsigned __int64)rand() ^ ((unsigned __int64)rand() << 15) ^ ((unsigned __int64)rand() << 30);
+	return (unsigned long)rand() ^ ((unsigned long)rand() << 15) ^ ((unsigned long)rand() << 30);
 }
 
 /**
-* initialHashBoard - 初始化哈希棋盘
-*/
+ * initialHashBoard - 初始化哈希棋盘
+ */
 void initialHashBoard()
 {
 	int i, j;
@@ -50,25 +49,33 @@ loop:
 		}
 }
 
-void initialCode(BoardCode &code)
+void initialHashCode(BoardCode &code)
 {
 	for (int i = 0; i<23; i++)
 		code.a[i] = 0;
 	code.hash32 = 0;
 }
 
-void initialHash()
+void initialHashList()
 {
 	for (int i = 0; i<MAXSIZE; i++)
 	{
-		initialCode(hashList[i].code);
+		initialHashCode(hashList[i].code);
 		hashList[i].timestamp = -2;
 	}
-	initialHashBoard();
-	hashnum = realnum = 0;
 }
 
-bool compareCode(BoardCode &a, BoardCode &b)
+inline unsigned long getHashCode(int index)
+{
+	return hashBoard32[index];
+}
+
+inline unsigned long hashCode(const BoardCode &code)
+{
+	return code.hash32 & 0xFFFFF;
+}
+
+bool compareCode(const BoardCode &a, const BoardCode &b)
 {
 	if (a.hash32 != b.hash32)
 		return false;
@@ -78,17 +85,12 @@ bool compareCode(BoardCode &a, BoardCode &b)
 	return true;
 }
 
-inline unsigned long hashCode(BoardCode &code)
-{
-	return code.hash32 & 0xFFFFF;
-}
-
 /**
-* findHash - 查找置换
-* @code:	棋盘状态编码
-* @index:	时间戳
-*/
-HashInfo *findHash(BoardCode &code)
+ * findHash - 查找置换
+ * @code:	棋盘状态编码
+ * @index:	时间戳
+ */
+HashInfo *findHash(const BoardCode &code)
 {
 	unsigned long hash = hashCode(code);
 	if (compareCode(hashList[hash].code, code))
@@ -97,9 +99,15 @@ HashInfo *findHash(BoardCode &code)
 		return NULL;
 }
 
-unsigned long getHashCode(int index)
+/**
+ * updateHash - 更新置换表项
+ * @data:	新数据
+ */
+void updateHash(const HashInfo &data)
 {
-	return hashBoard32[index];
+	unsigned long hash = hashCode(data.code);//直接地址映射
+	//新加入点的时间戳必然较新
+	hashList[hash] = data;
 }
 
 void moveCodeP(BoardCode &code,Point point,int side)
@@ -107,12 +115,12 @@ void moveCodeP(BoardCode &code,Point point,int side)
 	int index,pos;
 	int temp;
 	temp = point.x + point.y*edge;
-	if(side==WHITE)
-		temp+=361;
-	index=temp/32;
-	pos=temp%32;
-	code.a[index]=PutBBit(code.a[index],pos);
-	code.hash32^=hashBoard32[temp];
+	if (side == WHITE)
+		temp += 361;
+	index = temp / 32;
+	pos = temp % 32;
+	code.a[index] = PutBBit(code.a[index], pos);
+	code.hash32 ^= hashBoard32[temp];
 }
 
 void moveCodeS(BoardCode &code,Step step,int side)
@@ -125,26 +133,9 @@ void moveCodeS(BoardCode &code,Step step,int side)
 //残局库
 //===================================================================
 
-void initialEndLib()
-{
-	for (int i = 0; i<MAXSIZE; i++)
-	{
-		eLib[i] = NULL;
-	}
-}
+FILE *ELFP = NULL;
 
-void addEndLib(BoardCode &code)
-{
-	unsigned long hash = hashCode(code);
-	EndLibInfo *p = (EndLibInfo *)malloc(sizeof(EndLibInfo));
-	if (p == NULL)
-		return;
-	p->code = code;
-	p->next = eLib[hash];
-	eLib[hash] = p;
-}
-
-bool findEndLib(BoardCode &code)
+bool findEndLib(const BoardCode &code)
 {
 	unsigned long hash = hashCode(code);
 	EndLibInfo *p = eLib[hash];
@@ -157,6 +148,29 @@ bool findEndLib(BoardCode &code)
 	return false;
 }
 
+void addEndLib(const BoardCode &code)
+{
+	unsigned long hash = hashCode(code);
+	EndLibInfo *p = (EndLibInfo *)malloc(sizeof(EndLibInfo));
+	if (p == NULL)
+		return;
+	p->code = code;
+	p->next = eLib[hash];
+	eLib[hash] = p;
+}
+
+void InsertEndLib(const BoardCode &code)
+{
+	addEndLib(code);
+	fwrite(code.a, sizeof(code.a), 1, ELFP);
+}
+
+void initialEndLib()
+{
+	for (int i = 0; i < MAXSIZE; i++)
+		eLib[i] = NULL;
+}
+
 bool ReadEL()
 {
 	BoardCode code;
@@ -167,7 +181,7 @@ bool ReadEL()
 	rfp = fopen("Sixgo.ELib", "rb");
 	if (rfp == NULL)
 	{
-		printf("open end lib error!\n");
+		printf("error: read end lib failed!\n");
 		return true;
 	}
 	while (fread(code.a, sizeof(code.a), 1, rfp) != 0)
@@ -185,7 +199,7 @@ bool ReadEL()
 					code.hash32 ^= getHashCode(index * 32 + pos);
 				}
 				pos++;
-				t >>= 1;
+				t = t >> 1;
 			}
 		}
 		addEndLib(code);
@@ -193,14 +207,6 @@ bool ReadEL()
 	fclose(rfp);
 	printf("read end node number: %d\n", count);
 	return false;
-}
-
-FILE *ELFP = NULL;
-
-void InsertEndLib(BoardCode &code)
-{
-	addEndLib(code);
-	fwrite(code.a, sizeof(code.a), 1, ELFP);
 }
 
 bool StartEndLib()
@@ -211,20 +217,13 @@ bool StartEndLib()
 	else
 		ELFP = fopen("Sixgo.ELib", "ab");
 	if (ELFP == NULL)
-	{
-		printf("Open end Lib error!\n");
 		return true;
-	}
 	return false;
 }
 
 void StopEndLib()
 {
 	EndLibInfo *p;
-	if (ELFP == NULL)
-		return;
-	fclose(ELFP);
-	ELFP = NULL;
 	for (int i = 0; i<MAXSIZE; i++)
 	{
 		while (eLib[i] != NULL)
@@ -234,5 +233,9 @@ void StopEndLib()
 			free(p);
 		}
 	}
-	printf("close end Lib successed!\n");
+	if (ELFP != NULL)
+	{
+		fclose(ELFP);
+		printf("close end Lib successed!\n");
+	}
 }

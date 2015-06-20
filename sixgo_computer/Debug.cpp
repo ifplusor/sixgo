@@ -88,8 +88,8 @@ void Debugger::OutputMessage(char *message, const int side)
 	FILE * fp = fopen(filename.c_str(), "wt");
 	if(fp!=NULL)
 	{
-		fprintf(fp,"side=%s\n",side==0?"黑方":"白方");
-		showBoard(fp,virtualBoard);
+		//fprintf(fp,"side=%s\n",side==0?"黑方":"白方");
+		//showBoard(fp,virtualBoard);
 		fprintf(fp, "message: %s\n", message);
 		fclose(fp);
 	}
@@ -124,6 +124,7 @@ void Debugger::MakeMove(Step step)
 
 void Debugger::BackMove(Step step)
 {
+#ifdef OUTPUTVALUE
 	string filename = getPath() + "\\value.sif";
 	FILE *fp = fopen(filename.c_str(), "wt");
 	if (fp == NULL)
@@ -132,9 +133,10 @@ void Debugger::BackMove(Step step)
 	}
 	else
 	{
-		fprintf(fp, "value: %d\n", -step.value);
+		fprintf(fp, "value: %d\n", step.value);
 		fclose(fp);
 	}
+#endif
 	stepStack.pop();
 }
 

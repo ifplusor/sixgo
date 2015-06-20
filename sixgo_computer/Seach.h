@@ -5,7 +5,6 @@
 #include "hash.h"
 #include "Debug.h"
 
-#define CM
 
 #define DEPTH 5
 #define MAXDEPTH 13

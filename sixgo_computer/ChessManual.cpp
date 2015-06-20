@@ -2,11 +2,11 @@
 
 
 /**
-* ChessImage - 棋子映射
-* @i:	映射标记
-* @x:	棋子x坐标
-* @y:	棋子y坐标
-*/
+ * ChessImage - 棋子映射
+ * @i:	映射标记
+ * @x:	棋子x坐标
+ * @y:	棋子y坐标
+ */
 void ChessImage(int i, int &x, int &y)
 {
 	int t;
@@ -21,127 +21,70 @@ void ChessImage(int i, int &x, int &y)
 }
 
 /**
-* ReadCM - 读取开局库
-* @color:	执棋颜色
-*/
+ * ReadCM - 读取开局库
+ * @color:	执棋颜色
+ */
 void ReadCM(int color)
 {
 	BoardCode HashCM[8];
 	Step step[8];
 	Point point;
-	unsigned long hash;
-	int count = 0, handNum;
-	char str;
-	char num[8];
-	char filename[_MAX_PATH];
-	int x, y;
-	FILE *F1;
-	if (color == BLACK)	//读取黑方的棋谱
+	int count = 0, x, y;
+	char str, filename[_MAX_PATH];
+	FILE *fp;
+
+	for (int k = 0; k < 1000; k++)
 	{
-		for (int k = 0; k<1000; k++)
+		sprintf(filename, "棋谱记录\\%s方棋谱\\%d.sgf", color == BLACK ? "黑" : "白", k);
+		if ((fp = fopen(filename, "r")) == NULL)continue;	//如果没找到棋谱就找下一个
+		for (y = 0; y < 8; y++)
+			initialHashCode(HashCM[y]);
+		while (1)
 		{
-			itoa(k + 1, num, 10);
-			strcpy(filename, "棋谱记录\\黑方棋谱\\"); strcat(filename, num); strcat(filename, ".sgf");
-			if ((F1 = fopen(filename, "r")) == NULL)continue;	//如果没找到棋谱就找下一个
-			for (y = 0; y<8; y++)
-				initialCode(HashCM[y]);
-			handNum = 0;
-			while (1)
+			fscanf(fp, "%c,%d,%d\n", &str, &x, &y);
+			if (str == 'V')break;
+			else if (str == 'J' || x < 0)continue;
+			for (int i = 0; i < 8; i++)
 			{
-				handNum++;
-				fscanf(F1, "%c,%d,%d\n", &str, &x, &y);
-				if (str == 'V')break;
-				else if (str == 'J' || x<0)continue;
-				for (int i = 0; i<8; i++)
+				point.x = x;
+				point.y = y;
+				ChessImage(i, point.x, point.y);	//需要镜像成8个对称的
+				if (str == 'B')
+					moveCodeP(HashCM[i], point, BLACK);
+				else if (str == 'W')
+					moveCodeP(HashCM[i], point, WHITE);
+				else if (str == 'P')	//对应的招法
 				{
-					point.x = x;
-					point.y = y;
-					ChessImage(i, point.x, point.y);	//需要镜像成8个对称的
-					if (str == 'B')
-						moveCodeP(HashCM[i], point, BLACK);
-					else if (str == 'W')
-						moveCodeP(HashCM[i], point, WHITE);
-					else if (str == 'P')	//对应的招法
+					count++;
+					if ((count / 8) % 2 == 0)
 					{
-						if ((count / 8) % 2 == 0)
+						step[i].first = point;
+					}
+					else if ((count / 8) % 2 == 1)
+					{
+						step[i].second = point;
+						HashInfo *hashT = findHash(HashCM[i]);
+						if (hashT == NULL)
 						{
-							step[i].first = point;
-							count++;
+							HashInfo hashP;
+							hashP.code = HashCM[i];
+							hashP.cut = true;
+							hashP.full = true;
+							hashP.value = 0;
+							hashP.denType = 0;
+							hashP.timestamp = 0;
+							hashP.stepList.push_back(step[i]);
+							updateHash(hashP);
 						}
-						else if ((count / 8) % 2 == 1)
+						else
 						{
-							step[i].second = point;
-							count++;
-							hash = hashCode(HashCM[i]);
-							hashList[hash].cut = true;
-							hashList[hash].full = true;
-							hashList[hash].myType = 0;
-							hashList[hash].denType = 0;
-							if (hashList[hash].stepList.size() == 0)
-							{
-								hashList[hash].stepList.push_back(step[i]);
-								hashList[hash].code = HashCM[i];
-								hashList[hash].timestamp = handNum / 2;
-							}
+							hashT->stepList.push_back(step[i]);
 						}
 					}
 				}
 			}
-			fclose(F1);
 		}
-	}
-	else if (color == WHITE)	//读取白方棋谱
-	{
-		for (int k = 0; k<1000; k++)
-		{
-			itoa(k, num, 10);
-			strcpy(filename, "棋谱记录\\白方棋谱\\"); strcat(filename, num); strcat(filename, ".sgf");
-			if ((F1 = fopen(filename, "r")) == NULL)continue;
-			for (y = 0; y<8; y++)
-				initialCode(HashCM[y]);
-			handNum = 0;
-			while (1)
-			{
-				fscanf(F1, "%c,%d,%d\n", &str, &x, &y);
-				if (str == 'V')break;
-				else if (str == 'J' || x<0)continue;
-				for (int i = 0; i<8; i++)
-				{
-					point.x = x;
-					point.y = y;
-					ChessImage(i, point.x, point.y);	//需要镜像成8个对称的
-					if (str == 'B')
-						moveCodeP(HashCM[i], point, BLACK);
-					else if (str == 'W')
-						moveCodeP(HashCM[i], point, WHITE);
-					else if (str == 'P')	//对应的招法
-					{
-						if ((count / 8) % 2 == 0)
-						{
-							step[i].first = point;
-							count++;
-						}
-						else if ((count / 8) % 2 == 1)
-						{
-							step[i].second = point;
-							count++;
-							hash = hashCode(HashCM[i]);
-							hashList[hash].cut = true;
-							hashList[hash].full = true;
-							hashList[hash].myType = 0;
-							hashList[hash].denType = 0;
-							if (hashList[hash].stepList.size() == 0)
-							{
-								hashList[hash].stepList.push_back(step[i]);
-								hashList[hash].code = HashCM[i];
-								hashList[hash].timestamp = handNum / 2;
-							}
-						}
-					}
-				}
-			}
-			fclose(F1);
-		}
+		fclose(fp);
 	}
 }
 

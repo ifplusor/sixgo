@@ -223,19 +223,26 @@ bool WinOrLose(Step step)
 	return false;
 }
 
+void initialProgram()
+{
+	printf("initial...\n");
+	initialLineTypeTable(preTable);
+	initialLineInfoTable(linetypeInfo);
+	initialHashBoard();
+	atexit(StopEndLib);
+	if(StartEndLib())
+		printf("error: Open end Lib error!\n");
+	printf("initial successed!\n");
+}
+
 int main(int argc, char *argv[])
 {
 	Step step;
 	char message[256]="";
 
-	atexit(StopEndLib);
 	printf("sixgo 2.0.1\n");
 	printf("Copyright 2014 ifplusor\n");
-	printf("initial...\n");
-	initialLineTypeTable(preTable);
-	initialLineInfoTable(linetypeInfo);
-	StartEndLib();
-	printf("successed!\n");
+	initialProgram();
 	while (1)
 	{
 		fflush(stdin);
@@ -392,14 +399,13 @@ int main(int argc, char *argv[])
 				computerSide=BLACK;
 			else
 				computerSide=WHITE;
+
 			initialGame();
 			initialAllLine();//对92条线的信息进行初始化
-			initialHash();//清空置换表
-#ifdef CM
+			initialHashList();//清空置换表
 			ReadCM(computerSide);//读取定式
-#endif
-			showBoard();
-			if(computerSide==curside)//程序先手
+
+			if(computerSide==curside)//程序执黑先手
 			{
 				step.first.x=step.first.y=9;
 				step.second.x=step.second.y=-1;
@@ -407,6 +413,8 @@ int main(int argc, char *argv[])
 				showBoard();
 				printf("move JJ@@\n");
 			}
+			else
+				showBoard();
 		}
 		else if (strcmp(message, "name?") == 0)
 		{

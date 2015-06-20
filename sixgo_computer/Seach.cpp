@@ -1,9 +1,10 @@
 #include "Seach.h"
 
 
-//int LineTypeValue[WIN+1]={0, 0, 0,0,0,1, 3,4,5,9, 8,12,15,16,20,31,33, 39,45,47,54,89,100,1000, 37,76,1000, 10000 };//线型价值表
-//                             0| 1| 2  3  4  5| 6  7  8   9| 10 *11  12  13 *14  15 *16| 17  18   19  *20   21  *22    *23| 24   25    *26|     27
-int LineTypeValue[WIN + 1] = { 0, 0, 1, 1, 1, 3, 5, 6, 8, 11, 15, 18, 20, 24, 28, 31, 39, 75, 90, 110, 115, 186, 236, 99999, 94, 196, 99999, 100000 };//线型价值表
+//const int LineTypeValue[WIN+1]={0, 0, 0,0,0,1, 3,4,5,9, 8,12,15,16,20,31,33, 39,45,47,54,89,100,1000, 37,76,1000, 10000 };//线型价值表
+
+//加*表示废型                         0| 1| 2  3  4  5| 6  7  8   9| 10 *11  12  13 *14  15 *16| 17  18  19  *20   21  *22    *23| 24   25    *26|     27
+const int LineTypeValue[WIN + 1] = { 0, 0, 1, 1, 1, 3, 5, 6, 8, 16, 15, 18, 20, 24, 28, 31, 39, 75, 90, 110, 115, 186, 236, 99999, 94, 196, 99999, 100000 };//线型价值表
 //无价值，|0潜潜双潜力，1潜单潜力，2潜弱双潜力，3潜双潜力，4潜多潜力，5单潜力，
 //         6弱双潜力，7双潜力，8多潜力，9单威胁，10弱双威胁，11双威胁|，多威胁，已胜
 //             潜多潜力16->多潜力100->多威胁1000->已胜
@@ -11,8 +12,8 @@ int LineTypeValue[WIN + 1] = { 0, 0, 1, 1, 1, 3, 5, 6, 8, 11, 15, 18, 20, 24, 28
 //            潜弱双潜力7->弱双潜力19->弱双威胁95
 //             潜单潜力5->单潜力15->单威胁75->已胜
 
-int LineTypeThreat[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 10, 10, 100, 1, 10, 100, 1000 };//线型威胁类型表：1单威胁、10双威胁、100三威胁、1000已胜
-int LineTypeType[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 10, 11, 11, 10, 100, 100, 1000, 1100, 1100, 1000, 2000, 2000, 3000, 1000, 2000, 3000, 10000 };//线型类型表
+const int LineTypeThreat[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 10, 10, 100, 1, 10, 100, 1000 };//线型威胁类型表：1单威胁、10双威胁、100三威胁、1000已胜
+const int LineTypeType[WIN + 1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 10, 11, 11, 10, 100, 100, 1000, 1100, 1100, 1000, 2000, 2000, 3000, 1000, 2000, 3000, 10000 };//线型类型表
 
 int virtualBoard[edge][edge];//虚拟棋盘
 BoardCode boardCode;//棋盘编码
@@ -21,16 +22,6 @@ LineInfo lineInfo[2][92];//线的信息表
 int SearchDepth = DEPTH;//规定搜索深度
 int MaxDepth = MAXDEPTH;//最大搜索深度
 
-/**
- * addHash - 插入置换表
- * @data:	待插入数据
- */
-inline void addHash(HashInfo &data)
-{
-	unsigned long hash = hashCode(data.code);//直接地址映射
-	//新加入点的时间戳必然较新
-	hashList[hash] = data;
-}
 
 /**
  * sixgo_carry - 六子棋博弈引擎核心，引擎工作入口
@@ -43,11 +34,11 @@ Step sixgo_carry(const Step moveStep, const int nBoard[19][19], const BYTE side)
 	int i, j;
 	Point point;
 	//复制虚拟棋盘
-	initialCode(boardCode);
+	initialHashCode(boardCode);
 	for (i = 0; i < edge; i++)
 		for (j = 0; j < edge; j++)
 		{
-			if (nBoard[i][j] != 2)
+			if (nBoard[i][j] != EMPTY)
 			{
 				point.x = i; point.y = j;
 				moveCodeP(boardCode, point, nBoard[i][j]);//进行哈希编码
@@ -156,6 +147,7 @@ Step SeachValuableStep(BYTE side)
 			}
 		}
 	}
+	debugger.OutputStep(stepList, side);
 	debugger.OutSelect(step);
 	return step;
 }
@@ -176,8 +168,13 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 	HashInfo *hashT, hashP;//哈希节点
 	Step select;
 
-	if (findEndLib(boardCode))
+	if (findEndLib(boardCode))//锁定残局
+	{
+#ifdef DEBUGVALUE
+		debugger.OutputMessage("info: 锁定残局!", 0);
+#endif
 		return WINLOSE - depth;
+	}
 
 	hashT = findHash(boardCode);//提取历史
 	if (hashT != NULL)//如果存在历史，优先直接调用历史
@@ -194,27 +191,20 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 		hashP.code = boardCode;//赋值表项唯一标识
 		hashP.cut = true;//初始化为true，表明经过剪枝
 		hashP.full = false;//初始化为false，表明不具有完整着法列表
-		hashP.myType = GetBoardType(side);//获取本方威胁类型
 		hashP.denType = GetBoardType(unside);//获取反方威胁类型
 	}
 	hashP.timestamp = HandNum;//更新哈希表项时间戳
 
 	//递归出口
 	//在进入搜索的必要条件为对方未取胜，而在搜索中若发现己方可胜则返回，故递归的终止条件不包括对方已胜
-	if (hashP.myType > 0)//存在威胁对方的线型
-	{
-		InsertEndLib(boardCode);
-		hashP.value = WINLOSE - depth;
-		addHash(hashP);
-		return hashP.value;
-	}
-	else if (depth >= SearchDepth)//搜索到限制深度
+	//在搜索过程中，己方可胜的条件是对方未能消除己方全部的威胁线型，而该条件会导致对方不能产生着法，故递归终止条件不包含己方可胜
+	if (depth >= SearchDepth)//搜索到限制深度
 	{
 		if (HandNum <= 6)
 		{
 			//达到最大搜索深度直接返回，不进行扩展搜索
 			hashP.value = GetBoardValue(side)*0.85 - GetBoardValue(unside);
-			addHash(hashP);
+			updateHash(hashP);
 			return hashP.value;
 		}
 		else
@@ -223,7 +213,7 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 			hashP.value = ExtendSeach(side, alpha, beta, depth);
 			if (hashP.value > MaxDepth - WINLOSE && hashP.value < WINLOSE - MaxDepth)
 				hashP.value = hashP.value*0.4 + (GetBoardValue(side)*0.85 - GetBoardValue(unside))*0.6;
-			addHash(hashP);
+			updateHash(hashP);
 			return hashP.value;
 		}
 	}
@@ -250,14 +240,14 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 	if (hashP.stepList.size() == 0)//因为不可破解局面，不能生成着法
 	{
 #ifdef DEBUGVALUE
-		if (hashP.denType == 2 || hashP.denType == 10)
+/*		if (hashP.denType == 2 || hashP.denType == 10)
 		{
 			debugger.OutputMessage("处理双单威胁出错！", side);
 			printf("error: can't create step!\n");
-		}
+		}*/
 #endif
 		hashP.value = depth - WINLOSE;
-		addHash(hashP);
+		updateHash(hashP);
 		return hashP.value;
 	}
 
@@ -284,6 +274,9 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 			if (iterS->value >= WINLOSE - MaxDepth)//只要有一个着法可以获胜，将必胜
 			{
 				InsertEndLib(boardCode);
+#ifdef DEBUGVALUE
+				debugger.OutputMessage("info: 习得残局!", 0);
+#endif
 				return iterS->value;
 			}
 			alpha = iterS->value;
@@ -291,14 +284,14 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 			if (beta <= alpha)//max层用beta剪枝
 			{
 				hashP.value = alpha;
-				addHash(hashP);
+				updateHash(hashP);
 				return hashP.value;
 			}
 		}
 	}
 	hashP.cut = false;//未被剪枝
 	hashP.value = alpha;
-	addHash(hashP);
+	updateHash(hashP);
 #ifdef DEBUGVALUE
 	debugger.OutSelect(select);
 #endif
@@ -315,25 +308,24 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
  */
 int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 {
-	int unside = 1 - side, val;
+	int unside = 1 - side;
 	LineInfo tempLine[2][4], tempLine2[2][4];
 	vector<Step> stepList;
 	vector<Step>::iterator iterS;
-	int myType, denType;
+	int denType;
 
 	if (findEndLib(boardCode))
+	{
+#ifdef DEBUGVALUE
+		debugger.OutputMessage("info: 锁定残局!", 0);
+#endif
 		return WINLOSE - depth;
+	}
 
-	myType = GetBoardType(side);
 	denType = GetBoardType(unside);
 
 	//递归出口
-	if (myType > 0)//存在威胁对方的线型
-	{
-		InsertEndLib(boardCode);
-		return WINLOSE - depth;
-	}
-	else if (depth >= MaxDepth)//到达搜索最大深度进行返回
+	if (depth >= MaxDepth)//到达搜索最大深度进行返回
 		return GetBoardValue(side) - GetBoardValue(unside);
 
 	//扩展搜索中不需要保存着法列表，因其不完整性，在常规搜索中将不会被引用
@@ -344,6 +336,9 @@ int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 	else//无威胁时寻找发起 双破招搜索 的机会
 		stepList = MakeStepListForDouble(side, 8);
 
+#ifdef DEBUGVALUE
+	debugger.OutputStep(stepList, side);
+#endif
 	if (stepList.size() == 0)
 	{
 		if (denType > 10 || (denType > 2 && denType < 10))//多威胁不可破解
@@ -354,19 +349,30 @@ int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 
 	for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 	{
+		moveCodeS(boardCode, *iterS, side);//走子
 		MakeMove(iterS->first, tempLine, side);
 		MakeMove(iterS->second, tempLine2, side);
-		val = -ExtendSeach(unside, -beta, -alpha, depth + 1);
+#ifdef DEBUGVALUE
+		debugger.MakeMove(*iterS);
+#endif
+		iterS->value = -ExtendSeach(unside, -beta, -alpha, depth + 1);
+#ifdef DEBUGVALUE
+		debugger.BackMove(*iterS);
+#endif
 		BackMove(iterS->second, tempLine2, side);
 		BackMove(iterS->first, tempLine, side);
-		if (alpha < val)
+		moveCodeS(boardCode, *iterS, side);//恢复
+		if (alpha < iterS->value)
 		{
-			if (val >= WINLOSE - MaxDepth)//只要有一个着法可以获胜，将必胜
+			if (iterS->value >= WINLOSE - MaxDepth)//只要有一个着法可以获胜，将必胜
 			{
 				InsertEndLib(boardCode);
-				return val;
+#ifdef DEBUGVALUE
+				debugger.OutputMessage("info: 习得残局!", 0);
+#endif
+				return iterS->value;
 			}
-			alpha = val;
+			alpha = iterS->value;
 			if (beta <= alpha)
 				return alpha;
 		}
@@ -1029,7 +1035,7 @@ vector<Step> MakeStepListForNone(int side, unsigned int limit)
 	vector<Point>::iterator iterP, iterP2;
 	vector<Step>::iterator iterS;
 
-	//先选取本方的<双威胁点，双潜力点，单威胁点，单潜力点>，对方<双威胁点，双潜力点，单威胁点> 作为第一批点进行试走
+	//先选取本方的<双威胁点，双潜力点，单威胁点>，对方<双威胁点，双潜力点，单威胁点> 作为第一批点进行试走
 	if (myInfo.duoThreatList.size() > 0)
 		for (iterP = myInfo.duoThreatList.begin(); iterP != myInfo.duoThreatList.end(); iterP++)
 			pointList.push_back(*iterP);
@@ -1038,9 +1044,6 @@ vector<Step> MakeStepListForNone(int side, unsigned int limit)
 			pointList.push_back(*iterP);
 	if (myInfo.solThreatList.size() > 0)
 		for (iterP = myInfo.solThreatList.begin(); iterP != myInfo.solThreatList.end(); iterP++)
-			pointList.push_back(*iterP);
-	if (myInfo.solPotenList.size() > 0)
-		for (iterP = myInfo.solPotenList.begin(); iterP != myInfo.solPotenList.end(); iterP++)
 			pointList.push_back(*iterP);
 	if (denInfo.duoThreatList.size() > 0)
 		for (iterP = denInfo.duoThreatList.begin(); iterP != denInfo.duoThreatList.end(); iterP++)
@@ -1059,8 +1062,11 @@ vector<Step> MakeStepListForNone(int side, unsigned int limit)
 			for (iterP = myInfo.toDuoTwoList.begin(); iterP != myInfo.toDuoTwoList.end(); iterP++)
 				pointList.push_back(*iterP);
 		}
-		else if (pointList.size() == 0)//再加入对方单潜力点和潜双潜力点
+		else if (pointList.size() == 0)//再加入本方单潜力点，对方单潜力点和潜双潜力点
 		{
+			if (myInfo.solPotenList.size() > 0)//本方单潜力点放在此处是为了抑制双子单威胁着法的生成
+				for (iterP = myInfo.solPotenList.begin(); iterP != myInfo.solPotenList.end(); iterP++)
+					pointList.push_back(*iterP);
 			if (denInfo.solPotenList.size() > 0)
 				for (iterP = denInfo.solPotenList.begin(); iterP != denInfo.solPotenList.end(); iterP++)
 					pointList.push_back(*iterP);
@@ -1350,7 +1356,7 @@ vector<Step> MakeStepListForDouble(int side, unsigned int limit)
 			{
 				stepList.resize(0);
 				tempStep.second = tempMy.duoThreatList[0];
-				tempStep.value = WINLOSE - 2;
+				tempStep.value = WINLOSE - MaxDepth - 1;
 				stepList.push_back(tempStep);
 				BackMove(tempStep.first, tempLine, side);
 				return stepList;
@@ -1390,15 +1396,15 @@ vector<Step> MakeStepListForDouble(int side, unsigned int limit)
 			pointList.resize(0);
 		}
 	}
-	if (myInfo.solThreatList.size() > 0)//存在单威胁&&双潜力点
+	if (myInfo.solThreatList.size() > 0)//单威胁点
 	{
 		for (iterP = myInfo.solThreatList.begin(); iterP != myInfo.solThreatList.end(); iterP++)
 		{
 			tempStep.first = *iterP;
-			MakeMove(tempStep.first, tempLine, TODUOTHREAT);
-			tempMy = GetBoardInfo(side, TODUOTHREAT);
+			MakeMove(tempStep.first, tempLine, TODUOTHREAT | TOSOLTHREAT);
+			tempMy = GetBoardInfo(side, TODUOTHREAT | TOSOLTHREAT);
 			BackMove(tempStep.first, tempLine, side);
-			if (tempMy.duoThreatList.size() != 0)
+			if (tempMy.duoThreatList.size() != 0)//双威胁点
 			{
 				for (iterP2 = tempMy.duoThreatList.begin(); iterP2 != tempMy.duoThreatList.end(); iterP2++)//本方双威胁点
 				{
@@ -1406,7 +1412,14 @@ vector<Step> MakeStepListForDouble(int side, unsigned int limit)
 					stepList.push_back(tempStep);
 				}
 			}
-			pointList.resize(0);
+			if (tempMy.solThreatList.size() != 0)//另一个单威胁点
+			{
+				for (iterP2 = tempMy.solThreatList.begin(); iterP2 != tempMy.solThreatList.end(); iterP2++)//本方双威胁点
+				{
+					tempStep.second = *iterP2;
+					stepList.push_back(tempStep);
+				}
+			}
 		}
 	}
 	if (myInfo.duoPotenList.size() > 0)//存在双潜力点

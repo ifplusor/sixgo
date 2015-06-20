@@ -113,10 +113,7 @@ bool cmpStepValue(const Step &s1,const Step &s2)
 {		
 	return s1.value>s2.value;
 }
-bool cmpPointValue(const Step &p1,const Step &p2)
-{		
-	return p1.value>p2.value;
-}
+
 bool cmpPointPosition(const Point &p1, const Point &p2)
 {
 	if(p1.x==p2.x)

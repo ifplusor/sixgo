@@ -4,7 +4,6 @@
 #define MAXSIZE 0x100000
 
 #include "connect_six.h"
-#include <time.h>
 
 typedef struct _BoardCode
 {
@@ -16,7 +15,7 @@ typedef struct _HashInfo
 {
 	BoardCode code;//棋盘状态编码
 	vector<Step> stepList;//着法列表
-	int value,myType,denType;//保存威胁类型的主要目的是为了指导招法生成
+	int value,denType;//保存威胁类型的主要目的是为了指导招法生成
 	int timestamp;//哈希表项储存时间戳，保存行棋数（HandNum）
 	bool cut;//cut：剪枝标记，用于发起着法排序以提高剪枝效率
 	bool full;//full：着法列表完整性标记，常规搜索生成完整着法列表，扩展搜索生成特殊着法
@@ -28,20 +27,21 @@ typedef struct _EndLibInfo
 	_EndLibInfo *next;
 }EndLibInfo;
 
-extern HashInfo hashList[MAXSIZE];
 
-void initialCode(BoardCode &code);
-void initialHash();
-bool compareCode(BoardCode &a,BoardCode &b);
-unsigned long hashCode(BoardCode &code);
-HashInfo *findHash(BoardCode &code);
+void initialHashBoard();
+void initialHashList();
+void initialHashCode(BoardCode &code);
 unsigned long getHashCode(int index);
+unsigned long hashCode(const BoardCode &code);
+bool compareCode(const BoardCode &a,const BoardCode &b);
+HashInfo *findHash(const BoardCode &code);
+void updateHash(const HashInfo &data);
 void moveCodeP(BoardCode &code,Point point,int side);
 void moveCodeS(BoardCode &code,Step step,int side);
 
-bool findEndLib(BoardCode &code);
 bool StartEndLib();
 void StopEndLib();
-void InsertEndLib(BoardCode &code);
+bool findEndLib(const BoardCode &code);
+void InsertEndLib(const BoardCode &code);
 
 #endif
