@@ -57,7 +57,8 @@ int nega_alpha_beta(BYTE side, int alpha, int beta, const int depth)
 	if (depth >= SearchDepth)//搜索到限制深度
 	{
 		//达到最大搜索深度计算评估值
-		hashP.value = GetBoardValue(side) * 85 / 100 - GetBoardValue(unside);
+		//GetBoardValue(side) * 0.85 - GetBoardValue(unside)
+		hashP.value = GetBoardValue(side) * 17 / 20 - GetBoardValue(unside);
 		//此时并不会产生着法列表，不应插入置换表
 		return hashP.value;
 	}
@@ -182,7 +183,8 @@ int TSS(BYTE side, int alpha, int beta, const int depth)
 		if (denType > 10 || (denType > 2 && denType < 10))//多威胁不可破解
 			return depth - WINLOSE;
 		else//不满足加深搜索条件
-			return GetBoardValue(side) * 85 / 100 - GetBoardValue(unside);
+			//GetBoardValue(side) * 0.85 - GetBoardValue(unside)
+			return GetBoardValue(side) * 17 / 20 - GetBoardValue(unside);
 	}
 
 	for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
@@ -273,7 +275,8 @@ int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 	{
 		hashP.value = TSS(side, alpha, beta, depth);//同一结点搜索
 		if (hashP.value > MaxDepth - WINLOSE && hashP.value < WINLOSE - MaxDepth)//不能识别胜负 
-			hashP.value = (hashP.value * 40 + (GetBoardValue(side) * 85 - GetBoardValue(unside)) * 60) / 100;
+			//hashP.value * 0.4 + (GetBoardValue(side) * 0.85 - GetBoardValue(unside)) * 0.6
+			hashP.value = (hashP.value * 40 + GetBoardValue(side) * 51  - GetBoardValue(unside) * 60) / 100;
 		//此时并不会产生着法列表，不应插入置换表，否则在下一轮时将因为无可利用着法而出错
 		return hashP.value;
 	}

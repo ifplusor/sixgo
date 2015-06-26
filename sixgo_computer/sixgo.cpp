@@ -240,8 +240,8 @@ int main(int argc, char *argv[])
 	Step step;
 	char message[256]="";
 
-	printf("sixgo 2.0.1\n");
-	printf("Copyright 2014 ifplusor\n");
+	printf("sixgo v2.1.0\n");
+	printf("Copyright 2013-2015 ifplusor\n");
 	initialProgram();
 	while (1)
 	{
