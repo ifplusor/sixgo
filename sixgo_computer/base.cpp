@@ -1,4 +1,4 @@
-#include "Seach.h"
+#include "base.h"
 
 
 /** Increment - 位置变换
@@ -169,86 +169,14 @@ bool EqualStep(const Step &s1,const Step &s2)
 }
 
 //对容器中的步进行去重
-void UniqueStep(vector<Step> &StepList)
+void UniqueStep(vector<Step> &stepList)
 {
 	vector<Step>::iterator iter;
-	sort(StepList.begin(),StepList.end(),cmpStepPosition);
-	iter=unique( StepList.begin(), StepList.end(),EqualStep);
-	if(iter!=StepList.end())
+	sort(stepList.begin(), stepList.end(), cmpStepPosition);
+	iter = unique(stepList.begin(), stepList.end(), EqualStep);
+	if (iter != stepList.end())
 	{
-		StepList.erase(iter,StepList.end());
-		StepList.resize(StepList.size());
+		stepList.erase(iter, stepList.end());
+		stepList.resize(stepList.size());
 	}
-}
-
-/**	CopyLineInfo - 线信息复制
- *	@return:	无返回值
- *	@dest:		进行复制的目标引用
- *	@src:		进行复制的源引用
- */
-void CopyLineInfo(LineInfo &dest,LineInfo &src,int tag)
-{
-	dest.value=src.value;
-	dest.LineType=src.LineType;
-	if(tag&TODEFENT)
-	{
-		vector<Point>().swap(dest.defPointList);//释放内存
-		dest.defPointList=src.defPointList;
-		vector<Step>().swap(dest.defStepList);
-		dest.defStepList=src.defStepList;
-	}
-	if(tag&TOWIN)
-	{
-		vector<Point>().swap(dest.winList);
-		dest.winList=src.winList;
-	}
-	if(tag&TOWILLWIN)
-	{
-		vector<Point>().swap(dest.willWinList);
-		dest.willWinList=src.willWinList;
-	}
-	if(tag&TODUOTHREAT)
-	{
-		vector<Point>().swap(dest.duoThreatList);
-		dest.duoThreatList=src.duoThreatList;
-	}
-	if(tag&TOSOLTHREAT)
-	{
-		vector<Point>().swap(dest.solThreatList);
-		dest.solThreatList=src.solThreatList;
-	}
-	if(tag&TODUOPOTEN)
-	{
-		vector<Point>().swap(dest.duoPotenList);
-		dest.duoPotenList=src.duoPotenList;
-	}
-	if(tag&TOSOLPOTEN)
-	{
-		vector<Point>().swap(dest.solPotenList);
-		dest.solPotenList=src.solPotenList;
-	}
-	if(tag&TOCOMMON)
-	{
-		vector<Point>().swap(dest.toDuoTwoList);
-		dest.toDuoTwoList=src.toDuoTwoList;
-	}
-}
-
-/**	initialLine - 初始化LineInfo变量
- *	@return:	无返回值
- *	@lineInfo:	需要进行初始化的变量指针
- */
-void initialLine(LineInfo *lineInfo)
-{
-	lineInfo->winList.clear();//5->6：致胜点
-	lineInfo->willWinList.clear();//4->5:即将致胜点
-	lineInfo->duoThreatList.clear();//可以生成双威胁的点
-	lineInfo->solThreatList.clear();//可以生成单威胁的点
-	lineInfo->duoPotenList.clear();//可以生成双潜力的点
-	lineInfo->solPotenList.clear();//可以生成单潜力的点
-	lineInfo->toDuoTwoList.clear();//可以生成潜双潜力的点
-	lineInfo->defPointList.clear();//防御单威胁线型的点
-	lineInfo->defStepList.clear();//防御双威胁线型的步
-	lineInfo->value=0;
-	lineInfo->LineType=0;			//局面的线的类型  -1:胜  0:无威胁;  1:单威胁;  2:双威胁  3:多威胁
 }

@@ -36,6 +36,12 @@
     <ClCompile Include="ChessManual.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MaintainInfo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StepGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="connect_six.h">
@@ -54,6 +60,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ChessManual.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MaintainInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StepGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

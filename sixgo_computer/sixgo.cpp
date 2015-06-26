@@ -272,123 +272,13 @@ int main(int argc, char *argv[])
 				printf("error\n请重新输入!\n");
 				continue;
 			}
-			if(HandNum==2)//第二手比较特殊，故使用人为规定，贴着先手进行落子
+			step = sixgo_carry(step, nBoard, computerSide);
+			if (judgeLegal(step))
 			{
-				Point temp;
-				int type=0;
-				if(step.first.x!=-1&&step.first.y!=-1)
-				{
-					temp=step.first;
-					if(temp.x>9)
-						type=2;
-					if(temp.y>9)
-						type++;
-					switch(type)
-					{
-					case 0:
-						step.first.x=temp.x+1;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y+1;
-						break;
-					case 1:
-						step.first.x=temp.x+1;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y-1;
-						break;
-					case 2:
-						step.first.x=temp.x-1;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y+1;
-						break;
-					case 3:
-						step.first.x=temp.x-1;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y-1;
-						break;
-					}
-					if(judgeLegal(step))
-					{
-						moveStep(step);
-						showBoard();
-						if(WinOrLose(step))
-							start=0;
-					}
-					else
-						break;
-				}
-				else if(step.second.x!=-1&&step.second.y!=-1)
-				{
-					temp=step.second;
-					if(temp.x>9)
-						type=2;
-					if(temp.y>9)
-						type++;
-					switch(type)
-					{
-					case 0:
-						step.first.x=temp.x++;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y++;
-						break;
-					case 1:
-						step.first.x=temp.x++;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y--;
-						break;
-					case 2:
-						step.first.x=temp.x--;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y++;
-						break;
-					case 3:
-						step.first.x=temp.x--;
-						step.first.y=temp.y;
-						step.second.x=temp.x;
-						step.second.y=temp.y--;
-						break;
-					}
-					if(judgeLegal(step))
-					{
-						moveStep(step);
-						showBoard();
-						if(WinOrLose(step))
-							start=0;
-					}
-					else
-						break;
-				}
-				else
-				{
-					step.first.x=step.first.y=9;
-					step.second.x=step.second.y=10;
-					if(judgeLegal(step))
-					{
-						moveStep(step);
-						showBoard();
-						if(WinOrLose(step))
-							start=0;
-					}
-					else
-						break;
-				}
-			}
-			else
-			{
-				step=sixgo_carry(step,nBoard,computerSide);
-				if(judgeLegal(step))
-				{
-					moveStep(step);
-					showBoard();
-					if(WinOrLose(step))
-						start=0;
-				}
+				moveStep(step);
+				showBoard();
+				if (WinOrLose(step))
+					start = 0;
 			}
 			printf("move %c%c%c%c\n",step.first.x+'A',step.first.y+'A',step.second.x+'A',step.second.y+'A');
 		}

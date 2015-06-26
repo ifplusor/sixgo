@@ -5,6 +5,7 @@
 #include "direct.h"
 #include "time.h"
 
+//#define DEBUGVALUE
 #ifdef _DEBUG
 #define DEBUGVALUE
 #endif

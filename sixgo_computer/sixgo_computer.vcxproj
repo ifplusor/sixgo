@@ -81,16 +81,21 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="hash.cpp" />
     <ClCompile Include="LineTypeTable.cpp" />
+    <ClCompile Include="MaintainInfo.cpp" />
     <ClCompile Include="Seach.cpp" />
     <ClCompile Include="sixgo.cpp" />
+    <ClCompile Include="StepGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base.h" />
     <ClInclude Include="ChessManual.h" />
     <ClInclude Include="connect_six.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="linetype.h" />
+    <ClInclude Include="MaintainInfo.h" />
     <ClInclude Include="Seach.h" />
+    <ClInclude Include="StepGenerator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

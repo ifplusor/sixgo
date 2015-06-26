@@ -106,8 +106,8 @@ HashInfo *findHash(const BoardCode &code)
 void updateHash(const HashInfo &data)
 {
 	unsigned long hash = hashCode(data.code);//直接地址映射
-	//新加入点的时间戳必然较新
 	hashList[hash] = data;
+	hashList[hash].timestamp = HandNum;//更新时间戳
 }
 
 void moveCodeP(BoardCode &code,Point point,int side)
@@ -184,7 +184,7 @@ bool ReadEL()
 		printf("error: read end lib failed!\n");
 		return true;
 	}
-	while (fread(code.a, sizeof(code.a), 1, rfp) != 0)
+	while (fread(code.a, sizeof(code.a), 1, rfp) > 0)
 	{
 		count++;
 		code.hash32 = 0;

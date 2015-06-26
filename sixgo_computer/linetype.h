@@ -4,8 +4,6 @@
 #include "connect_six.h"
 
 #define NEW
-#define _K_		//简明开关
-
 
 #define TableSize 1048576     //新线型表大小
 #define TabSize 1048512		//老线型表大小，为了读取老线型表文件而设
@@ -84,10 +82,6 @@
 
 #endif
 
-
-
-typedef unsigned char BYTE;
-typedef BYTE* LPBYTE;
 
 typedef int iPoint;
 typedef struct _iStep

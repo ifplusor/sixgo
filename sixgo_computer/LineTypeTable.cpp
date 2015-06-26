@@ -11,6 +11,9 @@
 BYTE preTable[TableSize];					//线型表项
 LineTypeInfo linetypeInfo[TableSize];
 
+void AnalyDefentStep(int shapeIndex, int len, LineTypeInfo *the);
+void AnalyDefentPoint(int shapeIndex, int len, LineTypeInfo *the);
+
 
 //线型管理
 //=====================================================================
@@ -340,30 +343,40 @@ void createTHREAT_four_POTEN(LPBYTE lpArray)
 	printf("Finish create THREAT_four_POTEN.\n");
 }
 
-//生成四子弱双威胁双潜力线型（连续7个点位，两端为空，中间三个点用有一个为空）
+//生成四子弱双威胁双潜力线型（落一颗子可破解，落两子也可破解，但去除两子中的任意一子则不可破解）
+//（连续7个点位，两端为空，中间三个点用有一个为空），该定义较弱
 void createTHREAT_four_ADDITION(LPBYTE lpArray)
 {
-	int i, shapeIndex, len, sum = 0;
+	LineTypeInfo the;
+	vector<iStep> defStepList;
+	vector<iStep>::iterator iterS;
+	vector<iPoint>::iterator iterP;
+	int shapeIndex, len;
 	for (shapeIndex = 64; shapeIndex < TableSize; ++shapeIndex)
 	{
 		if (lpArray[shapeIndex] != THREAT_four_POTEN)continue;//THREAT_four_ADDITION线型是从THREAT_four_POTEN线型中衍生的，剩余4型中不能衍生
+
 		len = getLinetypeLen(shapeIndex);
-		sum = getLinetypePoint(shapeIndex, 1, 6);
-		if (sum == 4 && GetABit(shapeIndex, 1) == 1 && GetABit(shapeIndex, 5) == 1 && GetABit(shapeIndex, 0) == 0 && GetABit(shapeIndex, 6) == 0)
+
+		the.defPointList.clear();
+		the.defStepList.clear();
+
+		AnalyDefentPoint(shapeIndex, len, &the);
+		AnalyDefentStep(shapeIndex, len, &the);
+
+		defStepList.clear();
+		for (iterS = the.defStepList.begin(); iterS != the.defStepList.end(); iterS++)
 		{
-			lpArray[shapeIndex] = THREAT_four_ADDITION;
-			continue;
-		}
-		for (i = 1; i < len - 6; ++i)
-		{
-			sum -= GetABit(shapeIndex, i);
-			sum += GetABit(shapeIndex, i + 5);
-			if (sum == 4 && GetABit(shapeIndex, i + 1) == 1 && GetABit(shapeIndex, i + 5) == 1 && GetABit(shapeIndex, i) == 0 && GetABit(shapeIndex, i + 6) == 0)
+			for (iterP = the.defPointList.begin(); iterP != the.defPointList.end(); iterP++)
 			{
-				lpArray[shapeIndex] = THREAT_four_ADDITION;
-				break;
+				if (iterS->first == *iterP || iterS->second == *iterP)
+					break;
 			}
+			if (iterP == the.defPointList.end())
+				defStepList.push_back(*iterS);
 		}
+		if (defStepList.size() > 0)
+			lpArray[shapeIndex] = THREAT_four_ADDITION;
 	}
 	printf("Finish create THREAT_four_ADDITION .\n");
 }
@@ -711,7 +724,7 @@ void AnalyDownOne(LPBYTE lpArray, BYTE tag)
 	printf("- %d:%d  ", tag, num);
 	for (i = WIN; i > 0; --i)
 	{
-		if (sum[i] != 0) printf("%d:%d ", i, sum[i]);
+		if (sum[i] > 0) printf("%d:%d ", i, sum[i]);
 	}
 	printf("\n");
 }
@@ -894,42 +907,37 @@ int getPointIndex(int shapeIndex, int len, int tag)
 
 void analyTHREAT_four_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//四阶五级  衍生即将胜利点，双威胁点；破解步，破解点
 {
-	int i, sum, t;
-	iStep tempStep;
+	int i, t;
 
 	the->lineType = 4;
-
 	the->willWin = getPointIndex(shapeIndex, len, THREAT_five_DOUBLE);//即将胜利点
 
 	for (i = 0; i < len; i++)
 	{
 		if (GetABit(shapeIndex, i))continue;
 		t = preTable[shapeIndex + (1 << i)];
-		if (t == THREAT_five_DOUBLE || t == THREAT_four_DOUBLE)//双威胁点；必能生成五阶二级线型，不漏点原则
+		if (t == THREAT_five_DOUBLE || t == THREAT_four_DOUBLE)//双威胁点；必能生成五阶二级线型，不漏点原则（四阶三级）
 			the->duoThreatList.push_back(i);
 	}
 
 	AnalyDefentPoint(shapeIndex, len, the);
+	AnalyDefentStep(shapeIndex, len, the);
 
 	//解析破解步
-	sum = getLinetypeThreat(shapeIndex, 1, 6);
-	if (sum == 4 && GetABit(shapeIndex, 1) == 1 && GetABit(shapeIndex, 5) == 1 && GetABit(shapeIndex, 0) == 0 && GetABit(shapeIndex, 6) == 0)
+	vector<iStep> defStepList;
+	vector<iStep>::iterator iterS;
+	vector<iPoint>::iterator iterP;
+	for (iterS = the->defStepList.begin(); iterS != the->defStepList.end(); iterS++)
 	{
-		tempStep.first = 0;
-		tempStep.second = 6;
-		the->defStepList.push_back(tempStep);
-	}
-	for (i = 1; i < len - 6; i++)
-	{
-		sum -= GetABit(shapeIndex, i);
-		sum += GetABit(shapeIndex, i + 5);
-		if (sum == 4 && GetABit(shapeIndex, i + 1) == 1 && GetABit(shapeIndex, i + 5) == 1 && GetABit(shapeIndex, i) == 0 && GetABit(shapeIndex, i + 6) == 0)
+		for (iterP = the->defPointList.begin(); iterP != the->defPointList.end(); iterP++)
 		{
-			tempStep.first = i;
-			tempStep.second = i + 6;
-			the->defStepList.push_back(tempStep);
+			if (iterS->first == *iterP || iterS->second == *iterP)
+				break;
 		}
+		if (iterP == the->defPointList.end())
+			defStepList.push_back(*iterS);
 	}
+	the->defStepList.swap(defStepList);
 }
 
 void analyTHREAT_four_POTEN(int shapeIndex, int len, LineTypeInfo *the)//四阶六级  即将胜利点，双威胁点，破解点
@@ -972,10 +980,13 @@ void analyPOTEN_three_DOUBLE(int shapeIndex, int len, LineTypeInfo *the)//三阶二
 	{
 		if (GetABit(shapeIndex, i))continue;
 		t = preTable[shapeIndex + (1 << i)];
-		if (t >= THREAT_four_DOUBLE)//双威胁点
+		if (t >= THREAT_four_DOUBLE)//双威胁点（四阶三级）
 			the->duoThreatList.push_back(i);
-		else if (t >= THREAT_four_SINGLE)//单威胁点
+		else if (t >= THREAT_four_SINGLE)//单威胁点（四阶五级，四阶六级）
+		{
 			the->solThreatList.push_back(i);
+			the->duoPotenList.push_back(i);
+		}
 	}
 }
 
@@ -999,7 +1010,11 @@ void analyPOTEN_three_ADDITION(int shapeIndex, int len, LineTypeInfo *the)//三阶
 		if (GetABit(shapeIndex, i))continue;
 		t = preTable[shapeIndex + (1 << i)];
 		if (t >= THREAT_four_SINGLE)//单威胁点
+		{
 			the->solThreatList.push_back(i);
+			if (t > THREAT_four_SINGLE)
+				the->duoPotenList.push_back(i);
+		}
 		else if (t >= POTEN_three_DOUBLE)//双潜力点
 			the->duoPotenList.push_back(i);
 	}
@@ -1014,7 +1029,11 @@ void analyPOTEN_three_ANDPOTEN(int shapeIndex, int len, LineTypeInfo *the)//三阶
 		if (GetABit(shapeIndex, i))continue;
 		t = preTable[shapeIndex + (1 << i)];
 		if (t >= THREAT_four_SINGLE)//单威胁点
+		{
 			the->solThreatList.push_back(i);
+			if (t > THREAT_four_SINGLE)
+				the->duoPotenList.push_back(i);
+		}
 		else if (t >= POTEN_three_DOUBLE)//双潜力点
 			the->duoPotenList.push_back(i);
 	}

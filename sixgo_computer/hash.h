@@ -21,6 +21,7 @@ typedef struct _HashInfo
 	bool full;//full：着法列表完整性标记，常规搜索生成完整着法列表，扩展搜索生成特殊着法
 }HashInfo;
 
+//残局为必败局，通过DTSS进行学习
 typedef struct _EndLibInfo
 {
 	BoardCode code;

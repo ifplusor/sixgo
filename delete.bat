@@ -1,0 +1,1 @@
+rd SIXGO_DEBUG /s /q

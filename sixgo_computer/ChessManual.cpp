@@ -28,60 +28,58 @@ void ReadCM(int color)
 {
 	BoardCode HashCM[8];
 	Step step[8];
-	Point point;
-	int count = 0, x, y;
-	char str, filename[_MAX_PATH];
+	vector<Step>::iterator iter;
+	int count = 0, i, l;
+	char str[10], pos[10], filename[_MAX_PATH];
 	FILE *fp;
 
 	for (int k = 0; k < 1000; k++)
 	{
-		sprintf(filename, "棋谱记录\\%s方棋谱\\%d.sgf", color == BLACK ? "黑" : "白", k);
+		sprintf(filename, "CM\\%s\\%d.sgf", color == BLACK ? "Black" : "White", k);
 		if ((fp = fopen(filename, "r")) == NULL)continue;	//如果没找到棋谱就找下一个
-		for (y = 0; y < 8; y++)
-			initialHashCode(HashCM[y]);
-		while (1)
+		for (l = 0; l < 8; l++)
+			initialHashCode(HashCM[l]);
+		for (i = 0; fscanf(fp, "%s %s", str, pos) != EOF; i++)
 		{
-			fscanf(fp, "%c,%d,%d\n", &str, &x, &y);
-			if (str == 'V')break;
-			else if (str == 'J' || x < 0)continue;
-			for (int i = 0; i < 8; i++)
+			//需要镜像成8个对称的
+			for (int l = 0; l < 8; l++)
 			{
-				point.x = x;
-				point.y = y;
-				ChessImage(i, point.x, point.y);	//需要镜像成8个对称的
-				if (str == 'B')
-					moveCodeP(HashCM[i], point, BLACK);
-				else if (str == 'W')
-					moveCodeP(HashCM[i], point, WHITE);
-				else if (str == 'P')	//对应的招法
+				step[l].first.x = pos[0] - 'A';
+				step[l].first.y = pos[1] - 'A';
+				step[l].second.x = pos[2] - 'A';
+				step[l].second.y = pos[3] - 'A';
+				ChessImage(l, step[l].first.x, step[l].first.y);
+				if (i != 0)
 				{
-					count++;
-					if ((count / 8) % 2 == 0)
+					ChessImage(l, step[l].second.x, step[l].second.y);
+					if (color == BLACK ? str[0] == 'B' : str[0] == 'W')//指定执棋颜色
 					{
-						step[i].first = point;
-					}
-					else if ((count / 8) % 2 == 1)
-					{
-						step[i].second = point;
-						HashInfo *hashT = findHash(HashCM[i]);
+						HashInfo *hashT = findHash(HashCM[l]);
 						if (hashT == NULL)
 						{
 							HashInfo hashP;
-							hashP.code = HashCM[i];
+							hashP.code = HashCM[l];
 							hashP.cut = true;
 							hashP.full = true;
 							hashP.value = 0;
 							hashP.denType = 0;
 							hashP.timestamp = 0;
-							hashP.stepList.push_back(step[i]);
+							hashP.stepList.push_back(step[l]);
 							updateHash(hashP);
 						}
 						else
 						{
-							hashT->stepList.push_back(step[i]);
+							hashT->stepList.push_back(step[l]);
+							UniqueStep(hashT->stepList);
 						}
 					}
+					if (str[0] == 'B')
+						moveCodeS(HashCM[l], step[l], BLACK);
+					else if (str[0] == 'W')
+						moveCodeS(HashCM[l], step[l], WHITE);
 				}
+				else
+					moveCodeP(HashCM[l], step[l].first, str[0] == 'B' ? BLACK : WHITE);
 			}
 		}
 		fclose(fp);

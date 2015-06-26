@@ -1,8 +1,8 @@
 //connect_six.h
 //=================================================================================================
 //定义程序必要的数据结构及对数据结构的操作，保存程序所有函数的声明。
-#ifndef SIXGO_H_BASE
-#define SIXGO_H_BASE
+#ifndef SIXGO_H_MAIN
+#define SIXGO_H_MAIN
 
 #include <stdio.h>
 #include <string.h>
@@ -28,6 +28,9 @@ const int edge = 19;
 #define PutBBit( Line , x )			( (Line) ^ ( 1 << (x) ) )	//将数‘Line’的第x二进制位取反
 #define AllOne( k )				( ( 1 << (k) ) -1 )
 
+typedef unsigned char BYTE;
+typedef BYTE* LPBYTE;
+
 typedef struct _Point{ //点
 	int x,y;
 }Point;
@@ -36,9 +39,10 @@ typedef struct _Step{ //步
 	int value;
 }Step;
 
-extern const int lineVector[8][2];
-extern int SeachDepth,MaxDepth;
-extern int virtualBoard[edge][edge];
+
 extern int HandNum;
+extern int MaxDepth;
+extern const int lineVector[8][2];
+
 
 #endif
