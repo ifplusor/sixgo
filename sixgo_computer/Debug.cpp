@@ -119,7 +119,7 @@ void Debugger::MakeMove(Step step)
 	}
 	string path = getPath();
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	if(_mkdir(path.c_str()))
 #endif // WIN32
 
@@ -152,7 +152,7 @@ void Debugger::InitDir()
 	timeDir = time(NULL);
 	char temp[_MAX_PATH];
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	sprintf(temp, "SIXGO_DEBUG\\%I64d", timeDir);
 	pathRoot = temp;
 	if(_mkdir(temp))

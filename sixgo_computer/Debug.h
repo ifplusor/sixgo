@@ -4,7 +4,7 @@
 #include "Seach.h"
 #include <time.h>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <direct.h>
 #endif
 
@@ -21,7 +21,7 @@
 class Debugger{
 public:
 	Debugger(){
-#ifdef __WIN32__
+#ifdef _WIN32
 	    _mkdir("SIXGO_DEBUG");
 #endif // WIN32
 
