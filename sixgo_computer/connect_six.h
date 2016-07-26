@@ -28,6 +28,15 @@ const int edge = 19;
 #define PutBBit( Line , x )			( (Line) ^ ( 1 << (x) ) )	//将数‘Line’的第x二进制位取反
 #define AllOne( k )				( ( 1 << (k) ) -1 )
 
+#ifdef __WIN32__
+typedef unsigned __int64 UINT64;
+#endif
+
+#ifdef __gnu_linux__
+#define _MAX_PATH 260
+typedef unsigned long long UINT64;
+#endif
+
 typedef unsigned char BYTE;
 typedef BYTE* LPBYTE;
 

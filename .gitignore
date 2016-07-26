@@ -5,6 +5,8 @@
 *.suo
 *.user
 *.sln.docstates
+*/Sixgo.Elib
+*/_LineTypeTable.me
 
 # Build results
 [Dd]ebug/

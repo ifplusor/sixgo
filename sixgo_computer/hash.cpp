@@ -6,11 +6,11 @@ EndLibInfo *eLib[MAXSIZE];//残局表，要求无冲
 HashInfo hashList[MAXSIZE];//置换表中只保存本轮和上一轮的信息，再向前的信息直接丢弃
 
 unsigned long hashBoard32[23 * 32];
-unsigned __int64 hashBoard64[23 * 32];
+UINT64 hashBoard64[23 * 32];
 
-unsigned __int64 rand64()
+UINT64 rand64()
 {
-	return (unsigned __int64)rand() ^ ((unsigned __int64)rand() << 15) ^ ((unsigned __int64)rand() << 30) ^ ((unsigned __int64)rand() << 45) ^ ((unsigned __int64)rand() << 60);
+	return (UINT64)rand() ^ ((UINT64)rand() << 15) ^ ((UINT64)rand() << 30) ^ ((UINT64)rand() << 45) ^ ((UINT64)rand() << 60);
 }
 unsigned long rand32()
 {

@@ -29,7 +29,7 @@ void ReadCM(int color)
 	BoardCode HashCM[8];
 	Step step[8];
 	vector<Step>::iterator iter;
-	int count = 0, i, l;
+	int i, l;
 	char str[10], pos[10], filename[_MAX_PATH];
 	FILE *fp;
 

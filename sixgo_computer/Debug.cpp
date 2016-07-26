@@ -73,7 +73,7 @@ void Debugger::OutputStep(vector<Step> &stepList, const int side)
 	}
 	fprintf(fp, "side=%s\n", side == 0 ? "ºÚ·½" : "°×·½");
 	showBoard(fp, virtualBoard);
-	fprintf(fp, "list size: %d\n", stepList.size());
+	fprintf(fp, "list size: %ld\n", stepList.size());
 	for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 	{
 		fprintf(fp, "%c%c%c%c %d\n", iterS->first.x + 'A', iterS->first.y + 'A', iterS->second.x + 'A', iterS->second.y + 'A', iterS->value);
@@ -118,7 +118,14 @@ void Debugger::MakeMove(Step step)
 		return;
 	}
 	string path = getPath();
+
+#ifdef __WIN32__
 	if(_mkdir(path.c_str()))
+#endif // WIN32
+
+#ifdef __gnu_linux__
+    if(mkdir(path.c_str(), 644))
+#endif // linux
 		printf("error: make folder failed!\n");
 }
 
@@ -144,9 +151,18 @@ void Debugger::InitDir()
 {
 	timeDir = time(NULL);
 	char temp[_MAX_PATH];
+
+#ifdef __WIN32__
 	sprintf(temp, "SIXGO_DEBUG\\%I64d", timeDir);
 	pathRoot = temp;
 	if(_mkdir(temp))
+#endif // WIN32
+
+#ifdef __gnu_linux__
+	sprintf(temp, "SIXGO_DEBUG\\%ld", timeDir);
+	pathRoot = temp;
+    if(mkdir(temp, 644))
+#endif // linux
 		printf("error: make folder failed!\n");
 }
 

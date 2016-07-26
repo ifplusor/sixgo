@@ -369,6 +369,7 @@ vector<Step> MakeStepListForNone(int side, unsigned int limit)
 		for (int i = 0; i < edge; i++)
 			for (int j = 0; j < edge; j++)
 				if (virtualBoard[i][j] == EMPTY)
+                {
 					if (first)
 					{
 						tempStep.first.x = i;
@@ -381,6 +382,7 @@ vector<Step> MakeStepListForNone(int side, unsigned int limit)
 						stepList.push_back(tempStep);
 						return stepList;
 					}
+                }
 	}
 	else
 	{

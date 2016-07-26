@@ -114,7 +114,6 @@ void CopyLineInfo(LineInfo &dest, LineInfo &src, int tag = TOALL)
  */
 LineInfo ValuateType(int style, Point start, BYTE lineDirec, int tag)
 {
-	int i, len;	//len:线型的长度。
 	int ShapeStyleId;	//棋形类型编号（1~14）。
 	Point tempPoint;
 	Step tempStep;
@@ -130,12 +129,6 @@ LineInfo ValuateType(int style, Point start, BYTE lineDirec, int tag)
 		return lineInfo;
 	if (ShapeStyleId >= WIN)//已胜线型
 		return lineInfo;
-
-	for (i = 19; i >= 0; i--)//计算style的有效二进制位数，即线型长度。至少为6位，这是由AnalyzeLine函数决定的。
-		if (GetABit(style, i))
-		{
-			len = i; break;
-		}
 
 	if (ShapeStyleId >= THREAT_four_SINGLE)//威胁型
 	{
@@ -223,7 +216,6 @@ LineInfo AnalyzeLine(Point start, BYTE lineDirec, BYTE side, int tag)
 	int y = start.y;
 	Point LinePos;		//被分析的线形的起点绝对坐标。用-1表示还未确定出被分析线形的起点（棋盘的有效点的坐标值都不小于0）。
 	int len = 0;		//记录当前位置在所要求的段中的位置, 可以理解为当前段长
-	int value = 0;
 	vector<Point>::iterator iterP;
 	vector<Step>::iterator iterS;
 	LineInfo lineInfo, lineInfoAssistor;

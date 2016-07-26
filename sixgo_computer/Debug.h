@@ -2,8 +2,16 @@
 #define SIXGO_H_DEBUG
 
 #include "Seach.h"
-#include "direct.h"
-#include "time.h"
+#include <time.h>
+
+#ifdef __WIN32__
+#include <direct.h>
+#endif
+
+#ifdef __gnu_linux__
+#include <sys/stat.h>
+#endif
+
 
 //#define DEBUGVALUE
 #ifdef _DEBUG
@@ -12,7 +20,15 @@
 
 class Debugger{
 public:
-	Debugger(){ _mkdir("SIXGO_DEBUG"); }
+	Debugger(){
+#ifdef __WIN32__
+	    _mkdir("SIXGO_DEBUG");
+#endif // WIN32
+
+#ifdef __gnu_linux__
+        mkdir("SIXGO_DEBUG", 644);
+#endif // linux
+	}
 	void OutputStep(vector<Step> &stepList,const int side);
 	void OutputMessage(char *message, const int side);
 	void MakeMove(Step step);

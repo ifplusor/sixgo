@@ -58,7 +58,7 @@ void writeLinetypeT(LPBYTE lpArray, BYTE tag)
 	int j, sum;
 	char temp[5], filename[20];//注意：所生成的棋形二进制的表示中，最后出现的1表示敌方一个棋子或边界。
 	int shapeIndex;
-	itoa(tag, temp, 10);
+	sprintf(temp, "%d", tag);
 	strcpy(filename, "LineType\\");
 	strcat(filename, temp);
 	strcat(filename, ".txt");
@@ -696,7 +696,7 @@ void createZERO(LPBYTE lpArray)
 }
 
 
-/** 
+/**
  * AnalyDownOne - 分析指定类型线型的一下几个指标
  *  1. 该类线型的数量
  *  2. 落一子可转化成某类线型的线型数量
@@ -1149,7 +1149,7 @@ void analyVOID_one_TOPOTEN(int shapeIndex, int len, LineTypeInfo *the)
 //线型分析
 void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 {
-	int len = getLinetypeLen(shapeIndex);//线型的长度。	
+	int len = getLinetypeLen(shapeIndex);//线型的长度。
 
 	switch (preTable[shapeIndex])
 	{
@@ -1269,7 +1269,7 @@ void AnalyLineInfo(int shapeIndex, LineTypeInfo *the)
 //创建线型信息表
 void createLineInfoTable(LineTypeInfo *linetypeInfo)
 {
-	int i, t = 0;
+	int i;
 	for (i = 0; i < 64; i++)
 		initialLineInfo(&linetypeInfo[i]);
 	for (i = 64; i < TableSize; i++)
