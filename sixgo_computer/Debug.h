@@ -26,7 +26,7 @@ public:
 #endif // WIN32
 
 #ifdef __gnu_linux__
-        mkdir("SIXGO_DEBUG", 644);
+        mkdir("SIXGO_DEBUG", 0644);
 #endif // linux
 	}
 	void OutputStep(vector<Step> &stepList,const int side);

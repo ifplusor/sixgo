@@ -124,7 +124,7 @@ void Debugger::MakeMove(Step step)
 #endif // WIN32
 
 #ifdef __gnu_linux__
-    if(mkdir(path.c_str(), 644))
+    if(mkdir(path.c_str(), 0644))
 #endif // linux
 		printf("error: make folder failed!\n");
 }

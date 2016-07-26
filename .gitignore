@@ -7,6 +7,8 @@
 *.sln.docstates
 */Sixgo.Elib
 */_LineTypeTable.me
+*.layout
+*.depend
 
 # Build results
 [Dd]ebug/

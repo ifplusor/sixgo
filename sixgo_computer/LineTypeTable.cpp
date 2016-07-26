@@ -133,7 +133,7 @@ bool getLinetypeThreat(const int index, const int s, const int t)
 	return false;
 }
 
-//获得线的类型，后续在分级
+//获得线的类型，后续再分级
 void GetMode(LPBYTE lpArray)
 {
 	int len, i, shapeIndex, sum, max;

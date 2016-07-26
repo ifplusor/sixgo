@@ -32,24 +32,24 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="sixgo_computer/ChessManual.cpp" />
-		<Unit filename="sixgo_computer/ChessManual.h" />
-		<Unit filename="sixgo_computer/Debug.cpp" />
-		<Unit filename="sixgo_computer/Debug.h" />
-		<Unit filename="sixgo_computer/LineTypeTable.cpp" />
-		<Unit filename="sixgo_computer/MaintainInfo.cpp" />
-		<Unit filename="sixgo_computer/MaintainInfo.h" />
-		<Unit filename="sixgo_computer/Seach.cpp" />
-		<Unit filename="sixgo_computer/Seach.h" />
-		<Unit filename="sixgo_computer/StepGenerator.cpp" />
-		<Unit filename="sixgo_computer/StepGenerator.h" />
-		<Unit filename="sixgo_computer/base.cpp" />
-		<Unit filename="sixgo_computer/base.h" />
-		<Unit filename="sixgo_computer/connect_six.h" />
-		<Unit filename="sixgo_computer/hash.cpp" />
-		<Unit filename="sixgo_computer/hash.h" />
-		<Unit filename="sixgo_computer/linetype.h" />
-		<Unit filename="sixgo_computer/sixgo.cpp" />
+		<Unit filename="ChessManual.cpp" />
+		<Unit filename="ChessManual.h" />
+		<Unit filename="Debug.cpp" />
+		<Unit filename="Debug.h" />
+		<Unit filename="LineTypeTable.cpp" />
+		<Unit filename="MaintainInfo.cpp" />
+		<Unit filename="MaintainInfo.h" />
+		<Unit filename="Seach.cpp" />
+		<Unit filename="Seach.h" />
+		<Unit filename="StepGenerator.cpp" />
+		<Unit filename="StepGenerator.h" />
+		<Unit filename="base.cpp" />
+		<Unit filename="base.h" />
+		<Unit filename="connect_six.h" />
+		<Unit filename="hash.cpp" />
+		<Unit filename="hash.h" />
+		<Unit filename="linetype.h" />
+		<Unit filename="sixgo.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />
