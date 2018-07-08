@@ -1,7 +1,10 @@
 #include "hash.h"
 #include <time.h>
 
+#define DEFAULT_ELIB_NAME "Sixgo.ELib"
+
 EndLibInfo *eLib[MAXSIZE];//残局表，要求无冲
+size_t szElib = 0;
 
 HashInfo hashList[MAXSIZE];//置换表中只保存本轮和上一轮的信息，再向前的信息直接丢弃
 
@@ -79,7 +82,7 @@ bool compareCode(const BoardCode &a, const BoardCode &b)
 {
 	if (a.hash32 != b.hash32)
 		return false;
-	for (int i = 0; i<23; i++)
+	for (int i = 0; i < 23; i++)
 		if (a.a[i] ^ b.a[i])
 			return false;
 	return true;
@@ -154,7 +157,8 @@ void addEndLib(const BoardCode &code)
 	EndLibInfo *p = (EndLibInfo *)malloc(sizeof(EndLibInfo));
 	if (p == NULL)
 		return;
-	p->code = code;
+	memcpy(&p->code.a, &code.a, sizeof(code.a));
+	p->code.hash32 = code.hash32;
 	p->next = eLib[hash];
 	eLib[hash] = p;
 }
@@ -162,7 +166,10 @@ void addEndLib(const BoardCode &code)
 void InsertEndLib(const BoardCode &code)
 {
 	addEndLib(code);
-	fwrite(code.a, sizeof(code.a), 1, ELFP);
+	size_t rz = fwrite(code.a, sizeof(code.a), 1, ELFP);
+	if (rz < 1) {
+		fseek(ELFP, -sizeof(code.a), SEEK_END);
+	}
 }
 
 void initialEndLib()
@@ -171,22 +178,24 @@ void initialEndLib()
 		eLib[i] = NULL;
 }
 
-bool ReadEL()
+bool ReadEL(char *elib, bool isMerge=false)
 {
 	BoardCode code;
 	FILE *rfp;
 	int index, pos, count = 0;
 	unsigned long t;
 
-	rfp = fopen("Sixgo.ELib", "rb");
+	rfp = fopen(elib, "rb");
 	if (rfp == NULL)
 	{
-		printf("error: read end lib failed!\n");
+		if (isMerge)
+			printf("info: read tomerge end lib failed!\n");
+		else
+			printf("error: read end lib failed!\n");
 		return true;
 	}
-	while (fread(code.a, sizeof(code.a), 1, rfp) > 0)
+	while (fread(code.a, sizeof(code.a), 1, rfp) == 1)
 	{
-		count++;
 		code.hash32 = 0;
 		for (index = 0; index < 23; index++)
 		{
@@ -202,20 +211,45 @@ bool ReadEL()
 				t = t >> 1;
 			}
 		}
-		addEndLib(code);
+
+		if (findEndLib(code))
+			continue;
+		
+		if (isMerge)
+			InsertEndLib(code);
+		else
+			addEndLib(code);
+
+		count++;
 	}
 	fclose(rfp);
-	printf("read end node number: %d\n", count);
+	if (isMerge)
+	{
+		printf("read tomerge end node number: %d\n", count);
+		szElib += count;
+	}
+	else
+	{
+		printf("read end node number: %d\n", count);
+		szElib = count;
+	}
 	return false;
 }
 
 bool StartEndLib()
 {
 	initialEndLib();
-	if (ReadEL())
-		ELFP = fopen("Sixgo.Elib", "wb");
+	if (ReadEL(DEFAULT_ELIB_NAME))
+		ELFP = fopen(DEFAULT_ELIB_NAME, "wb");
 	else
-		ELFP = fopen("Sixgo.ELib", "ab");
+	{
+		ELFP = fopen(DEFAULT_ELIB_NAME, "rb+");
+		if (ELFP != NULL)
+		{
+			fseek(ELFP, szElib * sizeof(unsigned long[23]), SEEK_SET);
+			ReadEL("Sixgo.tomerge.Elib", true);
+		}
+	}
 	if (ELFP == NULL)
 		return true;
 	return false;
@@ -235,7 +269,9 @@ void StopEndLib()
 	}
 	if (ELFP != NULL)
 	{
+		fflush(ELFP);
+		long sz = ftell(ELFP);
 		fclose(ELFP);
-		printf("close end Lib successed!\n");
+		printf("close end Lib successed!\nend lib size: %ld\n", sz);
 	}
 }

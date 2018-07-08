@@ -7,7 +7,7 @@
 #include "Debug.h"
 
 
-#define DEPTH 5
+#define DEPTH 7
 #define MAXDEPTH 13
 
 

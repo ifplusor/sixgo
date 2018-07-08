@@ -470,7 +470,9 @@ Step SeachValuableStep(Step denStep, BYTE side)
 				stepList = MakeStepListForNone(side, 23);
 		}
 	}
+#ifdef DEBUGVALUE0
 	debugger.OutputStep(stepList, side);
+#endif
 	if (stepList.size() == 0)//必须返回一个着法，不能弃子
 	{
 		printf("The engine don't create step!\n");
@@ -521,6 +523,7 @@ Step SeachValuableStep(Step denStep, BYTE side)
 	}
 	else
 	{
+		step = stepList[0];  // 默认返回第一个招法
 		for (iterS = stepList.begin(); iterS != stepList.end(); iterS++)
 		{
 			MakeMove(iterS->first, tempLine, side);
@@ -548,8 +551,10 @@ Step SeachValuableStep(Step denStep, BYTE side)
 			}
 		}
 	}
+#ifdef DEBUGVALUE0
 	debugger.OutputStep(stepList, side);
 	debugger.OutSelect(step);
+#endif
 	return step;
 }
 
@@ -566,6 +571,7 @@ Step sixgo_carry(const Step moveStep, const int nBoard[19][19], const BYTE side)
 	//复制虚拟棋盘
 	initialHashCode(boardCode);
 	for (i = 0; i < edge; i++)
+	{
 		for (j = 0; j < edge; j++)
 		{
 			if (nBoard[i][j] != EMPTY)
@@ -575,9 +581,14 @@ Step sixgo_carry(const Step moveStep, const int nBoard[19][19], const BYTE side)
 			}
 			virtualBoard[i][j] = nBoard[i][j];
 		}
+	}
+#ifdef DEBUGVALUE0
 	debugger.InitDebugger(HandNum, moveStep);
+#endif
 	//搜索最佳招法
 	Step step = SeachValuableStep(moveStep, side);
+#ifdef DEBUGVALUE0
 	debugger.BackMove(step);
+#endif
 	return step;
 }

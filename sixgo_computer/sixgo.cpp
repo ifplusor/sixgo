@@ -21,7 +21,9 @@ void initialGame()
 	curside=BLACK;//设置先手行棋方
 	HandNum=1;//设置第一手标志
 	start=1;
+#ifdef DEBUGVALUE0
 	debugger.InitDir();
+#endif
 }
 
 //显示棋盘状态

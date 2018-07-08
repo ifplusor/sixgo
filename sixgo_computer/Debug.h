@@ -14,9 +14,14 @@
 
 
 //#define DEBUGVALUE
-#ifdef _DEBUG
+#if 0 //definde(_DEBUG)
 #define DEBUGVALUE
 #endif
+
+#if defined(DEBUGVALUE) && !defined(DEBUGVALUE0)
+#define DEBUGVALUE0
+#endif // DEBUGVALUE
+
 
 class Debugger{
 public:
