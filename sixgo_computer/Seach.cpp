@@ -164,8 +164,8 @@ int TSS(BYTE side, int alpha, int beta, const int depth)
 	denType = GetBoardType(unside);
 
 	//递归出口
-	if (depth >= MaxDepth)//到达搜索最大深度进行返回
-		return GetBoardValue(side) - GetBoardValue(unside);
+	if (denType <= 1 && depth >= MaxDepth)//到达搜索最大深度进行返回
+		return GetBoardValue(side) - GetBoardValue(unside) * 12 / 10;
 
 	//扩展搜索中不需要保存着法列表，因其不完整性，在常规搜索中将不会被引用
 	if (denType == 1)//如果受到单威胁，触发连续单威胁搜索
@@ -289,7 +289,7 @@ int ExtendSeach(BYTE side, int alpha, int beta, const int depth)
 		else if (hashP.denType >= 2)//受到双威胁，多威胁，伪双威胁，伪多威胁（双威胁线型最大生成4个着法，为了防止伪双应与单威胁保持一致）
 			hashP.stepList = MakeStepListForDefendDouble(side, 20);
 		else//处理无威胁情形（不存在4型和5型）
-			hashP.stepList = MakeStepListForNone(side, 23);
+			hashP.stepList = MakeStepListForNone(side, 25);
 		hashP.full = true;
 	}
 	else//上一轮历史启发
@@ -387,6 +387,12 @@ Step SeachValuableStep(Step denStep, BYTE side)
 	hashP = findHash(boardCode);
 	if (hashP != NULL && hashP->full == true)//如果存在历史,且具有完整着法列表，则直接调用历史走法表
 	{
+		if (hashP->timestamp == -1 && hashP->stepList.size() > 0) // 命中开局库
+		{
+			int r = rand() % hashP->stepList.size(); // 随机挑选一个招法
+			return hashP->stepList[r];
+		}
+
 		if (hashP->cut == false)//cut字段为false，证明stepList中每一项的value评价标准一致。此时可以对stepList中的着法进行重新排序，以提高剪枝效率
 			sort(hashP->stepList.begin(), hashP->stepList.end(), cmpStepValue);
 		stepList = hashP->stepList;
@@ -467,7 +473,7 @@ Step SeachValuableStep(Step denStep, BYTE side)
 			else if (denType > 1)//受到双威胁，多威胁，伪双威胁，伪多威胁
 				stepList = MakeStepListForDefendDouble(side, 18);
 			else//处理无威胁情形（不存在4型和5型）
-				stepList = MakeStepListForNone(side, 23);
+				stepList = MakeStepListForNone(side, 25);
 		}
 	}
 #ifdef DEBUGVALUE0
@@ -532,7 +538,7 @@ Step SeachValuableStep(Step denStep, BYTE side)
 #ifdef DEBUGVALUE
 			debugger.MakeMove(*iterS);
 #endif
-			if (HandNum <= 6)//因为开局阶段（前6手）可利用信息过少，不宜进行扩展搜索
+			if (HandNum <= 3)//因为开局阶段（前6手）可利用信息过少，不宜进行扩展搜索
 				iterS->value = -nega_alpha_beta(unside, -WINLOSE, -alpha, 1);//负极大值搜索alpha-beta剪枝求局面价值
 			else
 				iterS->value = -ExtendSeach(unside, -WINLOSE, -alpha, 1);

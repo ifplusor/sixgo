@@ -295,7 +295,10 @@ int main(int argc, char *argv[])
 			initialGame();
 			initialAllLine();//对92条线的信息进行初始化
 			initialHashList();//清空置换表
+
+			HandNum = -1;
 			ReadCM(computerSide);//读取定式
+			HandNum = 1;
 
 			if(computerSide==curside)//程序执黑先手
 			{

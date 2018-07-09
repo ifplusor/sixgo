@@ -9,6 +9,7 @@
 */_LineTypeTable.me
 *.layout
 *.depend
+.vs/
 
 # Build results
 [Dd]ebug/
